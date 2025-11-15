@@ -1,0 +1,68 @@
+{
+  "name": "@dai-works/dai-runner",
+  "version": "1.0.0",
+  "description": "WordPressテーマ開発のためのビルドツール - SCSS、JavaScript、画像ファイルの処理と最適化を提供",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "dai-runner-dev": "./scripts/dev.js",
+    "dai-runner-build": "./scripts/build.js"
+  },
+  "scripts": {
+    "dev": "node ./scripts/precheck.js && cross-env NODE_ENV=dev node ./scripts/dev.js",
+    "build": "node ./scripts/precheck.js && cross-env NODE_ENV=build node ./scripts/build.js"
+  },
+  "keywords": [
+    "wordpress",
+    "build-tool",
+    "scss",
+    "sass",
+    "image-optimization",
+    "browsersync",
+    "theme-development"
+  ],
+  "author": "dai-works",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dai-works/dai-runner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dai-works/dai-runner/issues"
+  },
+  "homepage": "https://github.com/dai-works/dai-runner#readme",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "http-proxy": "^1.18.1",
+    "autoprefixer": "^10.4.19",
+    "browser-sync": "^3.0.3",
+    "chalk": "^5.3.0",
+    "chokidar": "^3.6.0",
+    "cross-env": "^7.0.3",
+    "css-declaration-sorter": "^7.2.0",
+    "cssnano": "^6.1.2",
+    "glob": "^10.3.12",
+    "inquirer": "^12.9.4",
+    "postcss": "^8.4.38",
+    "postcss-discard-duplicates": "^6.0.3",
+    "postcss-normalize-charset": "^6.0.2",
+    "postcss-sort-media-queries": "^5.2.0",
+    "sass": "^1.75.0",
+    "sharp": "^0.33.3",
+    "svgo": "^3.2.0",
+    "terser": "^5.30.3"
+  },
+  "files": [
+    "index.js",
+    "config.js.example",
+    "scripts/",
+    "tasks/",
+    "utils/",
+    "README.md"
+  ]
+}

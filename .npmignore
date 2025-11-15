@@ -1,0 +1,41 @@
+# npmパッケージから除外するファイル
+
+# 開発用設定ファイル
+config.js
+
+# テストファイル
+*.test.js
+*.spec.js
+__tests__/
+test/
+tests/
+
+# ドキュメント（README.mdは含める）
+docs/
+*.md
+!README.md
+
+# IDEの設定ファイル
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+
+# Git関連
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD設定
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# その他
+*.log
+.cache/
+coverage/
