@@ -1,10 +1,10 @@
-# dai-runner - WordPressテーマ開発ツール
+# dai-runner - WordPress テーマ開発ツール
 
-`dai-runner`は、WordPressテーマ開発のためのビルドツールです。SCSS、JavaScript、画像ファイルの処理と最適化を行い、効率的な開発環境を提供します。
+`dai-runner`は、WordPress テーマ開発のためのビルドツールです。SCSS、JavaScript、画像ファイルの処理と最適化を行い、効率的な開発環境を提供します。
 
 ## インストール
 
-### GitHubプライベートリポジトリからのインストール
+### GitHub プライベートリポジトリからのインストール
 
 プロジェクトのルートディレクトリで以下のコマンドを実行してください：
 
@@ -44,9 +44,9 @@ npx dai-runner precheck
 cp node_modules/@dai-works/dai-runner/dai-runner.config.js.example dai-runner.config.js
 ```
 
-**重要：** `dev.proxy.target` の値は必ず変更してください。お使いの開発環境のWordPressサイトのURLに合わせる必要があります。
+**重要：** `dev.proxy.target` の値は必ず変更してください。お使いの開発環境の WordPress サイトの URL に合わせる必要があります。
 
-#### 2. package.jsonにスクリプトを追加
+#### 2. package.json にスクリプトを追加
 
 プロジェクトの`package.json`に以下のスクリプトを追加してください：
 
@@ -71,8 +71,8 @@ npm run dev
 
 このコマンドは以下の処理を実行します：
 
-- SCSSファイルのコンパイルと最適化
-- JavaScriptファイルのコピーとフォーマット
+- SCSS ファイルのコンパイルと最適化
+- JavaScript ファイルのコピーとフォーマット
 - 画像ファイルの最適化
 - ブラウザの自動更新（BrowserSync）
 
@@ -86,44 +86,44 @@ npm run build
 
 このコマンドは以下の処理を実行します：
 
-- SCSSファイルのコンパイルと最適化（ソースマップなし）
-- JavaScriptファイルの最適化（設定により圧縮）
+- SCSS ファイルのコンパイルと最適化（ソースマップなし）
+- JavaScript ファイルの最適化（設定により圧縮）
 - 画像ファイルの最適化
 
 ## 主な機能
 
-### SCSS処理
+### SCSS 処理
 
-- SCSSファイルのコンパイル
+- SCSS ファイルのコンパイル
 - ベンダープレフィックスの自動追加
 - メディアクエリの最適化
-- CSSの整形と最適化
+- CSS の整形と最適化
 
-### JavaScript処理
+### JavaScript 処理
 
-- JavaScriptファイルのコピーまたは圧縮
-- Prettierによるコードフォーマット
+- JavaScript ファイルのコピーまたは圧縮
+- Prettier によるコードフォーマット
 
 ### 画像処理
 
 - 画像の最適化（サイズ圧縮）
-- WebP形式への自動変換（設定で有効時）
-- SVGの最適化
+- WebP 形式への自動変換（設定で有効時）
+- SVG の最適化
 
 ### 開発サーバー
 
 - ファイル変更の監視と自動リロード
-- プロキシモードによるWordPress開発環境との連携
-- CSSの変更時はページ全体をリロードせずに反映
+- プロキシモードによる WordPress 開発環境との連携
+- CSS の変更時はページ全体をリロードせずに反映
 
 ## 設定カスタマイズ
 
 `dai-runner.config.js` で以下の設定をカスタマイズできます：
 
 - ソースファイルと出力先のパス
-- 開発サーバーの設定（プロキシURLなど）
-- 画像処理オプション（最大幅、品質、WebP変換など）
-- CSS/JS処理オプション（圧縮、ソースマップなど）
+- 開発サーバーの設定（プロキシ URL など）
+- 画像処理オプション（最大幅、品質、WebP 変換など）
+- CSS/JS 処理オプション（圧縮、ソースマップなど）
 - クリーンアップの除外ファイル（残したいファイルを指定）
 - ログレベル
 
@@ -141,13 +141,13 @@ cleanup: {
 },
 ```
 
-**パスの指定方法：** テーマルートからの相対パスで、distディレクトリを含む完全なパスで指定します。  
+**パスの指定方法：** テーマルートからの相対パスで、dist ディレクトリを含む完全なパスで指定します。  
 例：`assets/images/file.png` を保持したい場合 → `'assets/images/file.png'` と指定  
-※ `paths`設定でdistディレクトリを変更した場合は、そのパスに合わせて指定してください
+※ `paths`設定で dist ディレクトリを変更した場合は、そのパスに合わせて指定してください
 
 ## ディレクトリ構造
 
-### プロジェクト構造（npmパッケージとして使用する場合）
+### プロジェクト構造（npm パッケージとして使用する場合）
 
 ```bash
 your-project/                    # プロジェクトルート
@@ -166,7 +166,7 @@ your-project/                    # プロジェクトルート
 └── package.json
 ```
 
-### dai-runnerパッケージ内部の構造
+### dai-runner パッケージ内部の構造
 
 ```bash
 dai-runner/
@@ -191,7 +191,7 @@ dai-runner/
 
 ## 注意事項
 
-- `npm run dev` 実行時は、WordPressの開発環境が起動している必要があります（proxy modeの場合）
+- `npm run dev` 実行時は、WordPress の開発環境が起動している必要があります（proxy mode の場合）
 - 本番環境にデプロイする前に `npm run build` を実行して最適化されたファイルを生成してください
 - 設定ファイル `dai-runner.config.js` はプロジェクトルート（テーマルート）に配置し、`.gitignore`に追加することを推奨します
 - 新しい環境でセットアップする際は `npx dai-runner precheck` を実行するか、手動で `dai-runner.config.js` を作成してください
@@ -212,7 +212,7 @@ npm install --save-dev git+ssh://git@github.com/dai-works/dai-runner.git#v1.1.0
 
 ## プログラマティックな使用方法
 
-CLIではなく、Node.jsスクリプトから直接使用することも可能です：
+CLI ではなく、Node.js スクリプトから直接使用することも可能です：
 
 ```javascript
 import { config, BuildManager, Logger } from '@dai-works/dai-runner';
@@ -228,9 +228,9 @@ customBuild();
 
 ## 開発者向け情報
 
-### dai-runnerパッケージの開発
+### dai-runner パッケージの開発
 
-dai-runnerパッケージ自体を開発する場合：
+dai-runner パッケージ自体を開発する場合：
 
 ```bash
 # リポジトリをクローン
@@ -248,9 +248,9 @@ npm link @dai-works/dai-runner
 
 ## トラブルシューティング
 
-### SSH接続エラー
+### SSH 接続エラー
 
-GitHubへのSSH接続が失敗する場合は、SSHキーが正しく設定されているか確認してください：
+GitHub への SSH 接続が失敗する場合は、SSH キーが正しく設定されているか確認してください：
 
 ```bash
 ssh -T git@github.com
