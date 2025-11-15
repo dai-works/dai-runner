@@ -2,14 +2,14 @@ import path from 'path';
 import { pathToFileURL } from 'url';
 
 /**
- * プロジェクトルートのconfig.jsを動的に読み込むユーティリティ
- * npmパッケージとして使用する際、config.jsはプロジェクトルートに配置される
+ * プロジェクトルートのdai-runner.config.jsを動的に読み込むユーティリティ
+ * npmパッケージとして使用する際、dai-runner.config.jsはプロジェクトルートに配置される
  */
 
 let cachedConfig = null;
 
 /**
- * プロジェクトルートのconfig.jsを読み込む
+ * プロジェクトルートのdai-runner.config.jsを読み込む
  * @returns {Promise<Object>} config オブジェクト
  */
 async function loadConfig() {
@@ -18,14 +18,14 @@ async function loadConfig() {
   }
 
   try {
-    const configPath = path.join(process.cwd(), 'config.js');
+    const configPath = path.join(process.cwd(), 'dai-runner.config.js');
     const { config } = await import(pathToFileURL(configPath).href);
     cachedConfig = config;
     return config;
   } catch (error) {
     throw new Error(
-      `config.jsの読み込みに失敗しました: ${error.message}\n` +
-      `プロジェクトルートにconfig.jsが存在することを確認してください。\n` +
+      `dai-runner.config.jsの読み込みに失敗しました: ${error.message}\n` +
+      `プロジェクトルートにdai-runner.config.jsが存在することを確認してください。\n` +
       `初回セットアップ時は 'npx dai-runner precheck' を実行してください。`
     );
   }
@@ -62,4 +62,3 @@ function clearCache() {
 }
 
 export { loadConfig, getConfig, setConfig, clearCache };
-

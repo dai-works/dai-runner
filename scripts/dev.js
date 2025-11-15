@@ -12,18 +12,18 @@ import { setConfig } from '../utils/configLoader.js';
 
 async function dev() {
   try {
-    // プロジェクトルートのconfig.jsを動的にインポート
-    const configPath = path.join(process.cwd(), 'config.js');
+    // プロジェクトルートのdai-runner.config.jsを動的にインポート
+    const configPath = path.join(process.cwd(), 'dai-runner.config.js');
     const { config } = await import(pathToFileURL(configPath).href);
-    
+
     // グローバルなconfigを設定（他のモジュールから参照可能にする）
     setConfig(config);
-    
+
     const conf = config.get();
-    
+
     // ログレベルを設定
     Logger.setLogLevel(conf.options.logLevel);
-    
+
     Logger.log('INFO', '開発環境を起動します...');
 
     // 初期ビルド（フォーマット、クリーンアップ、ビルドを実行）

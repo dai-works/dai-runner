@@ -10,31 +10,31 @@ export const config = {
   paths: {
     images: {
       src: 'source/images',
-      dist: 'assets/images',
+      dist: 'public/assets/images',
     },
     js: {
       src: 'source/js',
-      dist: 'assets/js',
+      dist: 'public/assets/js',
     },
     css: {
       src: 'source/scss',
-      dist: 'assets/css',
+      dist: 'public/assets/css',
     },
     documents: {
       src: 'source/documents',
-      dist: 'assets/documents',
+      dist: 'public/assets/documents',
     },
     fonts: {
       src: 'source/fonts',
-      dist: 'assets/fonts',
+      dist: 'public/assets/fonts',
     },
     videos: {
       src: 'source/videos',
-      dist: 'assets/videos',
+      dist: 'public/assets/videos',
     },
     vendor: {
       src: 'source/vendor',
-      dist: 'assets/vendor',
+      dist: 'public/assets/vendor',
     },
     // 例) 新しい静的カテゴリを追加したい場合
     // downloads: {
@@ -48,9 +48,9 @@ export const config = {
     // クリーンアップから除外するファイルやディレクトリを指定
     // テーマルートからの相対パスで指定（distディレクトリを含む完全なパス）
     excludeFiles: [
-      // 'assets/images/keep-image.png',
-      // 'assets/js/keep-js.js',
-      // 'assets/css/keep-css.css',
+      // 'public/assets/images/keep-image.png',
+      // 'public/assets/js/keep-js.js',
+      // 'public/assets/css/keep-css.css',
     ],
   },
 
@@ -72,7 +72,7 @@ export const config = {
     // 静的HTMLサイトの場合は 'server' を使用
     // WordPressなどの場合は 'proxy' に変更してproxy設定を有効化
     mode: 'server',
-    server: { baseDir: './' },
+    server: { baseDir: './public' },
     proxy: {
       target: 'http://127.0.0.1',
       proxyReq: [

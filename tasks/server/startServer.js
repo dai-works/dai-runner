@@ -21,7 +21,7 @@ export async function startServer(_options = {}) {
   try {
     // configを取得
     const currentConfig = getConfig().get();
-    
+
     // config.pathsのdist設定から動的にJSとCSSの出力先パスを取得
     const cssDistPath = currentConfig.paths.css.dist;
     const jsDistPath = currentConfig.paths.js.dist;

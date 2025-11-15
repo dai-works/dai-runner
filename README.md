@@ -32,7 +32,7 @@ npm install --save-dev git+ssh://git@github.com/dai-works/dai-runner.git#v1.0.0
 
 #### 1. 設定ファイルの作成
 
-初回実行時に自動的に対話形式で`config.js`が作成されますが、手動で作成することもできます：
+初回実行時に自動的に対話形式で`dai-runner.config.js`が作成されますが、手動で作成することもできます：
 
 ```bash
 npx dai-runner precheck
@@ -41,7 +41,7 @@ npx dai-runner precheck
 または、手動で作成する場合：
 
 ```bash
-cp node_modules/@dai-works/dai-runner/config.js.example config.js
+cp node_modules/@dai-works/dai-runner/dai-runner.config.js.example dai-runner.config.js
 ```
 
 **重要：** `dev.proxy.target` の値は必ず変更してください。お使いの開発環境のWordPressサイトのURLに合わせる必要があります。
@@ -118,7 +118,7 @@ npm run build
 
 ## 設定カスタマイズ
 
-`config.js` で以下の設定をカスタマイズできます：
+`dai-runner.config.js` で以下の設定をカスタマイズできます：
 
 - ソースファイルと出力先のパス
 - 開発サーバーの設定（プロキシURLなど）
@@ -129,7 +129,7 @@ npm run build
 
 ### クリーンアップの除外設定
 
-ビルド時にクリーンアップから除外したいファイルがある場合、`config.js`の`cleanup.excludeFiles`で指定できます。
+ビルド時にクリーンアップから除外したいファイルがある場合、`dai-runner.config.js`の`cleanup.excludeFiles`で指定できます。
 
 ```javascript
 cleanup: {
@@ -162,7 +162,7 @@ your-project/                    # プロジェクトルート
 │   ├── css/                     # コンパイル済みCSSファイル
 │   ├── js/                      # 処理済みJavaScriptファイル
 │   └── images/                  # 最適化済み画像ファイル
-├── config.js                    # dai-runner設定ファイル（プロジェクト固有）
+├── dai-runner.config.js         # dai-runner設定ファイル（プロジェクト固有）
 └── package.json
 ```
 
@@ -183,7 +183,7 @@ dai-runner/
 │   ├── misc/
 │   └── server/
 ├── utils/                   # ユーティリティ関数
-├── config.js.example        # 設定ファイルのサンプル
+├── dai-runner.config.js.example  # 設定ファイルのサンプル
 ├── index.js                 # パッケージエントリーポイント
 ├── package.json
 └── README.md
@@ -193,8 +193,8 @@ dai-runner/
 
 - `npm run dev` 実行時は、WordPressの開発環境が起動している必要があります（proxy modeの場合）
 - 本番環境にデプロイする前に `npm run build` を実行して最適化されたファイルを生成してください
-- 設定ファイル `config.js` はプロジェクトルート（テーマルート）に配置し、`.gitignore`に追加することを推奨します
-- 新しい環境でセットアップする際は `npx dai-runner precheck` を実行するか、手動で `config.js` を作成してください
+- 設定ファイル `dai-runner.config.js` はプロジェクトルート（テーマルート）に配置し、`.gitignore`に追加することを推奨します
+- 新しい環境でセットアップする際は `npx dai-runner precheck` を実行するか、手動で `dai-runner.config.js` を作成してください
 
 ## アップデート
 
@@ -258,7 +258,7 @@ ssh -T git@github.com
 
 ### 設定ファイルが見つからない
 
-`config.js`が見つからない場合は、プロジェクトルートで以下を実行してください：
+`dai-runner.config.js`が見つからない場合は、プロジェクトルートで以下を実行してください：
 
 ```bash
 npx dai-runner precheck

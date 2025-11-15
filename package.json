@@ -62,7 +62,7 @@
     "scripts/",
     "tasks/",
     "utils/",
-    "config.js.example",
+    "dai-runner.config.js.example",
     "index.js",
     "README.md"
   ]

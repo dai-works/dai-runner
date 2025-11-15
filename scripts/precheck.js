@@ -7,14 +7,14 @@ import inquirer from 'inquirer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const configPath = path.resolve(__dirname, '../config.js');
-const configExamplePath = path.resolve(__dirname, '../config.js.example');
+const configPath = path.resolve(process.cwd(), 'dai-runner.config.js');
+const configExamplePath = path.resolve(__dirname, '../dai-runner.config.js.example');
 
 /**
- * config.js.exampleをベースにconfig.jsを生成
+ * dai-runner.config.js.exampleをベースにdai-runner.config.jsを生成
  */
 function generateConfigFromExample(mode, targetOrHostname) {
-  // config.js.exampleを読み込み
+  // dai-runner.config.js.exampleを読み込み
   let configContent = fs.readFileSync(configExamplePath, 'utf8');
 
   if (mode === 'traefik') {
@@ -54,11 +54,11 @@ function generateConfigFromExample(mode, targetOrHostname) {
 }
 
 /**
- * インタラクティブモードでconfig.jsを作成
+ * インタラクティブモードでdai-runner.config.jsを作成
  */
 async function createConfigInteractively() {
   try {
-    console.log('\n🔧 config.jsの設定を行います...\n');
+    console.log('\n🔧 dai-runner.config.jsの設定を行います...\n');
 
     // 開発環境のタイプを選択
     const modeAnswer = await inquirer.prompt([
@@ -148,10 +148,10 @@ async function createConfigInteractively() {
       );
     }
 
-    // config.jsを生成
+    // dai-runner.config.jsを生成
     fs.writeFileSync(configPath, configContent);
 
-    console.log('\n✅ config.jsを作成しました！');
+    console.log('\n✅ dai-runner.config.jsを作成しました！');
     console.log(`📋 設定内容:`);
 
     if (modeAnswer.mode === 'traefik') {
@@ -167,37 +167,37 @@ async function createConfigInteractively() {
     }
 
     console.log(
-      '\n📍 必要に応じて、dai-runner/config.jsの設定を環境に合わせて調整してください。\n',
+      '\n📍 必要に応じて、dai-runner.config.jsの設定を環境に合わせて調整してください。\n',
     );
   } catch (error) {
-    console.error('❌ config.jsの作成に失敗しました:', error.message);
-    console.error('\n手動でconfig.jsを作成してください:');
-    console.error('   cp dai-runner/config.js.example dai-runner/config.js\n');
+    console.error('❌ dai-runner.config.jsの作成に失敗しました:', error.message);
+    console.error('\n手動でdai-runner.config.jsを作成してください:');
+    console.error('   cp node_modules/@dai-works/dai-runner/dai-runner.config.js.example dai-runner.config.js\n');
     process.exit(1);
   }
 }
 
 /**
  * dai-runner実行前の事前チェック
- * config.jsが存在しない場合は自動的に作成する
+ * dai-runner.config.jsが存在しない場合は自動的に作成する
  */
 async function precheck() {
   if (!fs.existsSync(configPath)) {
     console.log(
-      '\n📝 config.jsファイルが見つかりません。自動的に作成します...\n',
+      '\n📝 dai-runner.config.jsファイルが見つかりません。自動的に作成します...\n',
     );
 
     if (fs.existsSync(configExamplePath)) {
       await createConfigInteractively();
     } else {
-      console.error('❌ config.js.exampleファイルも見つかりません。');
+      console.error('❌ dai-runner.config.js.exampleファイルも見つかりません。');
       console.error(
-        'リポジトリから最新のconfig.js.exampleを取得してください。\n',
+        'リポジトリから最新のdai-runner.config.js.exampleを取得してください。\n',
       );
       process.exit(1);
     }
   } else {
-    console.log('✅ config.js が存在します。dai-runnerを開始します...\n');
+    console.log('✅ dai-runner.config.js が存在します。dai-runnerを開始します...\n');
   }
 }
 

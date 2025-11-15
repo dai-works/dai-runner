@@ -30,7 +30,7 @@ export async function compileCss(srcPath, distPath, options = {}) {
   try {
     // configを取得
     const currentConfig = getConfig().get();
-    
+
     Logger.log('DEBUG', `SCSSのコンパイルを開始: ${srcPath}`);
 
     // 出力ディレクトリの作成
