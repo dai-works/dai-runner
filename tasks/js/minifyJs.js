@@ -3,9 +3,7 @@ import path from 'path';
 import { glob } from 'glob';
 import { minify } from 'terser';
 import Logger from '../../utils/Logger.js';
-import { config } from '../../config.js';
-
-const currentConfig = config.get();
+import { getConfig } from '../../utils/configLoader.js';
 
 /**
  * JavaScriptファイルの圧縮を行うモジュール
@@ -22,6 +20,9 @@ const currentConfig = config.get();
  */
 export async function minifyJs(srcDir, distDir, filePath = null) {
   try {
+    // configを取得
+    const currentConfig = getConfig().get();
+    
     // configから取得したデフォルト値を使用（引数が指定されていない場合）
     const sourcePath = srcDir || currentConfig.paths.js.src;
     const outputPath = distDir || currentConfig.paths.js.dist;

@@ -8,9 +8,7 @@ import sortMediaQueries from 'postcss-sort-media-queries';
 import discardDuplicates from 'postcss-discard-duplicates';
 import normalizeCharset from 'postcss-normalize-charset';
 import Logger from '../../utils/Logger.js';
-import { config } from '../../config.js';
-
-const currentConfig = config.get();
+import { getConfig } from '../../utils/configLoader.js';
 
 /**
  * SCSSファイルをCSSにコンパイルして最適化する（統合版）
@@ -30,6 +28,9 @@ const currentConfig = config.get();
  */
 export async function compileCss(srcPath, distPath, options = {}) {
   try {
+    // configを取得
+    const currentConfig = getConfig().get();
+    
     Logger.log('DEBUG', `SCSSのコンパイルを開始: ${srcPath}`);
 
     // 出力ディレクトリの作成

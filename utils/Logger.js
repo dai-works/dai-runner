@@ -1,9 +1,7 @@
 import chalk from 'chalk';
-import { config } from '../config.js';
 
-// 現在の環境の設定を取得
-const currentConfig = config.get();
-const logLevel = currentConfig.options.logLevel?.toUpperCase() || 'INFO';
+// デフォルトのログレベル（config.jsが利用可能な場合は後で更新される）
+let logLevel = 'INFO';
 
 // ログレベルごとの色を定義
 const logColors = {
@@ -29,6 +27,13 @@ const logLevelValues = {
  * - 環境設定に基づくログレベルフィルタリング
  */
 export default class Logger {
+  /**
+   * ログレベルを設定
+   * @param {string} level - 設定するログレベル
+   */
+  static setLogLevel(level) {
+    logLevel = level?.toUpperCase() || 'INFO';
+  }
   /**
    * 現在の設定ログレベルで出力可能かチェック
    * @param {string} messageLevel - チェックするログレベル
