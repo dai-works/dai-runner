@@ -1,0 +1,28 @@
+# 依存関係
+node_modules/
+
+# 設定ファイル（プロジェクト固有）
+config.js
+
+# ログファイル
+*.log
+npm-debug.log*
+
+# OS固有ファイル
+.DS_Store
+Thumbs.db
+
+# エディタ
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# テスト用ファイル
+test/
+coverage/
+
+# ビルド成果物（このパッケージ自体のビルド、もしあれば）
+dist/
+

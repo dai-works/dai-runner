@@ -1,0 +1,38 @@
+# テスト・開発用ファイル
+test/
+tests/
+*.test.js
+*.spec.js
+coverage/
+
+# 設定ファイル（config.js.exampleは含める）
+config.js
+
+# Git関連
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# エディタ設定
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS固有ファイル
+.DS_Store
+Thumbs.db
+
+# ログ
+*.log
+
+# その他
+.env
+.env.*
+
