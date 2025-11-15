@@ -30,23 +30,7 @@ npm install --save-dev git+ssh://git@github.com/dai-works/dai-runner.git#v1.0.0
 
 ### 初回セットアップ
 
-#### 1. 設定ファイルの作成
-
-初回実行時に自動的に対話形式で`dai-runner.config.js`が作成されますが、手動で作成することもできます：
-
-```bash
-npx dai-runner precheck
-```
-
-または、手動で作成する場合：
-
-```bash
-cp node_modules/@dai-works/dai-runner/dai-runner.config.js.example dai-runner.config.js
-```
-
-**重要：** `dev.proxy.target` の値は必ず変更してください。お使いの開発環境の WordPress サイトの URL に合わせる必要があります。
-
-#### 2. package.json にスクリプトを追加
+#### 1. package.jsonにスクリプトを追加
 
 プロジェクトの`package.json`に以下のスクリプトを追加してください：
 
@@ -58,6 +42,22 @@ cp node_modules/@dai-works/dai-runner/dai-runner.config.js.example dai-runner.co
   }
 }
 ```
+
+#### 2. 開発を開始
+
+初回実行時に自動的に対話形式で`dai-runner.config.js`が作成されます：
+
+```bash
+npm run dev
+```
+
+設定ファイルだけ先に作成したい場合：
+
+```bash
+npx dai-runner precheck
+```
+
+**重要：** プロキシモードを使用する場合は、`dev.proxy.target`の値をお使いの開発環境のWordPressサイトのURLに合わせる必要があります。
 
 ## 開発コマンド
 
