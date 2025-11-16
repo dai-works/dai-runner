@@ -1,6 +1,6 @@
 {
   "name": "@dai-works/dai-runner",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "軽量フロントエンドビルドツール - SCSS、JavaScript、画像ファイルの処理と最適化",
   "type": "module",
   "main": "index.js",
@@ -67,6 +67,7 @@
     "utils/",
     "dai-runner.config.js.example",
     "index.js",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ]
 }
