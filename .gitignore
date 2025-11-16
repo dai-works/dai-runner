@@ -3,7 +3,7 @@ node_modules/
 
 # 設定ファイル（プロジェクト固有）
 config.js
-/dai-runner.config.js
+/dai-runner.config.local.js
 
 # ログファイル
 *.log

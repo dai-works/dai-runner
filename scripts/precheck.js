@@ -7,58 +7,77 @@ import inquirer from 'inquirer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const configPath = path.resolve(process.cwd(), 'dai-runner.config.js');
-const configExamplePath = path.resolve(__dirname, '../dai-runner.config.js.example');
+const localConfigPath = path.resolve(
+  process.cwd(),
+  'dai-runner.config.local.js'
+);
+const localConfigExamplePath = path.resolve(
+  __dirname,
+  '../dai-runner.config.local.js.example'
+);
 
 /**
- * dai-runner.config.js.exampleをベースにdai-runner.config.jsを生成
+ * dai-runner.config.local.jsを生成
  */
-function generateConfigFromExample(mode, targetOrHostname) {
-  // dai-runner.config.js.exampleを読み込み
-  let configContent = fs.readFileSync(configExamplePath, 'utf8');
-
+function generateLocalConfig(mode, targetOrHostname) {
   if (mode === 'traefik') {
-    // Traefikモード：modeをproxyに変更し、Hostヘッダーのみ変更
-    // HTTP仕様に従い、Hostヘッダーからhttp://やhttps://を自動的に除去
+    // Traefikモード：Hostヘッダーを設定
     const cleanHostname = targetOrHostname
       .replace(/^https?:\/\//, '')
       .replace(/\/$/, '');
-    configContent = configContent.replace(/mode: 'server',/g, `mode: 'proxy',`);
-    configContent = configContent.replace(
-      /proxyReq\.setHeader\('Host', 'sample-wp\.localhost'\)/g,
-      `proxyReq.setHeader('Host', '${cleanHostname}')`,
-    );
+    return `/**
+ * ローカル環境設定ファイル（個人用）
+ * このファイルはGit管理されません
+ */
+export default {
+  mode: 'proxy',
+  proxy: {
+    target: 'http://127.0.0.1',
+    proxyReq: [
+      function (proxyReq) {
+        proxyReq.setHeader('Host', '${cleanHostname}');
+      },
+    ],
+  },
+};
+`;
   } else if (mode === 'external') {
-    // 外部WordPressモード：modeをproxyに変更し、targetを変更してproxyReqを削除
-    configContent = configContent.replace(/mode: 'server',/g, `mode: 'proxy',`);
-    configContent = configContent.replace(
-      /proxy: \{\s*target: 'http:\/\/127\.0\.0\.1',\s*proxyReq: \[\s*function \(proxyReq\) \{\s*proxyReq\.setHeader\('Host', 'sample-wp\.localhost'\);\s*\}\s*\]\s*\}/gs,
-      `proxy: { target: '${targetOrHostname}' }`,
-    );
-  } else if (mode === 'server') {
-    // serverモードの場合は、modeをserverに変更し、proxy設定を削除
-    configContent = configContent.replace(/mode: '[^']*',/g, `mode: 'server',`);
-    // proxy設定を削除
-    configContent = configContent.replace(
-      /proxy: \{\s*target: 'http:\/\/127\.0\.0\.1',\s*proxyReq: \[\s*function \(proxyReq\) \{\s*proxyReq\.setHeader\('Host', 'sample-wp\.localhost'\);\s*\}\s*\]\s*\},/gs,
-      '',
-    );
-    // baseDirを設定
-    configContent = configContent.replace(
-      /server: \{ baseDir: '\.\/' \},/g,
-      `server: { baseDir: '${targetOrHostname}' },`,
-    );
+    // 外部WordPressモード：targetのみ設定
+    return `/**
+ * ローカル環境設定ファイル（個人用）
+ * このファイルはGit管理されません
+ */
+export default {
+  mode: 'proxy',
+  proxy: {
+    target: '${targetOrHostname}',
+    proxyReq: [],
+  },
+};
+`;
+  } else {
+    // proxy不要モード（server）：デフォルト値
+    return `/**
+ * ローカル環境設定ファイル（個人用）
+ * このファイルはGit管理されません
+ */
+export default {
+  mode: 'server',
+  proxy: {
+    target: 'http://127.0.0.1',
+    proxyReq: [],
+  },
+};
+`;
   }
-
-  return configContent;
 }
 
 /**
- * インタラクティブモードでdai-runner.config.jsを作成
+ * インタラクティブモードでdai-runner.config.local.jsを作成
  */
-async function createConfigInteractively() {
+async function createLocalConfigInteractively() {
   try {
-    console.log('\n🔧 dai-runner.config.jsの設定を行います...\n');
+    console.log('\n🔧 dai-runner.config.local.jsの設定を行います...\n');
 
     // 開発環境のタイプを選択
     const modeAnswer = await inquirer.prompt([
@@ -103,10 +122,7 @@ async function createConfigInteractively() {
         },
       ]);
       targetOrHostname = hostAnswer.hostname;
-      configContent = generateConfigFromExample(
-        modeAnswer.mode,
-        targetOrHostname,
-      );
+      configContent = generateLocalConfig(modeAnswer.mode, targetOrHostname);
     } else if (modeAnswer.mode === 'external') {
       // 外部WordPressモード：URLを入力
       const targetAnswer = await inquirer.prompt([
@@ -127,77 +143,69 @@ async function createConfigInteractively() {
         },
       ]);
       targetOrHostname = targetAnswer.target;
-      configContent = generateConfigFromExample(
-        modeAnswer.mode,
-        targetOrHostname,
-      );
+      configContent = generateLocalConfig(modeAnswer.mode, targetOrHostname);
     } else {
-      // serverモード：baseDirを設定
-      const baseDirAnswer = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'baseDir',
-          message: 'server.baseDirを設定してください:',
-          default: './',
-        },
-      ]);
-      targetOrHostname = baseDirAnswer.baseDir;
-      configContent = generateConfigFromExample(
-        modeAnswer.mode,
-        targetOrHostname,
-      );
+      // serverモード：proxy設定は不要
+      targetOrHostname = 'デフォルト';
+      configContent = generateLocalConfig(modeAnswer.mode, targetOrHostname);
     }
 
-    // dai-runner.config.jsを生成
-    fs.writeFileSync(configPath, configContent);
+    // dai-runner.config.local.jsを生成
+    fs.writeFileSync(localConfigPath, configContent);
 
-    console.log('\n✅ dai-runner.config.jsを作成しました！');
+    console.log('\n✅ dai-runner.config.local.jsを作成しました！');
     console.log(`📋 設定内容:`);
 
     if (modeAnswer.mode === 'traefik') {
-      console.log(`   - mode: proxy`);
-      console.log(`   - proxy.host: ${targetOrHostname}`);
       console.log(`   - proxy.target: http://127.0.0.1 (Traefik経由)`);
+      console.log(`   - proxy.host: ${targetOrHostname}`);
     } else if (modeAnswer.mode === 'external') {
-      console.log(`   - mode: proxy`);
       console.log(`   - proxy.target: ${targetOrHostname}`);
     } else {
-      console.log(`   - mode: server`);
-      console.log(`   - server.baseDir: ${targetOrHostname}`);
+      console.log(`   - proxy設定: デフォルト値`);
     }
 
     console.log(
-      '\n📍 必要に応じて、dai-runner.config.jsの設定を環境に合わせて調整してください。\n',
+      '\n📍 必要に応じて、dai-runner.config.local.jsの設定を環境に合わせて調整してください。\n'
     );
   } catch (error) {
-    console.error('❌ dai-runner.config.jsの作成に失敗しました:', error.message);
-    console.error('\n手動でdai-runner.config.jsを作成してください:');
-    console.error('   cp node_modules/@dai-works/dai-runner/dai-runner.config.js.example dai-runner.config.js\n');
+    console.error(
+      '❌ dai-runner.config.local.jsの作成に失敗しました:',
+      error.message
+    );
+    console.error('\n手動でdai-runner.config.local.jsを作成してください:');
+    console.error(
+      '   cp dai-runner.config.local.js.example dai-runner.config.local.js\n'
+    );
     process.exit(1);
   }
 }
 
 /**
  * dai-runner実行前の事前チェック
- * dai-runner.config.jsが存在しない場合は自動的に作成する
+ * dai-runner.config.local.jsが存在しない場合は自動的に作成する
  */
 async function precheck() {
-  if (!fs.existsSync(configPath)) {
+  if (!fs.existsSync(localConfigPath)) {
     console.log(
-      '\n📝 dai-runner.config.jsファイルが見つかりません。自動的に作成します...\n',
+      '\n📝 dai-runner.config.local.jsファイルが見つかりません。自動的に作成します...\n'
     );
 
-    if (fs.existsSync(configExamplePath)) {
-      await createConfigInteractively();
+    if (fs.existsSync(localConfigExamplePath)) {
+      await createLocalConfigInteractively();
     } else {
-      console.error('❌ dai-runner.config.js.exampleファイルも見つかりません。');
       console.error(
-        'リポジトリから最新のdai-runner.config.js.exampleを取得してください。\n',
+        '❌ dai-runner.config.local.js.exampleファイルも見つかりません。'
+      );
+      console.error(
+        'リポジトリから最新のdai-runner.config.local.js.exampleを取得してください。\n'
       );
       process.exit(1);
     }
   } else {
-    console.log('✅ dai-runner.config.js が存在します。dai-runnerを開始します...\n');
+    console.log(
+      '✅ dai-runner.config.local.js が存在します。dai-runnerを開始します...\n'
+    );
   }
 }
 
