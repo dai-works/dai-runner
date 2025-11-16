@@ -134,6 +134,10 @@ export function watchJs({ paths, options = {} } = {}) {
 
           // 対応する出力ファイルを削除
           await fs.unlink(distPath).catch(() => {});
+
+          // ソースマップファイルも削除
+          const mapPath = distPath + '.map';
+          await fs.unlink(mapPath).catch(() => {});
         } catch (err) {
           Logger.log(
             'ERROR',
