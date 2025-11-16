@@ -4,12 +4,14 @@ import sharp from 'sharp';
 import { glob } from 'glob';
 import Logger from '../../utils/Logger.js';
 import { optimize } from 'svgo';
+import CacheManager from '../../utils/CacheManager.js';
 
 // デフォルトのオプション設定を直接定義
 const defaultOptions = {
   maxWidth: 3840,
   imageQuality: 80,
   convertToWebp: true,
+  useCache: true, // デフォルトでキャッシュを有効化
 };
 
 /**
@@ -25,6 +27,7 @@ const defaultOptions = {
  * @param {number} [options.maxWidth] - 画像の最大幅
  * @param {number} [options.imageQuality] - 画像の品質（0-100）
  * @param {boolean} [options.convertToWebp] - WebP形式への変換有無
+ * @param {boolean} [options.useCache] - キャッシュの使用有無（デフォルト: true）
  * @param {string[]} [options.excludeFromOptimization] - 最適化から除外するファイル名のリスト
  */
 export async function optimizeImages(srcDir, distDir, options = {}) {
@@ -39,7 +42,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
     if (srcPaths.length === 0) {
       Logger.log(
         'WARN',
-        `画像ファイルが見つかりません: ${options.filePath || srcDir}`,
+        `画像ファイルが見つかりません: ${options.filePath || srcDir}`
       );
       return;
     }
@@ -56,8 +59,19 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
       ...imageSettings,
     };
 
+    // キャッシュマネージャーの初期化
+    let cache = null;
+    if (imageOptions.useCache) {
+      cache = new CacheManager();
+      await cache.initialize();
+    }
+
     // 除外ファイルのリスト
     const excludeList = imageOptions.excludeFromOptimization || [];
+
+    // 処理したファイル数とスキップしたファイル数のカウンター
+    let processedCount = 0;
+    let skippedCount = 0;
 
     // 各画像ファイルを処理
     for (const srcPath of srcPaths) {
@@ -68,13 +82,46 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
       // 出力先ディレクトリを作成
       await fs.mkdir(path.dirname(distPath), { recursive: true });
 
+      // キャッシュチェック（キャッシュが有効な場合）
+      if (cache) {
+        const cacheOptions = {
+          maxWidth: imageOptions.maxWidth,
+          imageQuality: imageOptions.imageQuality,
+          convertToWebp: imageOptions.convertToWebp,
+          excludeFromOptimization: imageOptions.excludeFromOptimization,
+        };
+
+        const shouldProcess = await cache.shouldProcessFile(
+          srcPath,
+          distPath,
+          cacheOptions
+        );
+
+        if (!shouldProcess) {
+          Logger.log('INFO', `処理済みのためスキップ: ${relativePath}`);
+          skippedCount++;
+          continue;
+        }
+      }
+
       // 除外リストに含まれている場合は、圧縮せずにコピーのみ
       if (excludeList.includes(fileName)) {
         await fs.copyFile(srcPath, distPath);
         Logger.log(
           'INFO',
-          `最適化から除外されたファイルをコピーしました: ${distPath}`,
+          `最適化から除外されたファイルをコピーしました: ${distPath}`
         );
+        processedCount++;
+
+        // キャッシュに記録
+        if (cache) {
+          await cache.markProcessed(srcPath, distPath, {
+            maxWidth: imageOptions.maxWidth,
+            imageQuality: imageOptions.imageQuality,
+            convertToWebp: imageOptions.convertToWebp,
+            excludeFromOptimization: imageOptions.excludeFromOptimization,
+          });
+        }
         continue;
       }
 
@@ -95,6 +142,17 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
       if (!imageExtensions.includes(ext)) {
         await fs.copyFile(srcPath, distPath);
         Logger.log('INFO', `ファイルをコピーしました: ${distPath}`);
+        processedCount++;
+
+        // キャッシュに記録
+        if (cache) {
+          await cache.markProcessed(srcPath, distPath, {
+            maxWidth: imageOptions.maxWidth,
+            imageQuality: imageOptions.imageQuality,
+            convertToWebp: imageOptions.convertToWebp,
+            excludeFromOptimization: imageOptions.excludeFromOptimization,
+          });
+        }
         continue;
       }
 
@@ -121,6 +179,18 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
             .toFile(webpPath);
           Logger.log('INFO', `WebP画像を生成しました: ${webpPath}`);
         }
+
+        processedCount++;
+
+        // キャッシュに記録
+        if (cache) {
+          await cache.markProcessed(srcPath, distPath, {
+            maxWidth: imageOptions.maxWidth,
+            imageQuality: imageOptions.imageQuality,
+            convertToWebp: imageOptions.convertToWebp,
+            excludeFromOptimization: imageOptions.excludeFromOptimization,
+          });
+        }
       }
       // PNGの処理（透過対応）
       else if (metadata.format === 'png') {
@@ -137,6 +207,18 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
             .toFile(webpPath);
           Logger.log('INFO', `WebP画像を生成しました: ${webpPath}`);
         }
+
+        processedCount++;
+
+        // キャッシュに記録
+        if (cache) {
+          await cache.markProcessed(srcPath, distPath, {
+            maxWidth: imageOptions.maxWidth,
+            imageQuality: imageOptions.imageQuality,
+            convertToWebp: imageOptions.convertToWebp,
+            excludeFromOptimization: imageOptions.excludeFromOptimization,
+          });
+        }
       }
       // WebPの処理
       else if (metadata.format === 'webp') {
@@ -145,6 +227,18 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
           .webp({ quality: imageOptions.imageQuality })
           .toFile(distPath);
         Logger.log('INFO', `WebP画像を最適化しました: ${distPath}`);
+
+        processedCount++;
+
+        // キャッシュに記録
+        if (cache) {
+          await cache.markProcessed(srcPath, distPath, {
+            maxWidth: imageOptions.maxWidth,
+            imageQuality: imageOptions.imageQuality,
+            convertToWebp: imageOptions.convertToWebp,
+            excludeFromOptimization: imageOptions.excludeFromOptimization,
+          });
+        }
       }
       // SVGの処理
       else if (metadata.format === 'svg') {
@@ -168,11 +262,48 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
 
         await fs.writeFile(distPath, optimizedSvg.data);
         Logger.log('INFO', `SVGファイルを最適化しました: ${distPath}`);
+
+        processedCount++;
+
+        // キャッシュに記録
+        if (cache) {
+          await cache.markProcessed(srcPath, distPath, {
+            maxWidth: imageOptions.maxWidth,
+            imageQuality: imageOptions.imageQuality,
+            convertToWebp: imageOptions.convertToWebp,
+            excludeFromOptimization: imageOptions.excludeFromOptimization,
+          });
+        }
       }
       // その他のファイルはそのままコピー
       else {
         await fs.copyFile(srcPath, distPath);
         Logger.log('INFO', `ファイルをコピーしました: ${distPath}`);
+
+        processedCount++;
+
+        // キャッシュに記録
+        if (cache) {
+          await cache.markProcessed(srcPath, distPath, {
+            maxWidth: imageOptions.maxWidth,
+            imageQuality: imageOptions.imageQuality,
+            convertToWebp: imageOptions.convertToWebp,
+            excludeFromOptimization: imageOptions.excludeFromOptimization,
+          });
+        }
+      }
+    }
+
+    // キャッシュを保存
+    if (cache) {
+      await cache.save();
+
+      // 処理サマリーをログ出力
+      if (skippedCount > 0) {
+        Logger.log(
+          'INFO',
+          `画像処理完了: ${processedCount}件処理, ${skippedCount}件スキップ`
+        );
       }
     }
   } catch (err) {

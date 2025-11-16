@@ -48,10 +48,23 @@ export default class BuildManager {
    */
   static async executeBuild(config, buildType = '') {
     // フォーマットはVS Code拡張が担当するためスキップ
-    await CleanupManager.cleanBuildDirectories(
-      config.paths,
-      config.cleanup?.excludeFiles || [],
-    );
+
+    // 除外ファイルリストを準備
+    let excludeFiles = config.cleanup?.excludeFiles || [];
+
+    // 画像キャッシュが有効な場合は画像ディレクトリを除外リストに追加
+    if (config.options.images?.useCache) {
+      const imagesDistPath = config.paths.images.dist;
+      if (imagesDistPath) {
+        excludeFiles = [...excludeFiles, `${imagesDistPath}/`];
+        Logger.log(
+          'INFO',
+          '画像キャッシュが有効なため、画像ディレクトリをクリーンアップから除外します'
+        );
+      }
+    }
+
+    await CleanupManager.cleanBuildDirectories(config.paths, excludeFiles);
 
     const buildTasks = this.createBuildTasks(config);
     await TaskRunner.runParallelTasks(buildTasks);

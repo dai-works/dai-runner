@@ -59,6 +59,9 @@ export const config = {
     convertToWebp: true,
     imageQuality: 80,
     maxWidth: 3840,
+    // キャッシュを使用して処理済み画像をスキップ（高速化）
+    // 開発時はtrue、本番ビルド時はfalseが推奨
+    useCache: true,
     // 最適化から除外したいファイルがある場合は以下のコメントのように設定
     // （例：動くpng画像など）
     excludeFromOptimization: [
