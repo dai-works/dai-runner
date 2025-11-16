@@ -3,6 +3,7 @@ node_modules/
 
 # 設定ファイル（プロジェクト固有）
 config.js
+/dai-runner.config.js
 
 # ログファイル
 *.log
@@ -19,10 +20,9 @@ Thumbs.db
 *.swo
 *~
 
-# テスト用ファイル
-test/
+# テスト用ビルド成果物
+test/public/assets/
 coverage/
 
 # ビルド成果物（このパッケージ自体のビルド、もしあれば）
 dist/
-

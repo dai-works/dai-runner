@@ -1,0 +1,37 @@
+@use "../_global" as *;
+
+.m-icon-link {
+  display: grid;
+  place-items: center;
+  transition: color var(--duration__base);
+}
+
+.m-icon-link--line {
+  @include hover {
+    color: var(--color__line);
+  }
+}
+
+.m-icon-link--x {
+  @include hover {
+    color: var(--color__x);
+  }
+}
+
+.m-icon-link--instagram {
+  @include hover {
+    color: var(--color__instagram);
+  }
+}
+
+.m-icon-link--facebook {
+  @include hover {
+    color: var(--color__facebook);
+  }
+}
+
+.m-icon-link--youtube {
+  @include hover {
+    color: var(--color__youtube);
+  }
+}

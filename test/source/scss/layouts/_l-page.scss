@@ -1,0 +1,18 @@
+@use "../_global" as *;
+
+.l-page {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 100%;
+  min-height: 100dvh;
+}
+
+.l-page__header {
+}
+
+.l-page__content {
+  padding-top: var(--js-height__header);
+}
+
+.l-page__footer {
+}

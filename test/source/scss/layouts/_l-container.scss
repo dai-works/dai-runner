@@ -1,0 +1,17 @@
+@use "../_global" as *;
+
+.l-container {
+  @include mq("md") {
+  }
+}
+
+.l-container--sidebar {
+  display: grid;
+  grid-template-columns: 1fr rem(300);
+  column-gap: rem(32);
+
+  @include mq("md") {
+    grid-template-columns: unset;
+    row-gap: rem(32);
+  }
+}

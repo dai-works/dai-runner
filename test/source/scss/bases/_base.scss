@@ -1,0 +1,61 @@
+@use "../_global" as *;
+
+// リキッドレイアウト対応
+html {
+  --_font-size: var(--font-size__base);
+  --_width: var(--width__breakpoint);
+
+  // スクロール
+  scroll-padding-top: calc(
+    var(--wp-admin--admin-bar--height, 0) + var(--js-height__header, 0)
+  );
+
+  // --_width ~
+  font-size: calc(var(--_font-size) * 1px);
+
+  // 787px ~ --_width
+  @include mq("lg") {
+    font-size: calc((var(--_font-size) / var(--_width)) * 100vw);
+  }
+
+  // 375px ~ 767px
+  @include mq("md") {
+    font-size: calc(var(--_font-size) * 1px);
+  }
+
+  // ~ 375px
+  @include mq("sm") {
+    font-size: calc((var(--_font-size) / var(--_width)) * 100vw);
+  }
+}
+
+// フォントの指定
+body {
+  font-family: var(--font-family__base);
+  color: var(--color__text);
+  font-size: rem(16);
+  font-weight: 400;
+}
+
+// 画像
+img,
+svg {
+  width: 100%;
+  height: auto;
+}
+
+// リンク
+a {
+  display: inline-block;
+}
+
+// フォーカス時の枠線
+:focus-visible {
+  outline: 2px solid var(--color__main);
+  outline-offset: 2px;
+}
+
+// 管理バーの調整
+#wpadminbar {
+  position: fixed !important;
+}

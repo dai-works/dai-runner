@@ -1,0 +1,18 @@
+@use "../_global" as *;
+
+.js-accordion__button {
+}
+
+.js-accordion__panel {
+  display: grid;
+  grid-template-rows: 0fr; /* 初期状態で高さを0に */
+  transition: grid-template-rows var(--duration__base); /* スムーズなアニメーション */
+}
+
+.js-accordion__panel > div {
+  overflow: hidden; /* 子要素がはみ出ないように */
+}
+
+.js-accordion__panel:not([hidden]) {
+  grid-template-rows: 1fr; /* 開いた状態では高さを自動調整 */
+}

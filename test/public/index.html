@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>サイトタイトル | サブタイトル</title>
+    <meta name="description" content="このページの説明文をここに書きます。" />
+    <meta name="format-detection" content="telephone=no, email=no, address=no" />
+    <link rel="canonical" href="https://〇〇.com/page" />
+
+    <!-- OGP -->
+    <meta property="og:site_name" content="サイト名" />
+    <meta property="og:title" content="ページタイトル" />
+    <meta property="og:description" content="ページの説明文をここに書きます。" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://〇〇.com/page" />
+    <meta property="og:image" content="https://〇〇.com/ogp.jpg" />
+
+    <!-- X(Twitter)カード -->
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- ファビコン -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- 構造化データ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "サイト名",
+        "url": "https://〇〇.com",
+        "description": "このページの説明文をここに書きます。",
+        "publisher": {
+          "@type": "Organization",
+          "name": "組織名",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://〇〇.com/logo.jpg"
+          }
+        }
+      }
+    </script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="./assets/css/style.css" />
+  </head>
+  <body>
+    <h1>dai-runner 静的HTML開発環境</h1>
+    <p>このファイル: public/index.html</p>
+    <p>SCSS、JS、画像は source/ で編集 → 自動的に public/assets/ にビルドされます</p>
+    <br />
+
+    <!-- JavaScript -->
+    <script src="./assets/js/main.js"></script>
+  </body>
+</html>

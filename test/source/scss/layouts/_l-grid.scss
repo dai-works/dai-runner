@@ -1,0 +1,19 @@
+@use "../_global" as *;
+
+.l-grid {
+  --_max-width: 1200; // 最大の横幅
+  --_min-width__column: 300; // 最小の横幅
+  --_column-gap: 40; // 列間
+  --_row-gap: 30; // 行間
+
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(calc(var(--_min-width__column) * 1px), 1fr)
+  );
+  column-gap: calc((var(--_column-gap) / var(--_max-width)) * 100%);
+  row-gap: min(
+    calc((var(--_row-gap) / var(--_max-width)) * 100vw),
+    calc(var(--_row-gap) * 1px)
+  );
+}

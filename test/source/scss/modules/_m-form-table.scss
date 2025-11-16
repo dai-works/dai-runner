@@ -1,0 +1,345 @@
+@use "../_global" as *;
+
+.m-form-table {
+  --_color__border: rgb(from var(--color__main) r g b / 0.5);
+}
+.m-form-table__items {
+  padding-top: rem(48);
+
+  @include mq("md") {
+    padding-top: rem(32);
+  }
+}
+.m-form-table .l-2-columns {
+  @include mq("md") {
+    grid-template-columns: auto;
+    row-gap: rem(6);
+  }
+}
+.m-form-table__item {
+  --_width__left: 158;
+  --_width__right: 512;
+  --_column-gap: 50;
+}
+.m-form-table__item:not(:first-child) {
+  padding-top: rem(32);
+
+  @include mq("md") {
+    padding-top: rem(18);
+  }
+}
+.m-form-table__item.m-form-table__item--recaptcha {
+  padding-top: rem(8);
+}
+.m-form-table__item.m-form-table__item--recaptcha p {
+  line-height: 1.4;
+}
+.m-form-table__item.m-form-table__item--recaptcha .m-form-table__label {
+  @include mq("md") {
+    display: none;
+  }
+}
+.m-form-table__item--no-label .m-form-table__label {
+  @include mq("md") {
+    display: none;
+  }
+}
+.m-form-table__label {
+  display: inline-flex;
+  column-gap: rem(8);
+  line-height: 1.4;
+  padding-top: rem(12);
+
+  @include mq("md") {
+    font-weight: 500;
+    padding-top: 0;
+  }
+}
+.m-form-table__label::before {
+  content: "＊";
+  color: var(--color__accent);
+  font-weight: 500;
+  opacity: 0;
+  visibility: hidden;
+
+  @include mq("md") {
+    order: 1;
+  }
+}
+
+.m-form-table__recaptcha {
+  font-size: rem(10);
+}
+
+// 必須の場合
+.m-form-table__item:has([aria-required="true"]) .m-form-table__label::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+// Contact Form 7
+.wpcf7-select,
+.wpcf7-text,
+.wpcf7-textarea {
+  border: 1px solid var(--_color__border);
+  border-radius: rem(8);
+  background-color: #fff;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  padding-top: rem(19);
+  padding-bottom: rem(17);
+  padding-inline: rem(16);
+}
+
+.wpcf7-select {
+  max-width: rem(300);
+  width: 100%;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='11' height='6' viewBox='0 0 11 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 0.724976L5.54 5.27498L10.08 0.724976' stroke='%23A59C5F' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right rem(16) center;
+  background-repeat: no-repeat;
+  background-size: rem(9) rem(4.5);
+}
+.wpcf7-text {
+  width: 100%;
+}
+
+.wpcf7-textarea {
+  width: 100%;
+  height: rem(240);
+  resize: vertical;
+}
+
+// テキスト・テキストエリアのプレースホルダー色
+.wpcf7-select option:first-child,
+.wpcf7-select[name="your-inquiry"]:has(option:checked[value=""]),
+.wpcf7-text::placeholder,
+.wpcf7-textarea::placeholder {
+  color: rgb(from #000 r g b / 0.3);
+}
+
+.wpcf7-select option:not(:first-child) {
+  color: var(--color__text);
+}
+
+// プライバシーポリシー同意チェックボックス
+.m-form-table__acceptance {
+  display: flex;
+  align-items: center;
+
+  @include mq("md") {
+    display: grid;
+    place-items: center;
+  }
+}
+
+.m-form-table__acceptance input[type="checkbox"] {
+  width: rem(24);
+  height: rem(24);
+  border: 1px solid var(--_color__border);
+  border-radius: rem(4);
+  background-color: #fff;
+  appearance: none;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.m-form-table__acceptance input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: rem(14);
+  height: rem(9);
+  background: url('data:image/svg+xml,<svg width="14" height="9" viewBox="0 0 14 9" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 2.5L6 8L13 1" stroke="%23a59c5f" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+    no-repeat center;
+  background-size: contain;
+}
+
+.m-form-table__acceptance .wpcf7-list-item {
+  margin-left: 0;
+}
+
+.m-form-table__acceptance-text {
+  padding-left: rem(16);
+}
+
+.m-form-table__acceptance a {
+  text-decoration: underline;
+  text-underline-offset: 0.4em;
+
+  @include hover {
+    color: var(--color__accent);
+    text-decoration: none;
+  }
+}
+
+// 送信ボタン
+.m-form-table__buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: rem(16);
+  padding-top: rem(40);
+}
+.m-form-table__submit {
+  max-width: rem(282);
+  width: 100%;
+}
+.m-form-table__submit > p {
+  position: relative;
+  border-radius: calc(infinity * 1px);
+  background-color: var(--color__accent);
+  cursor: pointer;
+  transition: background-color var(--duration__base);
+
+  @include hover {
+    &::after {
+      background: #f5e88a;
+      box-shadow: 0 0 12px rgb(245 232 138 / 0.8);
+    }
+  }
+}
+
+.m-form-table__submit > p::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: rem(35);
+  transform: translateY(-50%);
+  display: block;
+  width: rem(32);
+  aspect-ratio: 1 / 1;
+  background-color: rgb(from #fff r g b / 0.8);
+  border-radius: 50%;
+}
+
+.m-form-table__submit > p::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: rem(47);
+  translate: 0 -50%;
+  display: block;
+  width: rem(8);
+  aspect-ratio: 1 / 1;
+  background-color: #f5e88a;
+  border-radius: 50%;
+}
+
+.m-form-table__submit > p:has(input[disabled]) {
+  opacity: 0.5;
+}
+
+.m-form-table__submit > p:has(input[disabled])::before {
+  cursor: not-allowed;
+}
+
+.m-form-table__submit > p:has(input[disabled])::after {
+  cursor: not-allowed;
+}
+
+.wpcf7-submit {
+  width: 100%;
+  line-height: 1.4;
+  border-radius: inherit;
+  padding-top: rem(18);
+  padding-bottom: rem(20);
+  padding-left: rem(43);
+}
+
+// 確認ボタン
+.m-form-table__confirm-button {
+  max-width: rem(282);
+  width: 100%;
+  border: none;
+  border-radius: calc(infinity * 1px);
+  background-color: #a59c5f;
+  font-weight: 500;
+  font-size: inherit;
+  line-height: 1.4;
+  padding-top: rem(18);
+  padding-bottom: rem(20);
+  padding-left: rem(43);
+  margin-inline: auto;
+  cursor: pointer;
+  display: block;
+}
+
+.m-form-table__confirm-button:disabled {
+  background-color: rgb(from #a59c5f r g b / 0.5);
+  cursor: not-allowed;
+}
+
+.m-form-table__confirm-button:disabled::before {
+  background-color: rgb(from #fff r g b / 0.4);
+}
+
+.m-form-table__confirm-button:disabled::after {
+  background-color: rgb(from #f5e88a r g b / 0.5);
+}
+
+.m-form-table__confirm-button:not(:disabled) {
+  @include hover {
+    &::after {
+      background: #f5e88a;
+      box-shadow: 0 0 12px rgb(245 232 138 / 0.8);
+    }
+  }
+}
+
+// 戻るボタン
+.m-form-table__back-button {
+  border: 2px solid #a59c5f;
+  border-radius: calc(infinity * 1px);
+  background-color: transparent;
+  font-family: var(--font-family__zen-old-mincho);
+  font-weight: 600;
+  font-size: inherit;
+  line-height: 1.4;
+  padding-top: rem(16);
+  padding-bottom: rem(18);
+  padding-inline: rem(43);
+  cursor: pointer;
+  transition: background-color var(--duration__base);
+
+  @include hover {
+    background-color: #a59c5f;
+  }
+
+  @include mq("md") {
+    width: 100%;
+  }
+}
+
+.wpcf7-spinner {
+  display: none;
+}
+
+// 送信メッセージ
+.wpcf7-response-output {
+  font-family: var(--font-family__base);
+}
+
+// 確認画面
+.m-form-table--confirm {
+  display: none;
+  margin-top: rem(40);
+}
+
+.m-form-table--confirm .m-form-table__label {
+  padding-top: 0;
+}
+
+// 確認画面の表示値スタイル
+.m-form-table--confirm .m-form-table__input span {
+  display: block;
+  font-weight: 500;
+
+  @include mq("md") {
+    font-weight: 400;
+  }
+}

@@ -1,0 +1,38 @@
+@use "sass:math";
+@use "sass:meta";
+@use "sass:string";
+
+// =========================================
+// _functions.scssはプロジェクト全体で使用される関数を定義するファイルです。
+// 単位の変換や計算など、共通で使用される便利な関数が含まれています。
+// 他のSCSSファイルからは「@use '../_global' as *;」でインポートして使用します。
+// =========================================
+
+// 変数の値から数値のみを取り出す
+// 使用例: $value: strip-unit(10px); // 10
+@function strip-unit($number) {
+  @if meta.type-of($number) == "number" and not math.is-unitless($number) {
+    @return math.div($number, ($number * 0 + 1));
+  }
+  @return $number;
+}
+
+// ピクセル値をremに変換する関数
+// 使用例: font-size: rem(16); // 1rem に変換される
+// CSS変数も使用可能: margin-top: rem(var(--size));
+@function rem($value) {
+  @if meta.type-of($value) == "number" {
+    // 数値の場合（単位あり・なし問わず）strip-unit で処理してから計算
+    @return calc(#{strip-unit($value)} * 1rem / var(--font-size__base));
+  } @else {
+    // CSS変数やその他の文字列の場合
+    @return calc(#{$value} * 1rem / var(--font-size__base));
+  }
+}
+
+// 値を流動的に設定する関数（フォントサイズやマージン、パディングなど）
+// 使用例: font-size: vw(var(--font-size__base), var(--width__breakpoint));
+// 使用例: margin-top: vw(30, var(--width__breakpoint));
+@function vw($size, $width) {
+  @return calc((#{$size} / #{$width}) * 100vw);
+}

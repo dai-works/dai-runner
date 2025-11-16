@@ -1,0 +1,79 @@
+@use "../_global" as *;
+
+// 透過
+.u-hover--opacity {
+  transition: opacity var(--duration__base);
+
+  @include hover {
+    opacity: var(--opacity__hover);
+  }
+}
+
+// 影
+.u-hover--drop-shadow {
+  transition: filter var(--duration__base);
+
+  @include hover {
+    filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.2));
+    transform: translateZ(0);
+  }
+}
+
+// 色変更
+.u-hover--color-main {
+  transition: color var(--duration__base);
+
+  @include hover {
+    color: var(--color__main);
+  }
+}
+
+// 下線1px
+.u-hover--underline-1px {
+  position: relative;
+
+  @include hover {
+    &::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+}
+
+.u-hover--underline-1px::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background-color: currentcolor;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--duration__base);
+}
+
+// 下線2px
+.u-hover--underline-2px {
+  position: relative;
+
+  @include hover {
+    &::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+}
+
+.u-hover--underline-2px::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background-color: currentcolor;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--duration__base);
+}

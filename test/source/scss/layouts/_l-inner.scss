@@ -1,0 +1,66 @@
+@use "../_global" as *;
+
+.l-inner {
+  --_max-width: var(--width__contents, 1200); // 最大の横幅（左右の余白を除く）
+  --_padding-inline: var(--space-inline__base, 25); // 左右の余白
+  --_padding-right: var(--_padding-inline); // 右の余白
+  --_padding-left: var(--_padding-inline); // 左の余白
+  --_padding-inline__total: calc(var(--_padding-right) + var(--_padding-left));
+
+  max-width: calc(
+    (var(--_max-width) * 1px) + rem(var(--_padding-inline__total))
+  );
+  margin-inline: auto;
+  padding-right: rem(var(--_padding-right));
+  padding-left: rem(var(--_padding-left));
+
+  @include mq("md") {
+    --_max-width: var(--max-width__base, 600);
+  }
+}
+
+.l-inner--fluid {
+  max-width: calc(rem(var(--_max-width)) + rem(var(--_padding-inline__total)));
+}
+
+.l-inner--800 {
+  @include mq("md", "min-width") {
+    --_max-width: 800;
+  }
+}
+
+.l-inner--1000 {
+  @include mq("md", "min-width") {
+    --_max-width: 1000;
+  }
+}
+
+.l-inner--1400 {
+  @include mq("md", "min-width") {
+    --_max-width: 1400;
+  }
+}
+
+.l-inner--1600 {
+  @include mq("md", "min-width") {
+    --_max-width: 1600;
+  }
+}
+
+// 左側だけはみ出すインナー
+.l-inner--release-left {
+}
+
+.l-inner--release-left .l-inner__content {
+  margin-left: calc(50% - var(--js-width__viewport) / 2);
+  padding-left: calc(var(--js-width__viewport) / 2 - 50%);
+}
+
+// 右側だけはみ出すインナー
+.l-inner--release-right {
+}
+
+.l-inner--release-right .l-inner__content {
+  margin-right: calc(50% - var(--js-width__viewport) / 2);
+  padding-right: calc(var(--js-width__viewport) / 2 - 50%);
+}

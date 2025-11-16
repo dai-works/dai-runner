@@ -1,0 +1,57 @@
+@use "../_global" as *;
+
+.m-icon-button {
+  --_color__main-default: var(--color__main);
+  --_color__sub-default: #fff;
+  --_color__main: var(--_color__main-default);
+  --_color__sub: var(--_color__sub-default);
+  --_width__icon: 20;
+  --_duration: var(--duration__base);
+
+  display: grid;
+  grid-template-columns: rem(var(--_width__icon)) auto;
+  column-gap: rem(10);
+  align-items: center;
+  justify-content: center;
+  max-width: rem(250);
+  width: 100%;
+  color: var(--_color__sub);
+  font-size: rem(16);
+  background-color: var(--_color__main);
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--_color__main);
+  border-radius: 9999px;
+  filter: drop-shadow(0 3px 6px rgb(0 0 0 / 0.2));
+  transform: translateZ(0);
+  transition:
+    color var(--_duration),
+    background-color var(--_duration),
+    border-color var(--_duration),
+    filter var(--_duration);
+  touch-action: manipulation;
+  padding-block: rem(10);
+  padding-inline: rem(10);
+
+  @include hover {
+    color: var(--_color__main);
+    background-color: var(--_color__sub);
+    filter: unset;
+  }
+}
+
+.m-icon-button--reverse {
+  grid-template-columns: auto rem(var(--_width__icon));
+}
+
+.m-icon-button--invert {
+  --_color__main: var(--_color__sub-default);
+  --_color__sub: var(--_color__main-default);
+
+  border-color: var(--_color__sub);
+}
+
+.m-icon-button--sub {
+  --_color__main-default: var(--color__sub);
+  --_color__sub-default: white;
+}

@@ -1,0 +1,9 @@
+@use "../_global" as *;
+
+.u-bg--main {
+  background-color: var(--color__main);
+}
+
+.u-bg--main-light {
+  background-color: var(--color__main-light);
+}

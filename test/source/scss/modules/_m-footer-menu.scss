@@ -1,0 +1,47 @@
+@use "../_global" as *;
+
+.m-footer-menu {
+}
+
+.m-footer-menu__inner {
+  display: flex;
+  justify-content: space-between;
+}
+
+.m-footer-menu__section {
+  display: flex;
+  flex-direction: column;
+}
+
+.m-footer-menu__title {
+  font-size: rem(20);
+  font-weight: 700;
+}
+
+.m-footer-menu__content {
+}
+
+.m-footer-menu__list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: rem(32);
+  row-gap: rem(16);
+  padding-top: rem(24);
+}
+
+.m-footer-menu__item {
+  position: relative;
+  padding-left: 1.5em;
+}
+
+.m-footer-menu__item::before {
+  content: "ー";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--color__main);
+}
+
+.m-footer-menu__link {
+  transition: color var(--duration__base);
+}

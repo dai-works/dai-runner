@@ -1,0 +1,60 @@
+@use "../_global" as *;
+
+// 2カラムレイアウト
+.l-2-columns {
+  --_width__left: 700;
+  --_width__right: 450;
+  --_column-gap: 50;
+  --_width__total: calc(
+    var(--_width__left) + var(--_column-gap) + var(--_width__right)
+  );
+
+  display: grid;
+  grid-template-columns:
+    calc(var(--_width__left) / var(--_width__total) * 100%)
+    calc(var(--_width__right) / var(--_width__total) * 100%);
+  column-gap: calc((var(--_column-gap) / var(--_width__total)) * 100%);
+}
+
+// 左だけはみ出すバージョン
+.l-2-columns--release-left {
+  margin-left: max(
+    calc(50% - var(--js-width__viewport) / 2),
+    calc(50% - (var(--max-width__base) * 1px / 2))
+  );
+}
+
+// 右だけはみ出すバージョン
+.l-2-columns--release-right {
+  margin-right: max(
+    calc(50% - var(--js-width__viewport) / 2),
+    calc(50% - (var(--max-width__base) * 1px / 2))
+  );
+}
+
+// 反転バージョン
+.l-2-columns--reverse {
+  grid-template-columns:
+    calc(var(--_width__right) / var(--_width__total) * 100%)
+    calc(var(--_width__left) / var(--_width__total) * 100%);
+}
+
+.l-2-columns--reverse > *:last-child {
+  order: -1;
+}
+
+.l-2-columns--release-left.l-2-columns--reverse {
+  margin-right: max(
+    calc(50% - var(--js-width__viewport) / 2),
+    calc(50% - (var(--max-width__base) * 1px / 2))
+  );
+  margin-left: auto;
+}
+
+.l-2-columns--release-right.l-2-columns--reverse {
+  margin-right: auto;
+  margin-left: max(
+    calc(50% - var(--js-width__viewport) / 2),
+    calc(50% - (var(--max-width__base) * 1px / 2))
+  );
+}

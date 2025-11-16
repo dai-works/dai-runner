@@ -1,0 +1,90 @@
+@use "../_global" as *;
+
+.m-drawer {
+  --_duration: var(--duration__base);
+
+  position: fixed;
+  z-index: var(--_z-index--header-drawer, 99);
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition: visibility var(--_duration);
+  visibility: hidden;
+  margin-top: var(--wp-admin--admin-bar--height, 0);
+}
+
+.m-drawer__backdrop {
+  position: fixed;
+  z-index: 1;
+  inset: 0;
+  background-color: rgb(0 0 0 / 0.3);
+  transition:
+    opacity var(--_duration),
+    visibility var(--_duration);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.m-drawer__content {
+  --_padding-block: 60;
+
+  overflow-y: auto;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  padding-top: calc(
+    var(--js-height__header, 0px) + (rem(var(--_padding-block)))
+  );
+  padding-bottom: rem(var(--_padding-block));
+  transition:
+    opacity var(--_duration),
+    visibility var(--_duration);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.m-drawer__nav {
+  display: grid;
+  justify-content: center;
+  row-gap: rem(20);
+}
+
+.m-drawer__links {
+  text-align: center;
+}
+
+.m-drawer__links li {
+  border-top: 1px solid var(--color__gray);
+}
+
+.m-drawer__links li:last-of-type {
+  border-bottom: 1px solid var(--color__gray);
+}
+
+.m-drawer__link {
+  display: block;
+  line-height: 3;
+}
+
+.m-drawer__buttons {
+  display: grid;
+  justify-content: center;
+  row-gap: rem(15);
+}
+
+.m-drawer__button {
+  min-width: rem(200);
+}
+
+/* 開いた時 */
+.m-drawer.is-visible .m-drawer__backdrop {
+  opacity: 1;
+  visibility: visible;
+}
+
+.m-drawer.is-visible .m-drawer__content {
+  opacity: 1;
+  visibility: visible;
+}

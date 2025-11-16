@@ -1,0 +1,23 @@
+@use "../_global" as *;
+
+// PC時のみ3カラムレイアウト
+.l-3-columns {
+  @include mq("md", "min-width") {
+    --_width__left: 400;
+    --_width__center: 400;
+    --_width__right: 840;
+    --_column-gap: 40;
+    --_width__columns: calc(
+      var(--_width__left) + var(--_width__center) + var(--_width__right)
+    );
+    --_width__gaps: calc(var(--_column-gap) * 2);
+    --_width__total: calc(var(--_width__columns) + var(--_width__gaps));
+
+    display: grid;
+    grid-template-columns:
+      calc(var(--_width__left) / var(--_width__total) * 100%)
+      calc(var(--_width__center) / var(--_width__total) * 100%)
+      calc(var(--_width__right) / var(--_width__total) * 100%);
+    column-gap: calc(var(--_column-gap) / var(--_width__total) * 100%);
+  }
+}

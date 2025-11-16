@@ -1,0 +1,114 @@
+@use "../_global" as *;
+
+.m-accordion {
+  --_duration: var(--duration__base);
+
+  border-top: 1px solid #333;
+}
+
+.m-accordion:last-of-type {
+  border-bottom: 1px solid #333;
+}
+
+.m-accordion__button {
+  display: grid;
+  grid-template-columns: rem(30) 1fr rem(30);
+  column-gap: rem(10);
+  align-items: center;
+  width: 100%;
+  padding-block: rem(20);
+  padding-inline: rem(20);
+
+  @include mq("md") {
+    column-gap: rem(3);
+    grid-template-columns: rem(22) 1fr rem(22);
+  }
+}
+
+.m-accordion__button-title {
+  color: var(--color__main);
+  font-size: rem(20);
+  font-weight: 700;
+  line-height: 1;
+
+  @include mq("md") {
+    font-size: rem(18);
+  }
+}
+
+.m-accordion__button-text {
+}
+
+.m-accordion__button-icon {
+  position: relative;
+  width: rem(27);
+  height: rem(27);
+  background-color: #a1ace6;
+  border-radius: 50%;
+  transition: background-color var(--_duration);
+
+  @include mq("md") {
+    width: rem(22);
+    height: rem(22);
+  }
+}
+
+.m-accordion__button-icon::before,
+.m-accordion__button-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: rem(12);
+  height: rem(2);
+  background-color: #fff;
+  border-radius: 99px;
+  translate: -50% -50%;
+
+  @include mq("md") {
+    width: rem(11);
+  }
+}
+
+.m-accordion__button-icon::after {
+  transition: rotate var(--_duration);
+  rotate: -90deg;
+}
+
+.m-accordion__panel-content {
+  display: grid;
+  grid-template-columns: rem(30) 1fr rem(30);
+  column-gap: rem(10);
+  border-top: 1px solid #aaa;
+  padding-block: rem(18);
+  padding-inline: rem(22);
+
+  @include mq("md") {
+    column-gap: rem(3);
+  }
+}
+
+.m-accordion__panel-title {
+  color: var(--color__sub);
+  font-size: rem(20);
+  font-weight: 700;
+  line-height: 1;
+
+  @include mq("md") {
+    font-size: rem(18);
+  }
+}
+
+.m-accordion__panel-text {
+}
+
+// アコーディオンが開いているとき（パネルが表示されている時）
+.m-accordion__button:has(+ .js-accordion__panel:not([hidden]))
+  .m-accordion__button-icon {
+  background-color: #bfbfbf;
+}
+
+.m-accordion__button:has(+ .js-accordion__panel:not([hidden]))
+  .m-accordion__button-icon::after {
+  rotate: 0deg;
+}

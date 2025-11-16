@@ -1,0 +1,74 @@
+@use "../_global" as *;
+
+// PC時のみ2カラムレイアウト
+.l-2-columns-pc {
+  --_width__left: 700;
+  --_width__right: 450;
+  --_column-gap: 50;
+  --_width__total: calc(
+    var(--_width__left) + var(--_column-gap) + var(--_width__right)
+  );
+
+  @include mq("md", "min-width") {
+    display: grid;
+    grid-template-columns:
+      calc(var(--_width__left) / var(--_width__total) * 100%)
+      calc(var(--_width__right) / var(--_width__total) * 100%);
+    column-gap: calc((var(--_column-gap) / var(--_width__total)) * 100%);
+  }
+}
+
+// 左だけはみ出すバージョン
+.l-2-columns-pc--release-left {
+  @include mq("md", "min-width") {
+    margin-left: max(
+      calc(50% - var(--js-width__viewport) / 2),
+      calc(50% - (var(--max-width__base) * 1px / 2))
+    );
+  }
+}
+
+// 右だけはみ出すバージョン
+.l-2-columns-pc--release-right {
+  @include mq("md", "min-width") {
+    margin-right: max(
+      calc(50% - var(--js-width__viewport) / 2),
+      calc(50% - (var(--max-width__base) * 1px / 2))
+    );
+  }
+}
+
+// 反転バージョン
+.l-2-columns-pc--reverse {
+  @include mq("md", "min-width") {
+    grid-template-columns:
+      calc(var(--_width__right) / var(--_width__total) * 100%)
+      calc(var(--_width__left) / var(--_width__total) * 100%);
+  }
+}
+
+.l-2-columns-pc--reverse > *:last-child {
+  @include mq("md", "min-width") {
+    order: -1;
+  }
+}
+
+.l-2-columns-pc--release-left.l-2-columns-pc--reverse {
+  @include mq("md", "min-width") {
+    margin-right: max(
+      calc(50% - var(--js-width__viewport) / 2),
+      calc(50% - (var(--max-width__base) * 1px / 2))
+    );
+    margin-left: auto;
+  }
+}
+
+.l-2-columns-pc--release-right.l-2-columns-pc--reverse {
+  @include mq("md", "min-width") {
+    margin-right: auto;
+    margin-left: max(
+      calc(50% - var(--js-width__viewport) / 2),
+      calc(50% - (var(--max-width__base) * 1px / 2))
+    );
+  }
+}

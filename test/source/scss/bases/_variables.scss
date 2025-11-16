@@ -1,0 +1,99 @@
+@use "../_global" as *;
+
+// =========================================
+// _variables.scssはプロジェクト全体で使用される変数を定義するファイルです。
+// ブレークポイント、カラー、フォントサイズなどのグローバル変数が含まれています。
+// 他のSCSSファイルからは「@use '../_global' as *;」でインポートして使用します。
+// =========================================
+
+// =========================================
+// グローバルカスタムプロパティの定義
+// =========================================
+:root {
+  // =========================================
+  // フォント関連
+  // =========================================
+  // ベースのフォントサイズ
+  --font-size__base: 16;
+
+  // フォントファミリー
+  --font-family__base: "Noto Sans JP", sans-serif;
+
+  // =========================================
+  // レイアウト関連
+  // =========================================
+  // 最大幅
+  --max-width__base: 1920;
+
+  // PCで１番多いコンテンツの横幅
+  --width__contents: #{$width__base--pc};
+
+  // 左右の余白
+  --space-inline__base: #{$space-inline__base--pc};
+
+  // セクション間の余白
+  --space__section--base: 60;
+
+  // PCで１番多いコンテンツの横幅 + 左右の余白
+  --width__breakpoint: calc(
+    var(--width__contents) + (var(--space-inline__base) * 2)
+  );
+
+  // ヘッダーの高さ
+  --js-height__header: 68px;
+
+  // =========================================
+  // カラー関連
+  // =========================================
+  // テーマカラー
+  --color__text: #2d3748;
+  --color__main: #667eea;
+  --color__main-light: #f0f4ff;
+  --color__sub: #ffab00;
+  --color__sub-light: #ffd740;
+  --color__accent: #f093fb;
+  --color__accent-light: #fef7ff;
+
+  // 機能的なカラー
+  --color__error: #e53e3e;
+  --color__error-light: #fed7d7;
+  --color__warning: #dd6b20;
+  --color__warning-light: #feebc8;
+  --color__success: #38a169;
+  --color__success-light: #c6f6d5;
+
+  // 一般カラー
+  --color__gray-900: #1a222c;
+  --color__gray-600: #090a0c;
+  --color__gray-300: #b9bcbf;
+  --color__gray-200: #e3e3e3;
+  --color__gray-100: #f5f5f5;
+
+  // SNSカラー
+  --color__line: #06c755;
+  --color__x: #000;
+  --color__instagram: #ff0069;
+  --color__facebook: #0866ff;
+  --color__youtube: #f03;
+
+  // =========================================
+  // スタイル関連
+  // =========================================
+  // ホバー時の透明度
+  --opacity__hover: 0.7;
+
+  // ベースのトランジション時間
+  --duration__base: 0.3s;
+
+  // 角の丸み
+  --radius__base: 26;
+
+  @include mq("md") {
+    // スマホのデザイン関連
+    --width__breakpoint: #{$width__base--sp};
+    --space-inline__base: #{$space-inline__base--sp};
+    --max-width__base: 600;
+    --space__section--base: 30;
+    --radius__base: 13;
+  }
+}

@@ -251,9 +251,39 @@ cd dai-runner
 
 # 依存関係をインストール
 npm install
+```
 
-# ローカルでテスト
+### このリポジトリで動作確認する
+
+dai-runner パッケージ自体に同梱されているテスト用ファイルで動作確認できます：
+
+```bash
+# 開発モードで起動（ファイル監視 + BrowserSync）
+npm run dev
+
+# 本番ビルドのテスト
+npm run build
+```
+
+ブラウザが自動的に開き、`http://localhost:3000` でテストページが表示されます。
+SCSS や JS ファイルを編集すると、自動的にビルドされブラウザが更新されます。
+
+**テスト用ファイル構成：**
+
+- `test/source/scss/style.scss` - テスト用 SCSS
+- `test/source/js/main.js` - テスト用 JavaScript
+- `test/public/index.html` - テスト用 HTML
+- `test/public/assets/` - ビルド成果物（自動生成、Git 管理外）
+
+### 他プロジェクトでのテスト
+
+開発中の dai-runner を他プロジェクトで使用する場合：
+
+```bash
+# dai-runner ディレクトリで
 npm link
+
+# テストしたいプロジェクトで
 cd /path/to/your-project
 npm link @dai-works/dai-runner
 ```

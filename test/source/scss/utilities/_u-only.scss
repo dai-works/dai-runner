@@ -1,0 +1,19 @@
+@use "../_global" as *;
+
+////////////////////
+// 非表示設定
+////////////////////
+
+/* PCでのみ表示 */
+@include mq("md") {
+  .u-only--pc {
+    display: none;
+  }
+}
+
+/* スマホでのみ表示 */
+@include mq("md", "min-width") {
+  .u-only--sp {
+    display: none;
+  }
+}

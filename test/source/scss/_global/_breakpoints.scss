@@ -1,0 +1,70 @@
+@use "sass:map";
+
+// =========================================
+// _breakpoints.scssはレスポンシブデザインのためのブレークポイントと
+// メディアクエリのミックスインを定義するファイルです。
+// PCファーストとSPファーストの両方のアプローチに対応しています。
+// 他のSCSSファイルからは「@use '../_global' as *;」でインポートして使用します。
+// =========================================
+
+// =========================================
+// ブレイクポイント用のSCSS変数
+// =========================================
+
+// PCで１番多いコンテンツの横幅
+$width__base--pc: 1200;
+
+// SPのデザインカンプの横幅
+$width__base--sp: 390;
+
+// 左右の余白（PC）
+$space-inline__base--pc: 25;
+
+// 左右の余白（SP）
+$space-inline__base--sp: 16;
+
+// ブレークポイントの定義
+$breakpoints: (
+  // PCのデザインカンプの横幅
+  "xl": 1920,
+  // PCで１番多いコンテンツの横幅 + 左右の余白
+  "lg": $width__base--pc + ($space-inline__base--pc * 2),
+  // タブレットの横幅
+  "md": 767,
+  // SPのデザインカンプの横幅
+  "sm": $width__base--sp
+);
+
+// メディアクエリのミックスイン
+//
+// メディアクエリの使い方
+// PCファースト（デフォルト）
+// @include mq('md') {
+//   // 767px以下の場合に適用されるスタイル
+// }
+//
+// モバイルファースト
+// @include mq('md', 'min-width') {
+//   // 768px以上の場合に適用されるスタイル
+// }
+@mixin mq($breakpoint, $type: "max-width") {
+  @if map.has-key($breakpoints, $breakpoint) {
+    $breakpoint-value: map.get($breakpoints, $breakpoint);
+
+    @if $type == "min-width" {
+      // モバイルファースト（min-width）- 境界値の調整のため+1px
+      $breakpoint-value: $breakpoint-value + 1 + px;
+      @media (min-width: $breakpoint-value) {
+        @content;
+      }
+      // PCファースト（max-width）
+    } @else {
+      $breakpoint-value: $breakpoint-value + px;
+      @media (max-width: $breakpoint-value) {
+        @content;
+      }
+    }
+  } @else {
+    @error 'Invalid breakpoint: #{$breakpoint}.';
+  }
+}

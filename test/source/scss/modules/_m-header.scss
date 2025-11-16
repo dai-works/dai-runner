@@ -1,0 +1,74 @@
+@use "../_global" as *;
+
+.m-header {
+  --_z-index--header-items: 100;
+  --_z-index--header-drawer: 99;
+
+  position: fixed;
+  z-index: var(--_z-index--header-items);
+  top: var(--wp-admin--admin-bar--height, 0);
+  width: 100%;
+  background-color: darkgray;
+}
+
+.m-header__inner {
+  display: grid;
+  grid-template-columns: rem(150) 1fr;
+  align-items: center;
+  column-gap: rem(10);
+}
+
+.m-header__logo {
+  position: relative;
+  z-index: var(--_z-index--header-items);
+}
+
+.m-header__menu {
+  display: flex;
+  justify-content: flex-end;
+  column-gap: rem(30);
+}
+
+.m-header__links {
+  display: flex;
+  align-items: center;
+}
+
+.m-header__links li {
+  height: 100%;
+}
+
+.m-header__link {
+  display: grid;
+  align-items: center;
+  transition: color var(--duration__base);
+  padding-inline: rem(10);
+  padding-block: rem(25);
+}
+
+.m-header__buttons {
+  display: flex;
+  align-items: center;
+}
+
+.m-header__buttons li {
+  min-width: rem(200);
+}
+
+@include mq("md") {
+  .m-header__inner {
+    grid-template-columns: rem(100) 1fr;
+    padding-right: 0;
+  }
+  .m-header__logo {
+    padding-block: rem(10);
+  }
+}
+
+// スマホ時のボタンとメニュー
+@include mq("md") {
+  .m-header__hamburger {
+    z-index: var(--_z-index--header-items);
+    justify-self: end;
+  }
+}

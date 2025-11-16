@@ -1,0 +1,78 @@
+@use "../_global" as *;
+
+.m-schedule {
+  background-color: #fff;
+  padding-top: rem(8);
+  padding-bottom: rem(22);
+  padding-inline: rem(19);
+
+  @include mq(md) {
+    padding-inline: rem(14);
+  }
+}
+
+.m-schedule__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-family__mincho);
+}
+
+.m-schedule__table tr {
+  border-bottom: 1px solid #dbd7cc;
+}
+
+.m-schedule__table th,
+.m-schedule__table td {
+  padding-block: rem(14);
+  padding-inline: rem(16);
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+
+  @include mq(md) {
+    padding-block: rem(12);
+    padding-inline: rem(7);
+  }
+}
+
+.m-schedule__table th {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-sub);
+  font-weight: 500;
+
+  @include mq(md) {
+    font-size: rem(12);
+  }
+}
+
+.m-schedule__table tbody td {
+  padding-block: rem(20);
+}
+
+.m-schedule__time {
+  font-weight: 500;
+}
+
+.m-schedule__open {
+  font-family: var(--font-family__noto-sans);
+  color: var(--color__main);
+  font-weight: 700;
+}
+
+.m-schedule__closed {
+  font-family: var(--font-family__noto-sans);
+  color: #dbd7cc;
+}
+
+.m-schedule__note {
+  font-size: rem(14);
+  padding-top: rem(20);
+}
+
+@include mq(md) {
+  .m-schedule__table td {
+    font-size: rem(12);
+  }
+  .m-schedule__note {
+    font-size: rem(12);
+  }
+}

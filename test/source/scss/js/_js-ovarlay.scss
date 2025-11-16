@@ -1,0 +1,9 @@
+@use "../_global" as *;
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html:has(.js-overlay__trigger[aria-expanded="true"]) {
+  overflow-y: hidden;
+}

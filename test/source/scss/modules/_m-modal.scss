@@ -1,0 +1,109 @@
+@use "../_global" as *;
+
+.m-modal {
+  --_duration: 0.3s;
+
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  transition: visibility var(--_duration);
+  visibility: hidden;
+}
+
+.m-modal__backdrop {
+  position: fixed;
+  z-index: 1;
+  inset: 0;
+  background-color: rgb(0 0 0 / 0.3);
+  transition:
+    opacity var(--_duration),
+    visibility var(--_duration);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.m-modal__inner {
+  position: fixed;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  transition:
+    opacity var(--_duration),
+    visibility var(--_duration);
+  opacity: 0;
+  visibility: hidden;
+}
+
+.m-modal__content {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  max-height: 80vh;
+  background-color: #fff;
+  padding-block: rem(50);
+  padding-inline: rem(30);
+}
+
+/* 開いた時 */
+.m-modal.is-visible .m-modal__backdrop {
+  opacity: 1;
+  visibility: visible;
+}
+
+.m-modal.is-visible .m-modal__inner {
+  opacity: 1;
+  visibility: visible;
+}
+
+// 上にフェードイン
+.m-modal.m-modal--fade-up .m-modal__inner {
+  transition:
+    transform var(--_duration),
+    opacity var(--_duration),
+    visibility var(--_duration);
+  transform: translate(-50%, calc(-50% + 30px));
+}
+
+.m-modal.m-modal--fade-up.is-visible .m-modal__inner {
+  transform: translate(-50%, -50%);
+}
+
+// 下にフェードイン
+.m-modal.m-modal--fade-down .m-modal__inner {
+  transition:
+    transform var(--_duration),
+    opacity var(--_duration),
+    visibility var(--_duration);
+  transform: translate(-50%, calc(-50% - 30px));
+}
+
+.m-modal.m-modal--fade-down.is-visible .m-modal__inner {
+  transform: translate(-50%, -50%);
+}
+
+// 左にフェードイン
+.m-modal.m-modal--fade-left .m-modal__inner {
+  transition:
+    transform var(--_duration),
+    opacity var(--_duration),
+    visibility var(--_duration);
+  transform: translate(calc(-50% + 30px), -50%);
+}
+
+.m-modal.m-modal--fade-left.is-visible .m-modal__inner {
+  transform: translate(-50%, -50%);
+}
+
+// 右にフェードイン
+.m-modal.m-modal--fade-right .m-modal__inner {
+  transition:
+    transform var(--_duration),
+    opacity var(--_duration),
+    visibility var(--_duration);
+  transform: translate(calc(-50% - 30px), -50%);
+}
+
+.m-modal.m-modal--fade-right.is-visible .m-modal__inner {
+  transform: translate(-50%, -50%);
+}
