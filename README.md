@@ -4,12 +4,12 @@
 
 ## インストール
 
-### GitHub プライベートリポジトリからのインストール
+### GitHub リポジトリからのインストール
 
 プロジェクトのルートディレクトリで以下のコマンドを実行してください：
 
 ```bash
-npm install --save-dev git+ssh://git@github.com/dai-works/dai-runner.git
+npm install --save-dev https://github.com/dai-works/dai-runner.git
 ```
 
 または、`package.json`に直接記述する場合：
@@ -17,7 +17,7 @@ npm install --save-dev git+ssh://git@github.com/dai-works/dai-runner.git
 ```json
 {
   "devDependencies": {
-    "@dai-works/dai-runner": "git+ssh://git@github.com/dai-works/dai-runner.git"
+    "@dai-works/dai-runner": "https://github.com/dai-works/dai-runner.git"
   }
 }
 ```
@@ -25,7 +25,7 @@ npm install --save-dev git+ssh://git@github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev git+ssh://git@github.com/dai-works/dai-runner.git#v1.0.0
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.1.0
 ```
 
 ### 初回セットアップ
@@ -219,7 +219,7 @@ npm update @dai-works/dai-runner
 特定のバージョン（タグ）に更新する場合：
 
 ```bash
-npm install --save-dev git+ssh://git@github.com/dai-works/dai-runner.git#v1.1.0
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.1.0
 ```
 
 ## プログラマティックな使用方法
@@ -289,14 +289,6 @@ npm link @dai-works/dai-runner
 ```
 
 ## トラブルシューティング
-
-### SSH 接続エラー
-
-GitHub への SSH 接続が失敗する場合は、SSH キーが正しく設定されているか確認してください：
-
-```bash
-ssh -T git@github.com
-```
 
 ### 設定ファイルが見つからない
 
