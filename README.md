@@ -1,6 +1,6 @@
-# dai-runner - WordPress テーマ開発ツール
+# dai-runner - フロントエンドビルドツール
 
-`dai-runner`は、WordPress テーマ開発のためのビルドツールです。SCSS、JavaScript、画像ファイルの処理と最適化を行い、効率的な開発環境を提供します。
+`dai-runner`は、SCSS、JavaScript、画像ファイルの処理と最適化を行う軽量なビルドツールです。静的サイト、WordPress テーマ、ランディングページなど、シンプルなフロントエンド開発プロジェクトで使用できます。
 
 ## インストール
 
@@ -30,7 +30,7 @@ npm install --save-dev git+ssh://git@github.com/dai-works/dai-runner.git#v1.0.0
 
 ### 初回セットアップ
 
-#### 1. package.jsonにスクリプトを追加
+#### 1. package.json にスクリプトを追加
 
 プロジェクトの`package.json`に以下のスクリプトを追加してください：
 
@@ -57,7 +57,17 @@ npm run dev
 npx dai-runner precheck
 ```
 
-**重要：** プロキシモードを使用する場合は、`dev.proxy.target`の値をお使いの開発環境のWordPressサイトのURLに合わせる必要があります。
+**重要：** プロキシモードを使用する場合は、`dev.proxy.target`の値をお使いの開発環境のバックエンドサーバーの URL に合わせる必要があります（WordPress サイト、ローカルサーバーなど）。
+
+## 使用用途
+
+以下のような様々なフロントエンド開発プロジェクトで使用できます：
+
+- **静的サイト** - HTML/CSS/JS の静的サイト開発
+- **WordPress テーマ** - プロキシモード（BrowserSync）でローカル WordPress 環境と連携
+- **ランディングページ** - マーケティング用のランディングページ制作
+- **コーポレートサイト** - 企業サイトやポートフォリオサイト
+- **その他** - SCSS/JS/画像を使用するシンプルなフロントエンドプロジェクト
 
 ## 開発コマンド
 
@@ -191,9 +201,11 @@ dai-runner/
 
 ## 注意事項
 
-- `npm run dev` 実行時は、WordPress の開発環境が起動している必要があります（proxy mode の場合）
+- `npm run dev` 実行時にプロキシモードを使用する場合は、バックエンドサーバー（WordPress、Node.js サーバーなど）が起動している必要があります
 - 本番環境にデプロイする前に `npm run build` を実行して最適化されたファイルを生成してください
-- 設定ファイル `dai-runner.config.js` はプロジェクトルート（テーマルート）に配置し、`.gitignore`に追加することを推奨します
+- 設定ファイル `dai-runner.config.js` はプロジェクトルートに配置してください
+  - **サーバーモード（`mode: 'server'`）の場合**：設定を共有するため、Git 管理することを推奨します
+  - **プロキシモード（`mode: 'proxy'`）の場合**：各開発者のローカル環境に依存するため、`.gitignore` に追加することを推奨します
 - 新しい環境でセットアップする際は `npx dai-runner precheck` を実行するか、手動で `dai-runner.config.js` を作成してください
 
 ## アップデート

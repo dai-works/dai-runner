@@ -2,7 +2,7 @@
 
 /**
  * dai-runner CLI エントリーポイント
- * 
+ *
  * このスクリプトは、dai-runnerをコマンドラインから実行するためのエントリーポイントです。
  * npm installでインストール後、`npx dai-runner <command>`で実行できます。
  */
@@ -114,4 +114,3 @@ dai-runner - WordPressテーマ開発ツール
 
 // メイン処理を実行
 main();
-

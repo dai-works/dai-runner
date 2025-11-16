@@ -1,7 +1,7 @@
 {
   "name": "@dai-works/dai-runner",
   "version": "1.0.0",
-  "description": "WordPressテーマ開発のためのビルドツール - SCSS、JavaScript、画像ファイルの処理と最適化",
+  "description": "軽量フロントエンドビルドツール - SCSS、JavaScript、画像ファイルの処理と最適化",
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -14,14 +14,17 @@
     "prebuild": "node scripts/precheck.js"
   },
   "keywords": [
-    "wordpress",
-    "theme",
     "build-tool",
+    "frontend",
     "scss",
     "sass",
     "bundler",
     "image-optimization",
-    "browsersync"
+    "browsersync",
+    "wordpress",
+    "theme",
+    "static-site",
+    "landing-page"
   ],
   "author": "Dai Works",
   "license": "MIT",
