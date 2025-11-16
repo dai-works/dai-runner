@@ -25,7 +25,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.1.0
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.2.1
 ```
 
 ### 初回セットアップ
@@ -45,7 +45,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.1.0
 
 #### 2. 開発を開始
 
-初回実行時に自動的に対話形式で`dai-runner.config.js`が作成されます：
+初回実行時に自動的に対話形式で設定ファイルが作成されます：
 
 ```bash
 npm run dev
@@ -57,7 +57,13 @@ npm run dev
 npx dai-runner precheck
 ```
 
-**重要：** プロキシモードを使用する場合は、`dev.proxy.target`の値をお使いの開発環境のバックエンドサーバーの URL に合わせる必要があります（WordPress サイト、ローカルサーバーなど）。
+初回実行時の質問で開発環境のタイプを選択してください：
+
+- **静的ファイルのみ (server)**: HTML/CSS/JS の静的サイト開発
+- **dai-traefik を使用**: Traefik を使ったプロキシ環境
+- **外部サーバー**: Local、Docker、XAMPP 等の外部サーバー
+
+選択に応じて `dai-runner.config.local.js` が自動生成されます（個人設定用、Git 管理外）。
 
 ## 使用用途
 
@@ -128,14 +134,31 @@ npm run build
 
 ## 設定カスタマイズ
 
+### 設定ファイルの種類
+
+- **`dai-runner.config.js`** (Git 管理推奨)
+  - チーム共通の設定
+  - パス設定、画像処理オプション、ビルド設定など
+- **`dai-runner.config.local.js`** (Git 管理外、個人用)
+  - 個人のローカル環境に依存する設定
+  - プロキシのターゲット URL、認証ヘッダーなど
+  - 初回実行時に自動生成
+
+### カスタマイズ可能な設定
+
 `dai-runner.config.js` で以下の設定をカスタマイズできます：
 
 - ソースファイルと出力先のパス
-- 開発サーバーの設定（プロキシ URL など）
 - 画像処理オプション（最大幅、品質、WebP 変換など）
 - CSS/JS 処理オプション（圧縮、ソースマップなど）
 - クリーンアップの除外ファイル（残したいファイルを指定）
 - ログレベル
+
+`dai-runner.config.local.js` で以下の設定をカスタマイズできます：
+
+- 開発環境のモード（server / proxy）
+- プロキシのターゲット URL
+- カスタムヘッダーやリクエスト改変
 
 ### クリーンアップの除外設定
 
@@ -172,7 +195,8 @@ your-project/                    # プロジェクトルート
 │   ├── css/                     # コンパイル済みCSSファイル
 │   ├── js/                      # 処理済みJavaScriptファイル
 │   └── images/                  # 最適化済み画像ファイル
-├── dai-runner.config.js         # dai-runner設定ファイル（プロジェクト固有）
+├── dai-runner.config.js         # dai-runner設定ファイル（チーム共通、Git管理）
+├── dai-runner.config.local.js   # ローカル設定ファイル（個人用、Git無視）
 └── package.json
 ```
 
@@ -193,7 +217,8 @@ dai-runner/
 │   ├── misc/
 │   └── server/
 ├── utils/                   # ユーティリティ関数
-├── dai-runner.config.js.example  # 設定ファイルのサンプル
+├── dai-runner.config.js.example        # 設定ファイルのサンプル（チーム共通用）
+├── dai-runner.config.local.js.example  # ローカル設定ファイルのサンプル（個人用）
 ├── index.js                 # パッケージエントリーポイント
 ├── package.json
 └── README.md
@@ -203,10 +228,10 @@ dai-runner/
 
 - `npm run dev` 実行時にプロキシモードを使用する場合は、バックエンドサーバー（WordPress、Node.js サーバーなど）が起動している必要があります
 - 本番環境にデプロイする前に `npm run build` を実行して最適化されたファイルを生成してください
-- 設定ファイル `dai-runner.config.js` はプロジェクトルートに配置してください
-  - **サーバーモード（`mode: 'server'`）の場合**：設定を共有するため、Git 管理することを推奨します
-  - **プロキシモード（`mode: 'proxy'`）の場合**：各開発者のローカル環境に依存するため、`.gitignore` に追加することを推奨します
-- 新しい環境でセットアップする際は `npx dai-runner precheck` を実行するか、手動で `dai-runner.config.js` を作成してください
+- 設定ファイルはプロジェクトルートに配置してください
+  - **`dai-runner.config.js`**: Git 管理を推奨（チーム共通設定）
+  - **`dai-runner.config.local.js`**: `.gitignore` に追加を推奨（個人設定）
+- 新しい環境でセットアップする際は `npm run dev` を実行すると、自動的に `dai-runner.config.local.js` が作成されます
 
 ## アップデート
 
@@ -219,7 +244,7 @@ npm update @dai-works/dai-runner
 特定のバージョン（タグ）に更新する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.1.0
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.2.1
 ```
 
 ## プログラマティックな使用方法
@@ -292,11 +317,19 @@ npm link @dai-works/dai-runner
 
 ### 設定ファイルが見つからない
 
-`dai-runner.config.js`が見つからない場合は、プロジェクトルートで以下を実行してください：
+設定ファイルが見つからない場合は、プロジェクトルートで以下を実行してください：
+
+```bash
+npm run dev
+```
+
+または
 
 ```bash
 npx dai-runner precheck
 ```
+
+これにより、対話形式で `dai-runner.config.local.js` が自動生成されます。
 
 ### パーミッションエラー
 

@@ -5,6 +5,16 @@
  * @property {Object} dev - 開発環境の設定
  * @property {Object} build - 本番環境の設定
  */
+
+// ローカル設定を読み込み（個人環境依存の設定）
+let localConfig = {};
+try {
+  const module = await import('./dai-runner.config.local.js');
+  localConfig = module.default || {};
+} catch (e) {
+  // ローカル設定がない場合はデフォルト値を使用
+}
+
 export const config = {
   // パス設定（ソースとビルド後のディレクトリを定義）
   paths: {
@@ -72,20 +82,13 @@ export const config = {
 
   // 開発環境設定
   dev: {
-    // 静的HTMLサイトの場合は 'server' を使用
-    // WordPressなどの場合は 'proxy' に変更してproxy設定を有効化
-    mode: 'server',
+    // mode と proxy は dai-runner.config.local.js で設定されます
+    // 初回実行時に自動的に作成されます
+    mode: localConfig.mode || 'server',
     server: { baseDir: './public' },
-    proxy: {
+    proxy: localConfig.proxy || {
       target: 'http://127.0.0.1',
-      proxyReq: [
-        function (proxyReq) {
-          // Hostヘッダーにはホスト名のみを指定（http://やhttps://、末尾の/は含めない）
-          // 例: 'sample-wp.localhost' (OK)
-          // 誤: 'http://sample-wp.localhost/' (NG)
-          proxyReq.setHeader('Host', 'sample-wp.localhost');
-        },
-      ],
+      proxyReq: [],
     },
     options: {
       js: {

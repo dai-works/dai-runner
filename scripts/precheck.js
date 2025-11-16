@@ -18,58 +18,34 @@ const localConfigExamplePath = path.resolve(
 
 /**
  * dai-runner.config.local.jsを生成
+ * example ファイルをコピーして必要な部分を置換
  */
 function generateLocalConfig(mode, targetOrHostname) {
+  // example ファイルを読み込み
+  let configContent = fs.readFileSync(localConfigExamplePath, 'utf8');
+
   if (mode === 'traefik') {
-    // Traefikモード：Hostヘッダーを設定
+    // Traefikモード：modeをproxyに変更し、Hostヘッダーを変更
     const cleanHostname = targetOrHostname
       .replace(/^https?:\/\//, '')
       .replace(/\/$/, '');
-    return `/**
- * ローカル環境設定ファイル（個人用）
- * このファイルはGit管理されません
- */
-export default {
-  mode: 'proxy',
-  proxy: {
-    target: 'http://127.0.0.1',
-    proxyReq: [
-      function (proxyReq) {
-        proxyReq.setHeader('Host', '${cleanHostname}');
-      },
-    ],
-  },
-};
-`;
+    configContent = configContent.replace(/mode: 'server'/, `mode: 'proxy'`);
+    // コメントアウトされた関数を有効化して、Hostヘッダーを変更
+    configContent = configContent.replace(
+      /\/\/ 例: Hostヘッダーを変更（Traefik等を使用する場合）\s*\n\s*\/\/ function \(proxyReq\) \{\s*\n\s*\/\/\s*proxyReq\.setHeader\('Host', 'sample-wp\.localhost'\);\s*\n\s*\/\/ \},?/,
+      `function (proxyReq) {\n        proxyReq.setHeader('Host', '${cleanHostname}');\n      },`
+    );
   } else if (mode === 'external') {
-    // 外部WordPressモード：targetのみ設定
-    return `/**
- * ローカル環境設定ファイル（個人用）
- * このファイルはGit管理されません
- */
-export default {
-  mode: 'proxy',
-  proxy: {
-    target: '${targetOrHostname}',
-    proxyReq: [],
-  },
-};
-`;
-  } else {
-    // proxy不要モード（server）：デフォルト値
-    return `/**
- * ローカル環境設定ファイル（個人用）
- * このファイルはGit管理されません
- */
-export default {
-  mode: 'server',
-  proxy: {
-    target: 'http://127.0.0.1',
-    proxyReq: [],
-  },
-};
-`;
+    // 外部サーバーモード：modeをproxyに変更し、targetを変更
+    configContent = configContent.replace(/mode: 'server'/, `mode: 'proxy'`);
+    configContent = configContent.replace(
+      /target: 'http:\/\/127\.0\.0\.1'/,
+      `target: '${targetOrHostname}'`
+    );
+    // proxyReqはコメントのまま（空配列）
   }
+
+  return configContent;
 }
 
 /**
@@ -87,20 +63,30 @@ async function createLocalConfigInteractively() {
         message: '開発環境のタイプを選択してください:',
         choices: [
           {
+            name: '静的ファイルのみ (server)',
+            value: 'server',
+          },
+          {
             name: 'dai-traefikを使用',
             value: 'traefik',
           },
           {
-            name: '外部WordPress (Local, Dockerでdai-traefik未使用, XAMPP, etc.)',
+            name: '外部サーバー (Local, Dockerでdai-traefik未使用, XAMPP, etc.)',
             value: 'external',
-          },
-          {
-            name: '静的ファイルのみ (server)',
-            value: 'server',
           },
         ],
       },
     ]);
+
+    // serverモードの場合はexampleをそのままコピー
+    if (modeAnswer.mode === 'server') {
+      fs.copyFileSync(localConfigExamplePath, localConfigPath);
+      console.log(
+        '\n✅ 静的ファイルモードのため、デフォルト設定ファイルを作成しました。'
+      );
+      console.log('📋 すべての設定は dai-runner.config.js で共有されます。\n');
+      return;
+    }
 
     let targetOrHostname;
     let configContent;
@@ -124,12 +110,12 @@ async function createLocalConfigInteractively() {
       targetOrHostname = hostAnswer.hostname;
       configContent = generateLocalConfig(modeAnswer.mode, targetOrHostname);
     } else if (modeAnswer.mode === 'external') {
-      // 外部WordPressモード：URLを入力
+      // 外部サーバーモード：URLを入力
       const targetAnswer = await inquirer.prompt([
         {
           type: 'input',
           name: 'target',
-          message: 'WordPressのURLを入力してください:',
+          message: 'サーバーのURLを入力してください:',
           default: 'http://localhost:8080',
           validate: (input) => {
             if (!input.trim()) {
@@ -144,10 +130,6 @@ async function createLocalConfigInteractively() {
       ]);
       targetOrHostname = targetAnswer.target;
       configContent = generateLocalConfig(modeAnswer.mode, targetOrHostname);
-    } else {
-      // serverモード：proxy設定は不要
-      targetOrHostname = 'デフォルト';
-      configContent = generateLocalConfig(modeAnswer.mode, targetOrHostname);
     }
 
     // dai-runner.config.local.jsを生成
@@ -161,8 +143,6 @@ async function createLocalConfigInteractively() {
       console.log(`   - proxy.host: ${targetOrHostname}`);
     } else if (modeAnswer.mode === 'external') {
       console.log(`   - proxy.target: ${targetOrHostname}`);
-    } else {
-      console.log(`   - proxy設定: デフォルト値`);
     }
 
     console.log(

@@ -21,6 +21,7 @@ config.js
 # エディタ設定
 .vscode/
 .idea/
+.cursor/
 *.swp
 *.swo
 *~
@@ -35,4 +36,3 @@ Thumbs.db
 # その他
 .env
 .env.*
-
