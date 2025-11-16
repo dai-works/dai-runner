@@ -5,6 +5,41 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
 バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.2.0] - 2025-11-16
+
+### 追加
+
+- **設定ファイルの分離機能**: チーム共有設定と個人設定を分離できるようになりました
+  - `dai-runner.config.js`: チーム共有設定（Git管理対象）
+  - `dai-runner.config.local.js`: 個人のproxy設定など（Git管理対象外）
+  - `dai-runner.config.local.js.example`: 新規メンバー向けテンプレート
+- **自動設定生成の改善**: 初回実行時に `dai-runner.config.local.js` を自動生成
+  - 開発環境タイプ（Traefik/外部WordPress/静的ファイル）の選択
+  - 選択に応じた最適なproxy設定の自動生成
+- **mode設定のローカル化**: 開発環境のモード（server/proxy）を個人設定で切り替え可能に
+
+### 変更
+
+- `.gitignore`: `dai-runner.config.js` から `dai-runner.config.local.js` に変更
+- `precheck.js`: ローカル設定ファイルの生成に対応
+- NPMパッケージに `dai-runner.config.local.js.example` を追加
+
+### メリット
+
+- 個人のローカル環境設定をコミットせずに済む
+- チーム共通設定の更新が全員に反映されやすくなる
+- Git マージコンフリクトが発生しにくくなる
+- 新規メンバーのオンボーディングが簡単に
+
+### 移行ガイド
+
+既存プロジェクトでは以下の2つの方法で利用できます：
+
+1. **そのまま使用**: 既存の `dai-runner.config.js` をそのまま使用（互換性あり）
+2. **設定分離**: proxy設定を `dai-runner.config.local.js` に移動（推奨）
+
+詳細は README.md を参照してください。
+
 ## [1.1.0] - 2025-11-16
 
 ### 修正
