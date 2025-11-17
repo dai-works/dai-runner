@@ -8,7 +8,7 @@ import Logger from './Logger.js';
  * ファイルハッシュと設定ハッシュを使用してインクリメンタルビルドを実現
  */
 export default class CacheManager {
-  constructor(cacheDir = '.dai-runner-cache') {
+  constructor(cacheDir = '.dai-runner/cache') {
     this.cacheDir = cacheDir;
     this.manifestPath = path.join(cacheDir, 'manifest.json');
     this.manifest = null;
@@ -110,7 +110,7 @@ export default class CacheManager {
       if (this.manifest.optionsHash !== currentOptionsHash) {
         Logger.log(
           'INFO',
-          '画像最適化の設定が変更されたため、全ファイルを再処理します',
+          '画像最適化の設定が変更されたため、全ファイルを再処理します'
         );
         // 設定が変更された場合は全ファイルを再処理
         this.manifest.optionsHash = currentOptionsHash;
@@ -139,7 +139,8 @@ export default class CacheManager {
       // WebP変換が有効な場合、WebPファイルもチェック
       if (
         options.convertToWebp &&
-        (srcPath.match(/\.(jpg|jpeg|png)$/i) || distPath.match(/\.(jpg|jpeg|png)$/i))
+        (srcPath.match(/\.(jpg|jpeg|png)$/i) ||
+          distPath.match(/\.(jpg|jpeg|png)$/i))
       ) {
         const webpPath = distPath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
         if (!(await this.fileExists(webpPath))) {
@@ -202,7 +203,7 @@ export default class CacheManager {
       await fs.writeFile(
         this.manifestPath,
         JSON.stringify(this.manifest, null, 2),
-        'utf-8',
+        'utf-8'
       );
       Logger.log('INFO', 'キャッシュマニフェストを保存しました');
     } catch (err) {
@@ -243,5 +244,3 @@ export default class CacheManager {
     };
   }
 }
-
-

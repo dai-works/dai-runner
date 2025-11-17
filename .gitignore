@@ -27,5 +27,5 @@ coverage/
 # ビルド成果物（このパッケージ自体のビルド、もしあれば）
 dist/
 
-# キャッシュディレクトリ
-.dai-runner-cache/
+# dai-runnerディレクトリ（キャッシュなど）
+.dai-runner/
