@@ -49,7 +49,7 @@ export const config = {
     // 例) 新しい静的カテゴリを追加したい場合
     // downloads: {
     //   src: 'source/downloads', // 手元の原本置き場
-    //   dist: 'assets/downloads', // 本番配布用の出力先
+    //   dist: 'public/assets/downloads', // 本番配布用の出力先
     // },
   },
 
