@@ -1,0 +1,27 @@
+# Node関連
+node_modules/
+npm-debug.log*
+
+# ビルド出力
+public/assets/
+
+# OS関連
+.DS_Store
+*:Zone.Identifier
+Thumbs.db
+
+# エディタ関連
+.idea/
+
+# 開発ツール関連
+.claude/
+CLAUDE.md
+
+# ログ
+*.log
+
+# ESLintキャッシュ
+.eslintcache
+
+# dai-runner関連
+.dai-runner/

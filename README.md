@@ -25,7 +25,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.2.3
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.3.0
 ```
 
 ### 初回セットアップ
@@ -45,7 +45,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.2.3
 
 #### 2. 開発を開始
 
-初回実行時に自動的に対話形式で設定ファイルが作成されます：
+初回実行時に自動的に必要な設定ファイルが作成されます：
 
 ```bash
 npm run dev
@@ -57,13 +57,16 @@ npm run dev
 npx dai-runner precheck
 ```
 
+**自動生成されるファイル：**
+
+1. `dai-runner.config.js` - チーム共通の設定ファイル（存在しない場合のみ）
+2. `dai-runner.config.local.js` - 個人用の設定ファイル（初回実行時に対話形式で作成）
+
 初回実行時の質問で開発環境のタイプを選択してください：
 
 - **静的ファイルのみ (server)**: HTML/CSS/JS の静的サイト開発
 - **dai-traefik を使用**: Traefik を使ったプロキシ環境
 - **外部サーバー**: Local、Docker、XAMPP 等の外部サーバー
-
-選択に応じて `dai-runner.config.local.js` が自動生成されます（個人設定用、Git 管理外）。
 
 ## 使用用途
 
@@ -244,7 +247,7 @@ npm update @dai-works/dai-runner
 特定のバージョン（タグ）に更新する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.2.3
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.3.0
 ```
 
 ## プログラマティックな使用方法

@@ -1,0 +1,351 @@
+---
+globs: *.scss
+description: SCSS/CSSのコーディング規約（DaiCSS設計ルール）
+---
+
+# SCSS/CSS コーディング規約（DaiCSS）
+
+DaiCSSは、シンプル・スケーラブル・現場実務向きを最優先に考えて設計されたCSS設計ルールです。
+
+## 命名規則と接頭辞
+
+- **接頭辞を必ず付ける**
+  - `js-`: JavaScript連携用クラス
+  - `l-`: Layout（レイアウト）
+  - `m-`: Module（UIモジュール）
+  - `p-`: Page（ページ固有スタイル）
+  - `u-`: Utility（ユーティリティクラス）
+- 単語区切りはハイフン（`-`）を使用
+- 英語表記、短く分かりやすく
+
+## モジュール運用ルール
+
+- 拡張が必要な場合はモディファイアクラス（`--`付き）を使用する
+
+### 命名スタイル
+
+- モジュール本体: `m-[ブロック名]`
+- モディファイア: `m-[ブロック名]--[状態・バリエーション名]`
+- エレメント: `m-[ブロック名]__[要素名]`
+
+**例:**
+
+```html
+<button class="m-button">送信</button>
+<button class="m-button m-button--modal-trigger">モーダルを開く</button>
+
+<div class="m-card">
+  <h2 class="m-card__title">タイトル</h2>
+  <p class="m-card__text">本文</p>
+</div>
+```
+
+## 基本的なコーディングルール
+
+- **セレクタは深くしない**
+- **基本的に入れ子禁止**（例外はモジュール内部で必要最小限の場合のみ）
+- クラス指定を基本とする
+- IDセレクタ、タグセレクタは原則禁止
+- JavaScript連携は `js-` 接頭辞必須
+- Utilityクラスは単機能に限定
+
+## 単位の扱い
+
+- **フォントサイズや余白は `rem` を基本とする**
+- **`rem()` 関数を使用して計算を簡略化する**
+
+**推奨:**
+
+```scss
+.m-button {
+  font-size: rem(16);
+  padding: rem(8) rem(16);
+  margin-top: rem(24);
+}
+```
+
+**非推奨:**
+
+```scss
+.m-button {
+  font-size: 16px;
+  padding: 8px 16px;
+  margin-top: 24px;
+}
+```
+
+## hoverスタイルの記述方法
+
+- **`@include hover` mixinを使用すること**
+- タッチデバイス対応とアクセシビリティ（`:focus-visible`）に自動対応される
+- 直接 `:hover` を書かない
+
+**推奨:**
+
+```scss
+.m-button {
+  background-color: var(--color__main);
+
+  @include hover {
+    background-color: var(--color__sub);
+    opacity: var(--opacity__hover);
+  }
+}
+```
+
+**非推奨:**
+
+```scss
+.m-button {
+  background-color: var(--color__main);
+}
+
+.m-button:hover {
+  background-color: var(--color__sub);
+}
+```
+
+## レスポンシブ対応
+
+- **`@include mq()` mixinを使用すること**
+- 基本的にPCファースト（`max-width`）で設計
+- 必要に応じてモバイルファースト（`min-width`）も使用可能
+
+**PCファースト（デフォルト）:**
+
+```scss
+.m-card {
+  width: 100%;
+  margin-top: rem(32);
+
+  @include mq('md') {
+    // 767px以下で適用
+    width: 50%;
+    margin-top: rem(16);
+  }
+}
+```
+
+**モバイルファースト:**
+
+```scss
+.m-card {
+  width: 100%;
+
+  @include mq('md', 'min-width') {
+    // 768px以上で適用
+    width: 50%;
+  }
+}
+```
+
+## 論理プロパティの使用
+
+- **padding/marginは論理プロパティを優先的に使用すること**
+- `padding-block`（上下）、`padding-inline`（左右）を使う
+- 上方向のみの場合は `padding-block-start` を使う
+- 国際化（多言語対応）に有利
+
+**推奨:**
+
+```scss
+// 上下・左右を一括設定
+.element {
+  padding-block: rem(20); // padding-top + padding-bottom
+  padding-inline: rem(16); // padding-left + padding-right
+}
+
+// 上方向のみ設定（余白ルールに従う場合）
+.element {
+  padding-block-start: rem(20); // padding-top相当
+  margin-block-start: rem(24); // margin-top相当
+}
+```
+
+**非推奨:**
+
+```scss
+.element {
+  padding-top: rem(20);
+  padding-bottom: rem(20);
+  padding-left: rem(16);
+  padding-right: rem(16);
+}
+```
+
+## 余白の設定
+
+- **余白は基本的に`padding`を使用すること**
+- `margin`よりも`padding`を優先して使用する
+- **余白は基本的に上方向のみ設定すること**
+- 下方向の余白は原則使用しない
+- これにより、余白の重複や予期しないレイアウト崩れを防ぐ
+
+**推奨（論理プロパティを使う場合）:**
+
+```scss
+.element {
+  padding-block-start: rem(20); // padding-top相当
+  margin-block-start: rem(24); // margin-top相当
+}
+```
+
+**推奨（通常のプロパティを使う場合）:**
+
+```scss
+.element {
+  padding-top: rem(20);
+  margin-top: rem(24);
+}
+```
+
+**非推奨:**
+
+```scss
+.element {
+  padding-bottom: rem(20);
+  margin-bottom: rem(20);
+  // または
+  padding-block-end: rem(20);
+  margin-block-end: rem(20);
+}
+```
+
+## SCSSのネスト記法
+
+- **SCSSの場合、`&`（親セレクタ参照）は基本的に使わないで記載すること**
+- セレクタは明示的に記述する
+- **例外**: `@include hover`、`@include mq`などのmixin呼び出しの**内部**でのみ`&`の使用を許可する
+- mixin呼び出しの外側では`&`を使わない
+
+**推奨:**
+
+```scss
+.parent {
+  color: red;
+}
+
+.parent .child {
+  color: blue;
+}
+
+.parent--modifier {
+  color: green;
+}
+
+// 疑似要素も明示的に記述
+.icon::before,
+.icon::after {
+  content: '';
+  position: absolute;
+}
+
+// mixin内部では&を使用してOK
+.button {
+  @include hover {
+    &::after {
+      transform: scale(1.1);
+    }
+  }
+}
+```
+
+**非推奨:**
+
+```scss
+.parent {
+  color: red;
+
+  .child {
+    color: blue;
+  }
+
+  &--modifier {
+    color: green;
+  }
+}
+
+// mixin外で&を使う
+.icon {
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+  }
+}
+```
+
+## CSS変数（カスタムプロパティ）の命名規則
+
+### グローバル変数
+
+- **グローバル変数は `--` で始める**（`--_` は付けない）
+- **変数名はBEMのように `__` で繋ぐこと**（カテゴリ\_\_名前の形式）
+- `:root` で定義し、プロジェクト全体で使用する
+- 定義場所: `source/scss/bases/_variables.scss`
+
+**例:**
+
+```scss
+:root {
+  // フォント関連
+  --font-size__base: 16;
+  --font-family__base: 'Noto Sans JP', sans-serif;
+
+  // カラー関連
+  --color__main: #667eea;
+  --color__text: #2d3748;
+  --color__error: #e53e3e;
+
+  // レイアウト関連
+  --width__contents: 1200px;
+  --space-inline__base: 20px;
+
+  // スタイル関連
+  --duration__base: 0.3s;
+  --opacity__hover: 0.7;
+  --radius__base: 26;
+}
+```
+
+### クラス専用変数（プライベート変数）
+
+- **クラス専用のCSS変数には `--_` を接頭辞として付けること**
+- グローバル変数と区別するため、プライベートな変数であることを明示する
+- クラス内でのみ使用する変数には必ず `--_` を付ける
+- **変数名はBEMのように `__` で繋ぐこと**（カテゴリ\_\_名前の形式）
+
+**推奨:**
+
+```scss
+.m-button {
+  // クラス専用の変数（プライベート）
+  --_color__main-default: var(--color__main);
+  --_color__sub-default: #fff;
+  --_color__main: var(--_color__main-default);
+  --_color__sub: var(--_color__sub-default);
+  --_duration: var(--duration__base);
+
+  color: var(--_color__sub);
+  background-color: var(--_color__main);
+  transition: color var(--_duration);
+}
+
+.m-button--invert {
+  --_color__main: var(--_color__sub-default);
+  --_color__sub: var(--_color__main-default);
+}
+```
+
+**非推奨:**
+
+```scss
+.m-button {
+  // --_ なしでクラス専用の変数を定義
+  --color-main: var(--color__main);
+  --color-sub: #fff;
+
+  color: var(--color-sub);
+  background-color: var(--color-main);
+}
+```

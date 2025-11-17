@@ -5,6 +5,21 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
 バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.3.0] - 2025-11-17
+
+### 追加
+
+- **メイン設定ファイルの自動作成機能**
+  - `dai-runner.config.js` が存在しない場合、`dai-runner.config.js.example` から自動的にコピーして作成
+  - 初回実行時の設定ファイル不足エラーを防止
+  - `precheck.js` スクリプトに自動作成処理を追加
+
+### 改善
+
+- **初回セットアップの体験向上**
+  - `npm run dev` 実行時に必要なファイルがすべて自動生成されるようになりました
+  - 手動でファイルをコピーする手間が不要に
+
 ## [1.2.3] - 2025-11-17
 
 ### 改善

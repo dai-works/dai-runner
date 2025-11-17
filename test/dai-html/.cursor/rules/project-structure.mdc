@@ -1,0 +1,154 @@
+---
+alwaysApply: true
+description: プロジェクト構造とビルドシステムのルール
+---
+
+# プロジェクト構造ルール
+
+## 重要な原則
+
+### 編集禁止ディレクトリ
+
+**`public/assets/` ディレクトリ内のファイルは絶対に直接編集しない**
+
+- このディレクトリは dai-runner ビルドシステムによって自動生成される
+- 全てのファイルは `source/` から自動的にビルド・コピーされる
+- 手動で編集しても、次回ビルド時に上書きされる
+
+### 公開用ディレクトリ
+
+**`public/` ディレクトリは本番環境へのアップロード対象**
+
+- 静的HTMLサイトの場合：`public/` フォルダの中身をFTPアップロード
+- WordPressテーマの場合：`public/assets/` を含む必要ファイルをアップロード
+- HTMLファイルは `public/` ディレクトリに配置（静的サイトの場合）
+
+### 編集すべきディレクトリ
+
+- **`source/`** - ソースファイル（SCSS、JS、画像など）
+- **`includes/`** - PHP機能ファイル
+- **`template-parts/`** - テンプレートパーツ
+- **ルートディレクトリのPHPファイル** - テーマテンプレート
+
+## ビルドシステム (dai-runner)
+
+### 自動変換ルール
+
+```
+source/scss/*.scss        → public/assets/css/*.css (コンパイル)
+source/js/*.js            → public/assets/js/*.js (バンドル)
+source/images/*           → public/assets/images/* (最適化)
+source/fonts/*            → public/assets/fonts/* (コピー)
+source/documents/*        → public/assets/documents/* (コピー)
+source/vendor/*           → public/assets/vendor/* (コピー)
+source/videos/*           → public/assets/videos/* (コピー)
+```
+
+### 開発コマンド
+
+```bash
+npm run dev      # 開発環境の起動（ファイル監視 + 自動リロード）
+npm run build    # 本番用ビルド（最適化）
+```
+
+## ファイル編集時の注意
+
+### スタイルを変更したい場合
+
+❌ **間違い**: `public/assets/css/style.css` を編集
+✅ **正解**: `source/scss/style.scss` を編集 → 自動ビルド
+
+### JavaScriptを変更したい場合
+
+❌ **間違い**: `public/assets/js/main.js` を編集
+✅ **正解**: `source/js/main.js` を編集 → 自動ビルド
+
+### 画像を追加・変更したい場合
+
+❌ **間違い**: `public/assets/images/` に直接配置
+✅ **正解**: `source/images/` に配置 → 自動最適化
+
+### HTMLファイルを編集したい場合（静的サイト）
+
+❌ **間違い**: プロジェクトルートの `.html` ファイルを編集
+✅ **正解**: `public/` ディレクトリ内の `.html` ファイルを編集
+
+## ディレクトリ構造
+
+```
+dai-html/
+├── public/              # 【公開用】本番環境へのアップロード対象
+│   ├── index.html      # HTMLファイル（静的サイトの場合）
+│   └── assets/         # 【編集禁止】ビルド済みファイル（自動生成）
+│       ├── css/        # コンパイル済みCSS
+│       ├── js/         # バンドル済みJS
+│       ├── images/     # 最適化済み画像
+│       ├── fonts/      # フォント
+│       ├── documents/  # ドキュメント
+│       ├── vendor/     # サードパーティ
+│       └── videos/     # 動画
+├── source/              # 【編集OK】ソースファイル
+│   ├── scss/           # SCSSファイル（DaiCSS設計）
+│   ├── js/             # JavaScriptファイル
+│   ├── images/         # 元画像ファイル
+│   ├── fonts/          # フォントファイル
+│   ├── documents/      # ドキュメントファイル
+│   ├── vendor/         # サードパーティライブラリ
+│   └── videos/         # 動画ファイル
+├── includes/            # 【編集OK】PHP機能ファイル（WordPress）
+├── template-parts/      # 【編集OK】テンプレートパーツ（WordPress）
+├── dai-runner/          # ビルドシステム（通常編集不要）
+└── (その他のPHPファイル) # 【編集OK】テーマテンプレート（WordPress）
+```
+
+## よくある間違い
+
+### ❌ ビルド済みファイルを直接編集
+
+```php
+// 間違い：ビルド済みCSSを直接編集
+// public/assets/css/style.css を VSCode で開いて編集
+```
+
+### ✅ ソースファイルを編集
+
+```scss
+// 正解：SCSSファイルを編集
+// source/scss/style.scss を編集
+// → 保存時に自動的に public/assets/css/style.css にコンパイルされる
+```
+
+### ❌ ビルドせずにファイルを配置
+
+```
+// 間違い：public/assetsに直接ファイルを配置
+public/assets/images/new-image.png を手動でコピー
+```
+
+### ✅ ソースに配置してビルド
+
+```
+// 正解：sourceに配置
+source/images/new-image.png を配置
+→ npm run dev または npm run build で自動的に最適化され
+  public/assets/images/new-image.png が生成される
+```
+
+## デプロイ（本番環境へのアップロード）
+
+### 静的HTMLサイトの場合
+
+- **`public/` フォルダの中身**をすべてFTPアップロード
+- サーバーのドキュメントルート（`public_html/` など）にアップロード
+
+### WordPressテーマの場合
+
+- `public/assets/` を含む必要なファイルをアップロード
+- PHPファイル、`includes/`、`template-parts/` なども忘れずに
+
+## チーム開発での注意
+
+- `public/assets/` ディレクトリは `.gitignore` に含まれているため、コミット対象外
+- `public/*.html` などの実際のHTMLファイルはコミット対象
+- 変更を共有する場合は `source/` ディレクトリのファイルをコミット
+- 他のメンバーは `npm run build` でビルドすることで同じ状態になる

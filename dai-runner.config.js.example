@@ -11,7 +11,7 @@ let localConfig = {};
 try {
   const module = await import('./dai-runner.config.local.js');
   localConfig = module.default || {};
-} catch (e) {
+} catch (_e) {
   // ローカル設定がない場合はデフォルト値を使用
 }
 
@@ -85,7 +85,7 @@ export const config = {
     // mode と proxy は dai-runner.config.local.js で設定されます
     // 初回実行時に自動的に作成されます
     mode: localConfig.mode || 'server',
-    server: { baseDir: './public' },
+    server: { baseDir: 'public' },
     proxy: localConfig.proxy || {
       target: 'http://127.0.0.1',
       proxyReq: [],

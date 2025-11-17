@@ -1,0 +1,23 @@
+# ルートで止める
+root = true
+
+# 全ファイル共通
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+
+# Markdown は末尾スペースを許容（改行表現のため）
+[*.md]
+trim_trailing_whitespace = false
+
+# Makefile とかはタブ必須
+[Makefile]
+indent_style = tab
+
+# PHP は4にしたい場合（PSR-2/PSR-12の厳密準拠なら）
+[*.php]
+indent_size = 2

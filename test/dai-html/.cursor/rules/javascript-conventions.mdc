@@ -1,0 +1,35 @@
+---
+globs: *.js,*.mjs,*.cjs,*.jsx
+description: JavaScriptのコーディング規約
+---
+
+# JavaScript コーディング規約
+
+## エクスポート規約
+
+- モジュールのエクスポートは統一した形式を使用する
+- `export { functionName }` の形式でファイル末尾にまとめて記述する
+
+**推奨:**
+
+```javascript
+const myFunction = () => {
+  // ...
+};
+
+export { myFunction };
+```
+
+**非推奨:**
+
+```javascript
+export const myFunction = () => {
+  // ...
+};
+```
+
+## コメント規約
+
+- ユーザーが混乱しやすい箇所には明確なコメントを記述する
+- 設定ファイルやURLなど、変更が必要な箇所には変更方法を明記する
+- 関連ファイルがある場合は `@see` で参照先を示す

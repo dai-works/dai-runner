@@ -1,6 +1,5 @@
 /**
- * テスト用設定ファイル
- * dai-runnerパッケージ自体の動作確認用
+ * プロジェクトの設定を管理するコンフィグオブジェクト
  *
  * @property {Object} paths - アセットの入出力パス設定
  * @property {Object} dev - 開発環境の設定
@@ -12,7 +11,7 @@ let localConfig = {};
 try {
   const module = await import('./dai-runner.config.local.js');
   localConfig = module.default || {};
-} catch (e) {
+} catch (_e) {
   // ローカル設定がない場合はデフォルト値を使用
 }
 
@@ -20,37 +19,37 @@ export const config = {
   // パス設定（ソースとビルド後のディレクトリを定義）
   paths: {
     images: {
-      src: 'test/source/images',
-      dist: 'test/public/assets/images',
+      src: 'source/images',
+      dist: 'public/assets/images',
     },
     js: {
-      src: 'test/source/js',
-      dist: 'test/public/assets/js',
+      src: 'source/js',
+      dist: 'public/assets/js',
     },
     css: {
-      src: 'test/source/scss',
-      dist: 'test/public/assets/css',
+      src: 'source/scss',
+      dist: 'public/assets/css',
     },
     documents: {
-      src: 'test/source/documents',
-      dist: 'test/public/assets/documents',
+      src: 'source/documents',
+      dist: 'public/assets/documents',
     },
     fonts: {
-      src: 'test/source/fonts',
-      dist: 'test/public/assets/fonts',
+      src: 'source/fonts',
+      dist: 'public/assets/fonts',
     },
     videos: {
-      src: 'test/source/videos',
-      dist: 'test/public/assets/videos',
+      src: 'source/videos',
+      dist: 'public/assets/videos',
     },
     vendor: {
-      src: 'test/source/vendor',
-      dist: 'test/public/assets/vendor',
+      src: 'source/vendor',
+      dist: 'public/assets/vendor',
     },
     // 例) 新しい静的カテゴリを追加したい場合
     // downloads: {
-    //   src: 'test/source/downloads', // 手元の原本置き場
-    //   dist: 'test/public/assets/downloads', // 本番配布用の出力先
+    //   src: 'source/downloads', // 手元の原本置き場
+    //   dist: 'assets/downloads', // 本番配布用の出力先
     // },
   },
 
@@ -59,9 +58,9 @@ export const config = {
     // クリーンアップから除外するファイルやディレクトリを指定
     // テーマルートからの相対パスで指定（distディレクトリを含む完全なパス）
     excludeFiles: [
-      // 'test/public/assets/images/keep-image.png',
-      // 'test/public/assets/js/keep-js.js',
-      // 'test/public/assets/css/keep-css.css',
+      // 'public/assets/images/keep-image.png',
+      // 'public/assets/js/keep-js.js',
+      // 'public/assets/css/keep-css.css',
     ],
   },
 
@@ -86,7 +85,7 @@ export const config = {
     // mode と proxy は dai-runner.config.local.js で設定されます
     // 初回実行時に自動的に作成されます
     mode: localConfig.mode || 'server',
-    server: { baseDir: './test/public' },
+    server: { baseDir: 'public' },
     proxy: localConfig.proxy || {
       target: 'http://127.0.0.1',
       proxyReq: [],

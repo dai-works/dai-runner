@@ -1,0 +1,45 @@
+{
+  "name": "dai-html",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "dai-runner dev",
+    "build": "dai-runner build",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,scss,css,php}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,scss,css,php}\"",
+    "format:php": "prettier --write \"**/*.php\"",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --cache --max-warnings=0",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix --cache --max-warnings=0",
+    "lint:css": "stylelint \"**/*.{css,scss}\"",
+    "lint:css:fix": "stylelint \"**/*.{css,scss}\" --fix",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@dai-works/dai-runner": "file:../..",
+    "@eslint/js": "^9.36.0",
+    "@prettier/plugin-php": "^0.22.4",
+    "css-declaration-sorter": "^7.2.0",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
+    "prettier": "^3.5.3",
+    "stylelint": "^16.24.0",
+    "stylelint-config-standard-scss": "^16.0.0",
+    "stylelint-prettier": "^5.0.3"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,scss}": [
+      "stylelint --fix",
+      "prettier --write"
+    ],
+    "*.{jsx,ts,tsx,php}": [
+      "prettier --write"
+    ]
+  }
+}

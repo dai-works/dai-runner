@@ -1,0 +1,59 @@
+{
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "htmlWhitespaceSensitivity": "css",
+  "bracketSameLine": true,
+  "embeddedLanguageFormatting": "auto",
+  "plugins": ["@prettier/plugin-php"],
+  "phpVersion": "8.0",
+  "braceStyle": "psr-2",
+  "overrides": [
+    {
+      "files": ["*.html"],
+      "options": {
+        "printWidth": 100,
+        "singleQuote": false,
+        "htmlWhitespaceSensitivity": "css",
+        "bracketSameLine": true
+      }
+    },
+    {
+      "files": ["*.css", "*.scss", "*.less"],
+      "options": {
+        "singleQuote": false,
+        "trailingComma": "none"
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx", "*.ts", "*.tsx"],
+      "options": {
+        "trailingComma": "all",
+        "semi": true,
+        "singleQuote": true
+      }
+    },
+    {
+      "files": ["*.php", "*.phtml", "*.inc"],
+      "options": {
+        "parser": "php",
+        "phpVersion": "8.0",
+        "printWidth": 100,
+        "tabWidth": 2,
+        "useTabs": false,
+        "singleQuote": true,
+        "braceStyle": "psr-2",
+        "bracketSpacing": true,
+        "htmlWhitespaceSensitivity": "css",
+        "embeddedLanguageFormatting": "auto",
+        "bracketSameLine": true
+      }
+    }
+  ]
+}

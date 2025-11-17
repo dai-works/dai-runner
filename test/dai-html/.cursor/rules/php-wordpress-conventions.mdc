@@ -1,0 +1,551 @@
+---
+globs: *.php
+description: PHP/WordPressのコーディング規約
+---
+
+# PHP/WordPress コーディング規約
+
+## ファイル・ディレクトリ構造
+
+### 編集対象ディレクトリ
+
+- **`source/`** - ソースファイル（SCSS、JS、画像など）を配置
+
+  - 編集はこのディレクトリ内のファイルのみ
+  - ビルド時に `assets/` に自動変換される
+
+- **`assets/`** - ビルド済みファイル（**自動生成、編集禁止**）
+
+  - このディレクトリ内のファイルは直接編集しない
+  - 変更は必ず `source/` 側で行う
+
+- **`includes/`** - PHP機能ファイル
+
+  - テーマの機能を実装するPHPファイル
+  - 各機能ごとにファイルを分割
+
+- **`template-parts/`** - テンプレートパーツ
+  - 再利用可能なテンプレート部品
+
+## ファイル命名規則
+
+### PHPファイル
+
+- **機能ファイル**: `kebab-case.php`
+
+  - 例: `disable-auto-updates.php`, `theme-customizer.php`
+
+- **テンプレートパーツ**: `m-*.php` (モジュールプレフィックス)
+
+  - 例: `m-header.php`, `m-footer.php`
+
+- **ページテンプレート**: `page-*.php`
+
+  - 例: `page-contact.php`, `page-thanks.php`
+
+- **カスタム投稿タイプ**: `template-*.php`
+  - 例: `template-custom-post-type.php`
+
+## PHP命名規則
+
+### 関数名
+
+- **snake_case** を使用
+- 分かりやすく、機能を表す名前にする
+
+**推奨:**
+
+```php
+function get_theme_url_with_version($path)
+{
+  // ...
+}
+
+function get_esc_home_url($path = '/')
+{
+  // ...
+}
+```
+
+**非推奨:**
+
+```php
+function getThemeUrl($path)
+{
+  // camelCase
+  // ...
+}
+
+function GetURL($path)
+{
+  // PascalCase
+  // ...
+}
+```
+
+## DocBlockコメント
+
+- **全ての関数にDocBlockコメントを記述すること**
+- 関数の目的、パラメータ、戻り値を明記
+
+**推奨:**
+
+```php
+/**
+ * テーマファイルのURLを取得する関数
+ *
+ * この関数は、テーマ内のファイルのURLを生成し、
+ * キャッシュバスティングのためにバージョン番号を追加します。
+ *
+ * 使い方:
+ * <?php echo get_theme_url_with_version('assets/css/style.css'); ?>
+ *
+ * @param string $path テーマディレクトリからの相対パス
+ * @return string|null エスケープされたURL、ファイルが存在しない場合はnull
+ */
+function get_theme_url_with_version($path) {
+  // ...
+}
+```
+
+## ファイル読み込み
+
+### require_once を使用
+
+- ファイルの読み込みには `require_once` を使用
+- `get_template_directory()` でテーマディレクトリのパスを取得
+
+**推奨:**
+
+```php
+require_once get_template_directory() . '/includes/utilities.php';
+require_once get_template_directory() . '/includes/setup.php';
+```
+
+**非推奨:**
+
+```php
+include 'includes/utilities.php'; // includeは使わない
+require './includes/setup.php'; // 相対パスは使わない
+```
+
+## セキュリティ・エスケープ
+
+### エスケープ関数の使用
+
+- **出力時は必ずエスケープすること**
+- 適切なエスケープ関数を使用
+- **URL出力は、プロジェクト固有のヘルパー関数を使用する**（後述の「プロジェクト固有のヘルパー関数」参照）
+
+**推奨:**
+
+```php
+// URL出力（プロジェクト固有のヘルパー関数を使用）
+<a href="<?php echo get_esc_home_url('/about'); ?>">
+
+// テキスト出力
+<p><?php echo esc_html($text); ?></p>
+
+// 属性値出力
+<div class="<?php echo esc_attr($class); ?>">
+
+// HTML出力（信頼できる場合のみ）
+<?php echo wp_kses_post($content); ?>
+```
+
+**非推奨:**
+
+```php
+// エスケープなし
+<p><?php echo $text; ?></p>  // ❌ 危険
+
+// 標準WordPress関数を直接使用（プロジェクトではヘルパー関数を使用）
+<a href="<?php echo esc_url(
+  home_url('/'),
+); ?>">  // ❌ get_esc_home_url() を使用すべき
+```
+
+## テンプレートパーツの読み込み
+
+### get_template_part() を使用
+
+**推奨:**
+
+```php
+<?php get_template_part('template-parts/m-header'); ?>
+<?php get_template_part('template-parts/m-footer'); ?>
+```
+
+## プロジェクト固有のヘルパー関数（必須）
+
+このプロジェクトでは、`includes/utilities.php` に定義されたヘルパー関数を**必ず使用すること**。
+
+### URL関連の関数
+
+**1. ホームURL取得: `get_esc_home_url()`**
+
+- `home_url()` の代わりに必ず `get_esc_home_url()` を使用する
+- エスケープ済み、末尾スラッシュ付き
+- **パスは先頭・末尾のスラッシュなしで指定する**（関数内で自動的に処理される）
+
+**推奨:**
+
+```php
+<a href="<?php echo get_esc_home_url(); ?>">ホーム</a>
+<a href="<?php echo get_esc_home_url('about'); ?>">会社概要</a>
+<a href="<?php echo get_esc_home_url('contact/thanks'); ?>">お問い合わせ完了</a>
+```
+
+**非推奨:**
+
+```php
+// 直接 home_url() を使わない
+<a href="<?php echo esc_url(home_url('/')); ?>">  // ❌
+<a href="<?php echo home_url('/about/'); ?>">      // ❌
+
+// 先頭・末尾にスラッシュを付けない（動作はするが統一感がない）
+<a href="<?php echo get_esc_home_url('/about'); ?>">   // ❌
+<a href="<?php echo get_esc_home_url('about/'); ?>">   // ❌
+<a href="<?php echo get_esc_home_url('/about/'); ?>">  // ❌
+```
+
+**2. テーマファイルURL取得: `get_theme_url_with_version()`**
+
+- テーマ内のアセットファイル（CSS、JS、画像など）のURLを取得
+- 自動的にキャッシュバスティング用のバージョンパラメータが付与される
+- エスケープ済み
+
+**推奨:**
+
+```php
+<link rel="stylesheet" href="<?php echo get_theme_url_with_version(
+  'assets/css/style.css',
+); ?>">
+<script src="<?php echo get_theme_url_with_version(
+  'assets/js/main.js',
+); ?>"></script>
+<img src="<?php echo get_theme_url_with_version(
+  'assets/images/logo.png',
+); ?>" alt="ロゴ">
+```
+
+**非推奨:**
+
+```php
+<link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/assets/css/style.css">  // ❌
+<img src="<?php echo get_stylesheet_directory_uri(); ?>/assets/images/logo.png">  // ❌
+```
+
+**3. アップロードフォルダURL取得: `get_esc_upload_url()`**
+
+- wp-content/uploads内のファイルURLを取得
+- エスケープ済み
+
+**推奨:**
+
+```php
+<img src="<?php echo get_esc_upload_url('2023/01/photo.jpg'); ?>" alt="写真">
+```
+
+### SVGアイコン表示関数
+
+**`display_svg_icon()`**
+
+- SVGアイコンを表示する専用関数
+- アクセシビリティ対応（aria-label）
+
+**推奨:**
+
+```php
+<?php display_svg_icon('phone'); ?>
+<?php display_svg_icon('mail', ['class' => 'large']); ?>
+<?php display_svg_icon('arrow', ['width' => '32', 'height' => '32']); ?>
+<?php display_svg_icon('info', ['aria_label' => '情報アイコン']); ?>
+```
+
+### テキストリンク化関数
+
+**`auto_link()`**
+
+- テキスト中のURLを自動的にリンク化
+- 外部リンクには自動的に `target="_blank" rel="noopener noreferrer"` が付与される
+
+**推奨:**
+
+```php
+<?php echo auto_link($text); ?>
+```
+
+## アクセシビリティ
+
+### 装飾用の空タグには aria-hidden を付ける
+
+- **装飾目的のみの空タグには `aria-hidden="true"` を必ず付けること**
+- スクリーンリーダーが読み上げる必要のない装飾要素を除外する
+- 意味のあるコンテンツには付けない
+
+**推奨:**
+
+```php
+<!-- 装飾用のspan（アイコンの背景など） -->
+<span class="icon-decoration" aria-hidden="true"></span>
+
+<!-- 装飾用のdiv（レイアウト用） -->
+<div class="separator-line" aria-hidden="true"></div>
+
+<!-- 装飾用の疑似要素的な要素 -->
+<i class="arrow-decoration" aria-hidden="true"></i>
+
+<!-- Contact Form 7の送信ボタン装飾 -->
+<p>
+  <span aria-hidden="true"></span>
+  <input type="submit" value="送信する">
+</p>
+```
+
+**非推奨:**
+
+```php
+<!-- ❌ 装飾用なのに aria-hidden がない -->
+<span class="icon-decoration"></span>
+
+<!-- ❌ 意味のあるコンテンツに aria-hidden を付ける -->
+<p aria-hidden="true">重要なお知らせ</p>  // ❌ テキストは読み上げるべき
+<img src="logo.png" alt="ロゴ" aria-hidden="true">  // ❌ altがあるなら読み上げるべき
+```
+
+### 装飾用かどうかの判断基準
+
+**aria-hidden="true" を付けるべき要素：**
+
+- CSSの装飾のためだけに存在する空タグ
+- 疑似要素的な役割の空要素（矢印、区切り線など）
+- レイアウト調整のためだけの空div/span
+- アイコンフォントやSVGの装飾的な背景
+
+**aria-hidden="true" を付けてはいけない要素：**
+
+- テキストコンテンツを含む要素
+- `alt` 属性を持つ画像（意味のある画像）
+- ボタンやリンクなどのインタラクティブ要素
+- フォーム要素（input, textarea, selectなど）
+
+## 画像出力のルール（必須）
+
+### 基本ルール
+
+1. **画像URLは必ず `get_theme_url_with_version()` を使用する**
+2. **PNG/JPEGの場合は `<picture>` タグでWebP対応する**（ビルド時に自動生成される）
+3. **`alt` 属性は必須**
+   - 意味のある画像：適切な説明文を付ける
+   - 装飾的な画像：`alt=""` で空にする（`aria-hidden` は不要）
+4. **`width` と `height` 属性は必須**
+5. **widthとheightは画面で実際に表示したいサイズを指定する**（元画像のサイズではなく、レイアウト上の表示サイズ）
+
+### 画像の alt 属性とアクセシビリティ
+
+**意味のある画像の場合：**
+
+- 必ず適切な `alt` テキストを記述する
+- `aria-hidden="true"` は付けない
+
+```php
+<!-- ✅ 意味のある画像 -->
+<img src="<?php echo get_theme_url_with_version('assets/images/logo.png'); ?>"
+     alt="<?php bloginfo('name'); ?>" width="150" height="50">
+
+<img src="<?php echo get_theme_url_with_version(
+  'assets/images/team-photo.jpg',
+); ?>"
+     alt="チームメンバー集合写真" width="800" height="600">
+```
+
+**装飾的な画像の場合：**
+
+- `alt=""` で空にする（属性自体は必ず付ける）
+- `aria-hidden="true"` は一般的に不要（付けても間違いではないが、`alt=""` で十分）
+
+```php
+<!-- ✅ 装飾的な画像（背景的な役割） -->
+<img src="<?php echo get_theme_url_with_version(
+  'assets/images/decoration-bg.png',
+); ?>"
+     alt="" width="100" height="100">
+
+<!-- △ aria-hidden を付けても動作するが、alt="" だけで十分 -->
+<img src="<?php echo get_theme_url_with_version(
+  'assets/images/decoration-bg.png',
+); ?>"
+     alt="" aria-hidden="true" width="100" height="100">
+```
+
+**非推奨：**
+
+```php
+<!-- ❌ alt属性自体がない -->
+<img src="<?php echo get_theme_url_with_version('assets/images/logo.png'); ?>"
+     width="150" height="50">
+
+<!-- ❌ 意味のある画像に aria-hidden を付ける -->
+<img src="<?php echo get_theme_url_with_version('assets/images/logo.png'); ?>"
+     alt="ロゴ" aria-hidden="true" width="150" height="50">
+
+<!-- ❌ 装飾的な画像なのに alt に説明を入れる -->
+<img src="<?php echo get_theme_url_with_version(
+  'assets/images/decoration-bg.png',
+); ?>"
+     alt="背景装飾" width="100" height="100">  // alt="" にすべき
+```
+
+### PNG/JPEG画像の場合（WebP対応）
+
+**推奨:**
+
+```php
+<picture>
+  <source srcset="<?php echo get_theme_url_with_version(
+    'assets/images/front-page/sample-mv.webp',
+  ); ?>" type="image/webp">
+  <img src="<?php echo get_theme_url_with_version(
+    'assets/images/front-page/sample-mv.png',
+  ); ?>" alt="MV画像" width="1200" height="563">
+</picture>
+```
+
+**説明:**
+
+- `width`と`height`は画面で表示したいサイズを指定する（この例では960x450で表示）
+- 元画像はRetina対応のため、表示サイズの2倍（1920x900）で作成することが推奨される
+- WebPファイルは `source/images/` にPNG/JPEGを配置すると、ビルド時に自動生成される
+- 両方の拡張子（.webp と .png/.jpg）に対して `get_theme_url_with_version()` を使用
+
+### SVG画像の場合（WebP不要）
+
+**推奨:**
+
+```php
+<img src="<?php echo get_theme_url_with_version(
+  'assets/images/icons/logo.svg',
+); ?>" alt="ロゴ" width="200" height="50">
+```
+
+### ロゴ画像の例（実際の使用例）
+
+```php
+<picture>
+  <source srcset="<?php echo get_theme_url_with_version(
+    'assets/images/common/logo.webp',
+  ); ?>" type="image/webp">
+  <img src="<?php echo get_theme_url_with_version(
+    'assets/images/common/logo.png',
+  ); ?>" alt="<?php bloginfo('name'); ?>" width="150" height="50">
+</picture>
+```
+
+### 非推奨例
+
+```php
+<!-- ❌ 直接パスを指定 -->
+<img src="/wp-content/themes/mytheme/assets/images/logo.png" alt="ロゴ">
+
+<!-- ❌ get_template_directory_uri() を直接使用 -->
+<img src="<?php echo get_template_directory_uri(); ?>/assets/images/logo.png" alt="ロゴ">
+
+<!-- ❌ WebP対応なし（PNG/JPEGの場合） -->
+<img src="<?php echo get_theme_url_with_version(
+  'assets/images/photo.jpg',
+); ?>" alt="写真">
+
+<!-- ❌ alt属性なし -->
+<img src="<?php echo get_theme_url_with_version('assets/images/logo.png'); ?>">
+
+<!-- ❌ width/height属性なし -->
+<img src="<?php echo get_theme_url_with_version(
+  'assets/images/logo.png',
+); ?>" alt="ロゴ">
+
+<!-- ❌ 元画像のサイズを指定（表示したいサイズが960x450の場合） -->
+<img src="<?php echo get_theme_url_with_version(
+  'assets/images/logo.png',
+); ?>" alt="ロゴ" width="1920" height="900">  // 表示サイズ960x450を指定すべき
+```
+
+### 画像サイズの指定方法
+
+**重要：** `width`と`height`は**画面で実際に表示したいサイズ**を指定する。
+
+```
+表示したいサイズ: 960px × 450px
+↓
+width="960" height="450" を指定
+↓
+元画像は Retina対応のため 1920px × 900px（2倍）で作成
+
+表示したいサイズ: 400px × 300px
+↓
+width="400" height="300" を指定
+↓
+元画像は Retina対応のため 800px × 600px（2倍）で作成
+```
+
+**手順：**
+
+1. デザインで画像を表示したいサイズを確認（例：960x450）
+2. そのサイズを `width`と`height`に指定
+3. 元画像はその2倍サイズ（1920x900）で作成する
+
+## WordPress関数の優先使用
+
+- WordPressが提供する関数を優先的に使用する
+- 生のPHP関数より、WordPress関数の方が安全で互換性が高い
+- **ただし、プロジェクト固有のヘルパー関数がある場合は、そちらを優先すること**
+
+**推奨:**
+
+```php
+// プロジェクト固有のヘルパー関数を使用
+<?php echo get_esc_home_url(); ?>
+<?php echo get_theme_url_with_version('assets/images/logo.png'); ?>
+
+// その他のWordPress関数
+<?php bloginfo('name'); ?>
+<?php the_content(); ?>
+<?php get_template_part('template-parts/m-header'); ?>
+```
+
+**非推奨:**
+
+```php
+// 生のPHP関数
+<?php echo $_SERVER['HTTP_HOST']; ?>
+<?php echo dirname(__FILE__); ?>
+
+// ヘルパー関数があるのに標準関数を使う
+<?php echo esc_url(home_url('/')); ?>  // ❌ get_esc_home_url() を使用すべき
+<?php echo get_template_directory_uri(); ?>  // ❌ get_theme_url_with_version() を使用すべき
+```
+
+## ファイル構造の例
+
+```
+includes/
+├── setup.php                    # テーマセットアップ
+├── enqueue.php                  # アセット読み込み
+├── security.php                 # セキュリティ設定
+├── utilities.php                # ユーティリティ関数
+├── disable-comments.php         # コメント機能無効化
+└── post-type/                   # カスタム投稿タイプ
+    └── template-custom-post-type.php
+
+template-parts/
+├── m-header.php                 # ヘッダーモジュール
+├── m-footer.php                 # フッターモジュール
+└── svg-defs.php                 # SVG定義
+
+(ルートディレクトリ)
+├── page-contact.php             # お問い合わせページ
+├── page-thanks.php              # サンクスページ
+├── front-page.php               # フロントページ
+├── index.php                    # メインテンプレート
+└── functions.php                # メイン機能ファイル
+```

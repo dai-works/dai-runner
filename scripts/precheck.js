@@ -7,6 +7,15 @@ import inquirer from 'inquirer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// メイン設定ファイルのパス
+const mainConfigPath = path.resolve(process.cwd(), 'dai-runner.config.js');
+const mainConfigExamplePath = path.resolve(
+  __dirname,
+  '../dai-runner.config.js.example'
+);
+
+// ローカル設定ファイルのパス
 const localConfigPath = path.resolve(
   process.cwd(),
   'dai-runner.config.local.js'
@@ -163,9 +172,42 @@ async function createLocalConfigInteractively() {
 
 /**
  * dai-runner実行前の事前チェック
- * dai-runner.config.local.jsが存在しない場合は自動的に作成する
+ * dai-runner.config.jsとdai-runner.config.local.jsが存在しない場合は自動的に作成する
  */
 async function precheck() {
+  // 1. まずメイン設定ファイル (dai-runner.config.js) をチェック
+  if (!fs.existsSync(mainConfigPath)) {
+    console.log(
+      '\n📝 dai-runner.config.jsファイルが見つかりません。自動的に作成します...\n'
+    );
+
+    if (fs.existsSync(mainConfigExamplePath)) {
+      try {
+        fs.copyFileSync(mainConfigExamplePath, mainConfigPath);
+        console.log('✅ dai-runner.config.jsを作成しました。\n');
+      } catch (error) {
+        console.error(
+          '❌ dai-runner.config.jsの作成に失敗しました:',
+          error.message
+        );
+        console.error('\n手動でdai-runner.config.jsを作成してください:');
+        console.error(
+          '   cp dai-runner.config.js.example dai-runner.config.js\n'
+        );
+        process.exit(1);
+      }
+    } else {
+      console.error(
+        '❌ dai-runner.config.js.exampleファイルも見つかりません。'
+      );
+      console.error(
+        'リポジトリから最新のdai-runner.config.js.exampleを取得してください。\n'
+      );
+      process.exit(1);
+    }
+  }
+
+  // 2. 次にローカル設定ファイル (dai-runner.config.local.js) をチェック
   if (!fs.existsSync(localConfigPath)) {
     console.log(
       '\n📝 dai-runner.config.local.jsファイルが見つかりません。自動的に作成します...\n'
@@ -182,11 +224,9 @@ async function precheck() {
       );
       process.exit(1);
     }
-  } else {
-    console.log(
-      '✅ dai-runner.config.local.js が存在します。dai-runnerを開始します...\n'
-    );
   }
+
+  console.log('✅ 設定ファイルの確認が完了しました。dai-runnerを開始します...\n');
 }
 
 precheck();
