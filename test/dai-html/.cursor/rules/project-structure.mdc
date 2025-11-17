@@ -97,9 +97,14 @@ dai-html/
 │   └── videos/         # 動画ファイル
 ├── includes/            # 【編集OK】PHP機能ファイル（WordPress）
 ├── template-parts/      # 【編集OK】テンプレートパーツ（WordPress）
-├── dai-runner/          # ビルドシステム（通常編集不要）
+├── node_modules/        # npm依存パッケージ（ビルドシステムを含む）
+│   └── @dai-works/dai-runner/  # ビルドシステム本体（編集不要）
+├── dai-runner.config.js      # ビルドシステム設定（編集OK）
+├── dai-runner.config.local.js # ローカル環境設定（個人用、編集OK）
 └── (その他のPHPファイル) # 【編集OK】テーマテンプレート（WordPress）
 ```
+
+**注**: ビルドシステム本体（dai-runner）は `@dai-works/dai-runner` パッケージとして `node_modules/` に配置されます。設定は `dai-runner.config.js` と `dai-runner.config.local.js` で行います。
 
 ## よくある間違い
 
