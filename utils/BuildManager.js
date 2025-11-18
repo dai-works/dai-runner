@@ -1,7 +1,6 @@
 import { buildImages } from '../tasks/images/buildImages.js';
 import { buildJs } from '../tasks/js/buildJs.js';
 import { buildCss } from '../tasks/css/buildCss.js';
-import { copyFiles } from '../tasks/misc/copyFiles.js';
 import CleanupManager from './CleanupManager.js';
 import TaskRunner from './TaskRunner.js';
 import Logger from './Logger.js';
@@ -16,7 +15,7 @@ export default class BuildManager {
    * @returns {Array} ビルドタスクの配列
    */
   static createBuildTasks(config) {
-    const tasks = [
+    return [
       buildImages({
         paths: config.paths.images,
         options: config.options.images,
@@ -30,15 +29,6 @@ export default class BuildManager {
         options: config.options.css,
       }),
     ];
-
-    // 追加のコピー専用パス（images/js/css 以外）を自動的にタスク化
-    for (const [label, p] of Object.entries(config.paths)) {
-      if (['images', 'js', 'css'].includes(label)) continue;
-      if (!p || !p.src || !p.dist) continue;
-      tasks.push(copyFiles({ label, paths: p }));
-    }
-
-    return tasks;
   }
 
   /**

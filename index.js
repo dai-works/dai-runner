@@ -1,6 +1,6 @@
 /**
  * dai-runner パッケージのメインエントリーポイント
- * 
+ *
  * このファイルは、プログラマティックにdai-runnerを使用する場合のAPIを提供します。
  * 通常は、CLIツール（bin/dai-runner.js）を使用することを推奨します。
  */
@@ -32,11 +32,6 @@ export { buildImages } from './tasks/images/buildImages.js';
 export { optimizeImages } from './tasks/images/optimizeImages.js';
 export { watchImages } from './tasks/images/watchImages.js';
 
-// タスク - その他
-export { copyFiles } from './tasks/misc/copyFiles.js';
-export { watchCopy } from './tasks/misc/watchCopy.js';
-
 // タスク - サーバー
 export { startServer } from './tasks/server/startServer.js';
 export { setupLiveReload } from './tasks/server/livereload.js';
-

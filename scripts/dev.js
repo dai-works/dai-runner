@@ -7,7 +7,6 @@ import { watchCss } from '../tasks/css/watchCss.js';
 import { startServer } from '../tasks/server/startServer.js';
 import BuildManager from '../utils/BuildManager.js';
 import TaskRunner from '../utils/TaskRunner.js';
-import { watchCopy } from '../tasks/misc/watchCopy.js';
 import { setConfig } from '../utils/configLoader.js';
 
 async function dev() {
@@ -32,7 +31,7 @@ async function dev() {
     // ファイル変更の監視（フォーマットはVS Code拡張が担当）
     Logger.log(
       'INFO',
-      'ファイル監視を開始します（フォーマットはVS Code Prettier拡張が処理）',
+      'ファイル監視を開始します（フォーマットはVS Code Prettier拡張が処理）'
     );
 
     // 各監視タスクと開発サーバーを開始
@@ -54,13 +53,6 @@ async function dev() {
         paths: conf.paths.images,
         options: conf.options.images,
       });
-
-      // その他（コピーのみ）の監視を開始
-      for (const [label, p] of Object.entries(conf.paths)) {
-        if (['images', 'js', 'css'].includes(label)) continue;
-        if (!p || !p.src || !p.dist) continue;
-        await watchCopy({ label, paths: p });
-      }
 
       // 開発サーバーの起動
       await startServer();
