@@ -3,7 +3,9 @@ node_modules/
 npm-debug.log*
 
 # ビルド出力
-public/assets/
+public/assets/css/
+public/assets/images/
+public/assets/js/
 
 # OS関連
 .DS_Store
