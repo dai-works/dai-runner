@@ -9,9 +9,9 @@
 
 ### 修正
 
-- **CleanupManager.jsの不要なコード削除**
-  - v1.4.0で削除した`documents`, `fonts`, `videos`, `vendor`のパス参照が残っていたのを削除
-  - クリーンアップ対象を`images`, `js`, `css`の3つに完全に限定
+- **CleanupManager.js の不要なコード削除**
+  - v1.4.0 で削除した`documents`, `fonts`, `videos`, `vendor`のパス参照が残っていたのを削除
+  - クリーンアップ対象を`images`, `js`, `css`の 3 つに完全に限定
 
 ## [1.4.1] - 2025-11-18
 
