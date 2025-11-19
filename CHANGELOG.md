@@ -5,6 +5,14 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
 バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.4.2] - 2025-11-19
+
+### 修正
+
+- **CleanupManager.jsの不要なコード削除**
+  - v1.4.0で削除した`documents`, `fonts`, `videos`, `vendor`のパス参照が残っていたのを削除
+  - クリーンアップ対象を`images`, `js`, `css`の3つに完全に限定
+
 ## [1.4.1] - 2025-11-18
 
 ### セキュリティ

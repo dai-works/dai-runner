@@ -126,10 +126,6 @@ export default class CleanupManager {
       paths.images.dist,
       paths.js.dist,
       paths.css.dist,
-      paths.documents?.dist,
-      paths.fonts?.dist,
-      paths.videos?.dist,
-      paths.vendor?.dist,
     ].filter(Boolean);
 
     // ベースディレクトリはテーマルート（カレントディレクトリ）
