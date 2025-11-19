@@ -5,6 +5,15 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
 バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.4.1] - 2025-11-18
+
+### セキュリティ
+
+- **glob パッケージのセキュリティ脆弱性を修正**
+  - glob を v10.3.12 から v12.0.0 にアップグレード
+  - GHSA-5j98-mcp5-4vw2 (Command injection via -c/--cmd) を修正
+  - 既存コードとの互換性を確認済み
+
 ## [1.4.0] - 2025-11-18
 
 ### 削除
