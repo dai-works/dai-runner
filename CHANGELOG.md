@@ -5,6 +5,15 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
 バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.4.3] - 2025-11-21
+
+### 修正
+
+- **インタラクティブ設定画面が表示されない問題を修正**
+  - `dai-runner.config.local.js` が存在しない場合に、初回セットアップ時の設定画面が表示されない問題を修正
+  - `bin/dai-runner.js` で `dai-runner.config.local.js` の存在チェックを追加
+  - `dai-runner dev` または `dai-runner build` コマンド実行時に確実に設定ファイルの確認が行われるようになりました
+
 ## [1.4.2] - 2025-11-19
 
 ### 修正

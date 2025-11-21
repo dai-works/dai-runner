@@ -25,7 +25,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.4.2
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.4.3
 ```
 
 ### 初回セットアップ
@@ -246,7 +246,7 @@ npm update @dai-works/dai-runner
 特定のバージョン（タグ）に更新する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.4.2
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.4.3
 ```
 
 ## プログラマティックな使用方法
