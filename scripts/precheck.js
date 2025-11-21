@@ -26,6 +26,64 @@ const localConfigExamplePath = path.resolve(
 );
 
 /**
+ * .envファイルから環境変数を読み取る
+ * @returns {Object} 環境変数のkey-valueオブジェクト
+ */
+function readEnvFile() {
+  const envPath = path.resolve(process.cwd(), '.env');
+  if (!fs.existsSync(envPath)) {
+    return {};
+  }
+
+  try {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    const envVars = {};
+
+    envContent.split('\n').forEach((line) => {
+      // コメント行や空行をスキップ
+      line = line.trim();
+      if (!line || line.startsWith('#')) {
+        return;
+      }
+
+      // KEY=VALUE の形式をパース
+      const match = line.match(/^([^=]+)=(.*)$/);
+      if (match) {
+        const key = match[1].trim();
+        let value = match[2].trim();
+        // クォートを除去
+        value = value.replace(/^['"]|['"]$/g, '');
+        envVars[key] = value;
+      }
+    });
+
+    return envVars;
+  } catch (error) {
+    // .envファイルの読み取りに失敗しても続行
+    return {};
+  }
+}
+
+/**
+ * デフォルトのホスト名を推測する
+ * 優先順位: .envのCOMPOSE_PROJECT_NAME > ディレクトリ名.localhost
+ * @returns {string} デフォルトのホスト名
+ */
+function guessDefaultHostname() {
+  // .envファイルから読み取り
+  const envVars = readEnvFile();
+
+  // COMPOSE_PROJECT_NAMEをチェック
+  if (envVars.COMPOSE_PROJECT_NAME) {
+    return `${envVars.COMPOSE_PROJECT_NAME}.localhost`;
+  }
+
+  // ディレクトリ名から推測
+  const currentDir = path.basename(process.cwd());
+  return `${currentDir}.localhost`;
+}
+
+/**
  * dai-runner.config.local.jsを生成
  * example ファイルをコピーして必要な部分を置換
  */
@@ -102,12 +160,13 @@ async function createLocalConfigInteractively() {
 
     if (modeAnswer.mode === 'traefik') {
       // Traefikモード：ホスト名を入力
+      const defaultHostname = guessDefaultHostname();
       const hostAnswer = await inquirer.prompt([
         {
           type: 'input',
           name: 'hostname',
           message: 'Traefikで設定されているホスト名を入力してください:',
-          default: 'sample-wp.localhost',
+          default: defaultHostname,
           validate: (input) => {
             if (!input.trim()) {
               return 'ホスト名を入力してください';
@@ -226,7 +285,9 @@ async function precheck() {
     }
   }
 
-  console.log('✅ 設定ファイルの確認が完了しました。dai-runnerを開始します...\n');
+  console.log(
+    '✅ 設定ファイルの確認が完了しました。dai-runnerを開始します...\n'
+  );
 }
 
 precheck();

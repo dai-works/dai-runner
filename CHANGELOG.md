@@ -5,6 +5,16 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
 バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.4.4] - 2025-11-21
+
+### 改善
+
+- **Traefik ホスト名の初期値を自動推測**
+  - `.env` ファイルから `COMPOSE_PROJECT_NAME` を読み取り、自動的に `.localhost` を付けて初期値として表示
+  - `.env` ファイルがない場合や `COMPOSE_PROJECT_NAME` が設定されていない場合は、ディレクトリ名から自動生成（例: `dai-html` → `dai-html.localhost`）
+  - ユーザーは初期値をそのまま使用するか、必要に応じて変更可能
+  - 初回セットアップ時の手間を大幅に削減
+
 ## [1.4.3] - 2025-11-21
 
 ### 修正

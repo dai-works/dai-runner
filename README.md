@@ -25,7 +25,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.4.3
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.4.4
 ```
 
 ### 初回セットアップ
@@ -66,6 +66,8 @@ npx dai-runner precheck
 
 - **静的ファイルのみ (server)**: HTML/CSS/JS の静的サイト開発
 - **dai-traefik を使用**: Traefik を使ったプロキシ環境
+  - ホスト名は `.env` ファイルの `COMPOSE_PROJECT_NAME` から自動推測されます
+  - `.env` がない場合は、ディレクトリ名から自動生成されます（例: `dai-html` → `dai-html.localhost`）
 - **外部サーバー**: Local、Docker、XAMPP 等の外部サーバー
 
 ## 使用用途
