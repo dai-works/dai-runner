@@ -36,12 +36,16 @@ alwaysApply: true
 ## バージョンアップの手順
 
 1. コードの変更を完了
-2. 上記3つのファイルを更新
-3. `git add -A`
-4. `git commit -m "バージョンx.x.xに更新: 変更内容の要約"`
-5. `git tag -a vx.x.x -m "バージョンx.x.x: 変更内容"`
-6. `git push origin main`
-7. `git push origin vx.x.x`
+2. **設定ファイルの動作テストを実施**（`dai-runner.config.js`など設定ファイルを変更した場合）
+   - `test/dai-html`ディレクトリで`npm run build`を実行
+   - 各設定項目が正しく動作することを確認
+   - テスト結果を`test/dai-html/CONFIG_TEST_REPORT.md`に記録
+3. 上記3つのファイルを更新
+4. `git add -A`
+5. `git commit -m "バージョンx.x.xに更新: 変更内容の要約"`
+6. `git tag -a vx.x.x -m "バージョンx.x.x: 変更内容"`
+7. `git push origin main`
+8. `git push origin vx.x.x`
 
 ## その他のルール
 

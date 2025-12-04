@@ -30,27 +30,6 @@ export const config = {
       src: 'source/scss',
       dist: 'public/assets/css',
     },
-    documents: {
-      src: 'source/documents',
-      dist: 'public/assets/documents',
-    },
-    fonts: {
-      src: 'source/fonts',
-      dist: 'public/assets/fonts',
-    },
-    videos: {
-      src: 'source/videos',
-      dist: 'public/assets/videos',
-    },
-    vendor: {
-      src: 'source/vendor',
-      dist: 'public/assets/vendor',
-    },
-    // 例) 新しい静的カテゴリを追加したい場合
-    // downloads: {
-    //   src: 'source/downloads', // 手元の原本置き場
-    //   dist: 'public/assets/downloads', // 本番配布用の出力先
-    // },
   },
 
   // クリーンアップ設定
@@ -108,12 +87,12 @@ export const config = {
   build: {
     options: {
       js: {
-        minify: false, // true: コードを圧縮, false: 整形したまま
+        minify: true, // true: コードを圧縮, false: 整形したまま
         sourceMap: false, // true: ソースマップを生成, false: 生成しない
         dropConsole: true, // true: console.log等を削除, false: console.logを残す
       },
       css: {
-        minify: false, // true: CSSを圧縮, false: 整形したまま
+        minify: true, // true: CSSを圧縮, false: 整形したまま
         sourceMap: false, // true: ソースマップを生成, false: 生成しない
       },
       images: {

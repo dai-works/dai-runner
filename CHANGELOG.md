@@ -5,6 +5,22 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.6.1] - 2025-12-04
+
+### 修正
+
+- **JavaScript sourceMap生成機能の修正**
+  - `sourceMap: true` 設定時にJavaScriptの.mapファイルが正しく生成されるように修正
+  - `minify`、`dropConsole`、`sourceMap` を併用した際も正常に動作するように改善
+  - `tasks/js/bundleJs.js` でRollup生成のsourceMapをTerserに正しく渡すように修正
+  - `tasks/js/buildJs.js` でminify処理を統合し、重複を解消
+
+### 改善
+
+- **テスト環境の整備**
+  - `test/dai-html/CONFIG_TEST_REPORT.md` を作成し、全設定項目の動作テストを実施
+  - すべての設定項目（10/10項目）が正常に動作することを確認
+
 ## [1.6.0] - 2025-12-04
 
 ### 追加

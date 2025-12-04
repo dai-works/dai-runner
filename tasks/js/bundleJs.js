@@ -11,6 +11,9 @@ import Logger from '../../utils/Logger.js';
  * @param {string} srcDir - ソースディレクトリ
  * @param {string} distDir - 出力ディレクトリ
  * @param {Object} options - バンドルオプション
+ * @param {boolean} options.sourcemap - sourceMapを生成するか
+ * @param {boolean} options.dropConsole - console.logを削除するか
+ * @param {boolean} options.minify - コードを圧縮するか
  */
 export async function bundleJs(srcDir, distDir, options = {}) {
   try {
@@ -62,31 +65,74 @@ export async function bundleJs(srcDir, distDir, options = {}) {
 
       await bundle.close();
 
-      // dropConsoleオプションが有効な場合、console.logを削除
-      if (options.dropConsole) {
+      // minifyまたはdropConsoleオプションが有効な場合、後処理を実行
+      if (options.minify || options.dropConsole) {
         const code = await fs.readFile(outputPath, 'utf-8');
-        const result = await minify(code, {
-          compress: {
-            defaults: false, // すべてのデフォルト圧縮を無効化
-            drop_console: true, // console.logを削除
-            dead_code: true, // 到達不可能なコードを削除
-            side_effects: true, // 副作用のない式（void 0など）を削除
-          },
-          mangle: false, // 変数名の短縮を無効化
-          format: {
-            beautify: true, // コードを整形して読みやすく保持
-            indent_level: 2, // インデントレベル
-          },
-        });
+
+        // sourceMapファイルが存在する場合は読み込む
+        const mapPath = `${outputPath}.map`;
+        let sourceMapContent = null;
+        try {
+          sourceMapContent = await fs.readFile(mapPath, 'utf-8');
+        } catch {
+          // sourceMapファイルが存在しない場合は無視
+        }
+
+        // minifyオプションに応じた設定
+        const minifyOptions = {
+          compress: options.minify
+            ? {
+                drop_console: options.dropConsole || false,
+              }
+            : {
+                defaults: false, // minifyしない場合は圧縮を無効化
+                drop_console: options.dropConsole || false,
+                dead_code: true,
+                side_effects: true,
+              },
+          mangle: options.minify || false, // minifyの場合のみ変数名を短縮
+          format: options.minify
+            ? undefined // minifyの場合はデフォルトの圧縮形式
+            : {
+                beautify: true, // minifyしない場合は整形して読みやすく保持
+                indent_level: 2,
+              },
+          sourceMap: sourceMapContent
+            ? {
+                content: sourceMapContent,
+                url: `${fileName}.map`,
+              }
+            : false,
+        };
+
+        const result = await minify(code, minifyOptions);
 
         await fs.writeFile(outputPath, result.code);
-        Logger.log(
-          'SUCCESS',
-          `console.logを削除しました: ${path.relative(
-            process.cwd(),
-            outputPath
-          )}`
-        );
+
+        // sourceMapが生成されている場合は保存
+        if (result.map) {
+          await fs.writeFile(mapPath, result.map);
+        }
+
+        if (options.dropConsole) {
+          Logger.log(
+            'SUCCESS',
+            `console.logを削除しました: ${path.relative(
+              process.cwd(),
+              outputPath
+            )}`
+          );
+        }
+
+        if (options.minify) {
+          Logger.log(
+            'SUCCESS',
+            `JavaScriptを圧縮しました: ${path.relative(
+              process.cwd(),
+              outputPath
+            )}`
+          );
+        }
       }
 
       Logger.log(
