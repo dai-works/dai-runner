@@ -23,10 +23,10 @@ import { getConfig } from '../../utils/configLoader.js';
  *
  * @param {string} srcPath - コンパイル対象のSCSSファイルパス
  * @param {string} distPath - 出力先のCSSファイルパス
- * @param {Object} options - コンパイルオプション（config.jsから自動的に取得されます）
+ * @param {Object} _options - コンパイルオプション（config.jsから自動的に取得されます）
  * @throws {Error} コンパイルエラーや書き込みエラー時
  */
-export async function compileCss(srcPath, distPath, options = {}) {
+export async function compileCss(srcPath, distPath, _options = {}) {
   try {
     // configを取得
     const currentConfig = getConfig().get();
@@ -109,7 +109,7 @@ export async function compileCss(srcPath, distPath, options = {}) {
               discardComments: { removeAll: true },
             },
           ],
-        }),
+        })
       );
       Logger.log('DEBUG', 'PostCSS処理を開始（圧縮あり）');
     } else {
@@ -138,7 +138,7 @@ export async function compileCss(srcPath, distPath, options = {}) {
       await fs.writeFile(`${distPath}.map`, JSON.stringify(finalSourceMap));
       Logger.log(
         'DEBUG',
-        `ソースマップを出力: ${path.relative(process.cwd(), distPath)}.map`,
+        `ソースマップを出力: ${path.relative(process.cwd(), distPath)}.map`
       );
     }
 
@@ -163,18 +163,18 @@ export async function compileCss(srcPath, distPath, options = {}) {
     await fs.writeFile(distPath, finalCss);
     Logger.log(
       'DEBUG',
-      `CSSファイルを出力: ${path.relative(process.cwd(), distPath)}`,
+      `CSSファイルを出力: ${path.relative(process.cwd(), distPath)}`
     );
 
     Logger.log(
       'INFO',
-      `SCSSをコンパイルしました: ${path.relative(process.cwd(), distPath)}`,
+      `SCSSをコンパイルしました: ${path.relative(process.cwd(), distPath)}`
     );
   } catch (err) {
     Logger.log(
       'ERROR',
       `SCSSのコンパイル中にエラーが発生しました: ${srcPath}`,
-      err,
+      err
     );
     throw err;
   }

@@ -58,7 +58,7 @@ function readEnvFile() {
     });
 
     return envVars;
-  } catch (error) {
+  } catch (_error) {
     // .envファイルの読み取りに失敗しても続行
     return {};
   }

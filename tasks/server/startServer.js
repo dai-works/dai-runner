@@ -36,7 +36,7 @@ export async function startServer(_options = {}) {
               console.log(
                 chalk.white('[Browsersync]'),
                 'CSSを更新します:',
-                file,
+                file
               );
               this.reload('*.css');
             }
@@ -49,7 +49,7 @@ export async function startServer(_options = {}) {
               console.log(
                 chalk.white('[Browsersync]'),
                 'ページをリロードします:',
-                file,
+                file
               );
               this.reload();
             }
@@ -71,7 +71,7 @@ export async function startServer(_options = {}) {
       serverConfig.proxy = currentConfig.proxy;
       Logger.log(
         'INFO',
-        `プロキシを設定しました: ${currentConfig.proxy.target}`,
+        `プロキシを設定しました: ${currentConfig.proxy.target}`
       );
 
       // HostヘッダーからTraefikのURLを動的に取得
@@ -80,7 +80,7 @@ export async function startServer(_options = {}) {
       if (hostMatch) {
         console.log(
           chalk.white('[dev-tools]'),
-          `Traefik URL: ${chalk.magenta(`http://${hostMatch[1]}`)}`,
+          `Traefik URL: ${chalk.magenta(`http://${hostMatch[1]}`)}`
         );
       }
     } else if (currentConfig.mode === 'server') {
@@ -100,7 +100,7 @@ export async function startServer(_options = {}) {
       }
       Logger.log(
         'DEBUG',
-        `開発サーバーを起動しました: ${bs.options.get('urls').get('local')}`,
+        `開発サーバーを起動しました: ${bs.options.get('urls').get('local')}`
       );
     });
 

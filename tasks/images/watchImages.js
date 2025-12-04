@@ -28,7 +28,7 @@ export function watchImages({ paths, options = {} } = {}) {
         ignored: /(^|[/\\])\../,
         persistent: true,
         ignoreInitial: true,
-      },
+      }
     );
 
     watcher
@@ -36,7 +36,7 @@ export function watchImages({ paths, options = {} } = {}) {
         try {
           Logger.log(
             'INFO',
-            `新しい画像ファイルが追加されました: ${path.relative(process.cwd(), filePath)}`,
+            `新しい画像ファイルが追加されました: ${path.relative(process.cwd(), filePath)}`
           );
 
           // 画像を最適化
@@ -48,7 +48,7 @@ export function watchImages({ paths, options = {} } = {}) {
           Logger.log(
             'ERROR',
             `画像の追加処理中にエラーが発生しました: ${filePath}`,
-            err,
+            err
           );
         }
       })
@@ -56,7 +56,7 @@ export function watchImages({ paths, options = {} } = {}) {
         try {
           Logger.log(
             'INFO',
-            `画像ファイルが更新されました: ${path.relative(process.cwd(), filePath)}`,
+            `画像ファイルが更新されました: ${path.relative(process.cwd(), filePath)}`
           );
 
           // 画像を最適化
@@ -68,7 +68,7 @@ export function watchImages({ paths, options = {} } = {}) {
           Logger.log(
             'ERROR',
             `画像の更新処理中にエラーが発生しました: ${filePath}`,
-            err,
+            err
           );
         }
       })
@@ -76,7 +76,7 @@ export function watchImages({ paths, options = {} } = {}) {
         try {
           Logger.log(
             'INFO',
-            `画像ファイルが削除されました: ${path.relative(process.cwd(), filePath)}`,
+            `画像ファイルが削除されました: ${path.relative(process.cwd(), filePath)}`
           );
 
           const relativePath = path.relative(srcDir, filePath);
@@ -92,7 +92,7 @@ export function watchImages({ paths, options = {} } = {}) {
           Logger.log(
             'ERROR',
             `画像の削除処理中にエラーが発生しました: ${filePath}`,
-            err,
+            err
           );
         }
       });

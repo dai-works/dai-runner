@@ -54,7 +54,7 @@ export async function initScss(srcDir) {
         await fs.writeFile(indexPath, indexContent);
         Logger.log(
           'INFO',
-          `_index.scssを作成しました: ${path.relative(process.cwd(), indexPath)}`,
+          `_index.scssを作成しました: ${path.relative(process.cwd(), indexPath)}`
         );
       }
     }

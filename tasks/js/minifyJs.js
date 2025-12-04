@@ -36,7 +36,7 @@ export async function minifyJs(srcDir, distDir, filePath = null) {
     if (srcPaths.length === 0) {
       Logger.log(
         'WARN',
-        `JavaScriptファイルが見つかりません: ${filePath || sourcePath}`,
+        `JavaScriptファイルが見つかりません: ${filePath || sourcePath}`
       );
       return;
     }
@@ -63,7 +63,7 @@ export async function minifyJs(srcDir, distDir, filePath = null) {
       await fs.writeFile(distPath, result.code);
       Logger.log(
         'SUCCESS',
-        `JavaScriptを圧縮しました: ${path.relative(process.cwd(), filePath || srcPath)}`,
+        `JavaScriptを圧縮しました: ${path.relative(process.cwd(), filePath || srcPath)}`
       );
     }
   } catch (err) {

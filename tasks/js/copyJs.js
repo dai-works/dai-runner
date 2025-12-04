@@ -14,7 +14,7 @@ export async function copyJs(srcDir, distDir, filePath) {
     if (srcPaths.length === 0) {
       Logger.log(
         'WARN',
-        `JavaScriptファイルが見つかりません: ${filePath || srcDir}`,
+        `JavaScriptファイルが見つかりません: ${filePath || srcDir}`
       );
       return;
     }
@@ -29,7 +29,7 @@ export async function copyJs(srcDir, distDir, filePath) {
       await fs.copyFile(srcPath, distPath);
       Logger.log(
         'INFO',
-        `JavaScriptをコピーしました: ${path.relative(process.cwd(), srcPath)}`,
+        `JavaScriptをコピーしました: ${path.relative(process.cwd(), srcPath)}`
       );
     }
   } catch (err) {

@@ -9,7 +9,7 @@ import Logger from '../../utils/Logger.js';
  * - 画像: 関連ページリロード
  */
 
-export function setupLiveReload(bs) {
+export function setupLiveReload(_bs) {
   try {
     // Browsersyncのfilesオプションで自動監視されるため、
     // ここでは追加の設定は不要

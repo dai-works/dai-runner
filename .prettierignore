@@ -1,0 +1,20 @@
+# ビルド成果物・テストプロジェクト
+test/
+test/**/node_modules/
+test/**/assets/
+test/**/.dai-runner/
+
+# ライブラリ
+node_modules/
+
+# 圧縮済み・配布物
+*.min.js
+*.min.css
+
+# OS / エディタ
+.DS_Store
+*:Zone.Identifier
+Thumbs.db
+
+# ログファイル
+*.log

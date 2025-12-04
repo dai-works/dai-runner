@@ -97,7 +97,10 @@ dai-runner - WordPressテーマ開発ツール
     // dev/buildコマンドの場合、設定ファイルが無ければprecheckを先に実行
     if (needsPrecheck) {
       const configPath = path.join(process.cwd(), 'dai-runner.config.js');
-      const localConfigPath = path.join(process.cwd(), 'dai-runner.config.local.js');
+      const localConfigPath = path.join(
+        process.cwd(),
+        'dai-runner.config.local.js'
+      );
 
       // いずれかの設定ファイルが存在しない場合はprecheckを実行
       if (!fs.existsSync(configPath) || !fs.existsSync(localConfigPath)) {

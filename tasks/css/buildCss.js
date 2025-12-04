@@ -28,7 +28,7 @@ export async function buildCss({ paths, options = {} } = {}) {
       const relativePath = path.relative(paths.src, srcPath);
       const distPath = path.join(
         paths.dist,
-        relativePath.replace('.scss', '.css'),
+        relativePath.replace('.scss', '.css')
       );
 
       // SCSSをコンパイルして最適化（1ステップで完結）

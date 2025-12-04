@@ -2,8 +2,49 @@
 
 このプロジェクトの主な変更内容を記録します。
 
-このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
-バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
+このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
+に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
+
+## [1.6.0] - 2025-12-04
+
+### 追加
+
+- **コードフォーマット環境の整備**
+  - ESLint 設定ファイル（`eslint.config.js`）を追加
+    - モダンな flat config 形式を採用
+    - Node.js 環境用の推奨ルールを設定
+    - 未使用変数の警告、シングルクォート、セミコロン必須などのルールを適用
+  - Prettier 設定ファイル（`.prettierrc.json`）を追加
+    - JavaScript、JSON、Markdown 用のフォーマット設定
+    - シングルクォート、セミコロン必須、末尾カンマなどの統一されたスタイル
+  - EditorConfig（`.editorconfig`）を追加
+    - エディタ間の一貫性を確保（インデント、改行コードなど）
+  - `.prettierignore` を追加
+    - test フォルダやビルド成果物を除外
+- **npm スクリプトの追加**
+  - `npm run lint` - ESLint でコードチェック
+  - `npm run lint:fix` - ESLint で自動修正
+  - `npm run format` - Prettier で自動フォーマット
+  - `npm run format:check` - Prettier でフォーマットチェック
+- **README に開発者向けセクションを追加**
+  - コードフォーマットの使用方法を記載
+  - 設定ファイルの説明を追加
+
+### 改善
+
+- **コード品質の向上**
+  - プロジェクト全体を ESLint と Prettier でフォーマット
+  - 未使用変数の警告を修正（`_`プレフィックスを追加）
+  - コードスタイルの統一
+
+### 変更
+
+- **devDependencies の追加**
+  - `@eslint/js`: ^9.17.0
+  - `eslint`: ^9.17.0
+  - `eslint-config-prettier`: ^9.1.0
+  - `globals`: ^15.14.0
+  - `prettier`: ^3.4.2
 
 ## [1.5.0] - 2025-12-04
 
@@ -41,8 +82,10 @@
 ### 改善
 
 - **Traefik ホスト名の初期値を自動推測**
-  - `.env` ファイルから `COMPOSE_PROJECT_NAME` を読み取り、自動的に `.localhost` を付けて初期値として表示
-  - `.env` ファイルがない場合や `COMPOSE_PROJECT_NAME` が設定されていない場合は、ディレクトリ名から自動生成（例: `dai-html` → `dai-html.localhost`）
+  - `.env` ファイルから `COMPOSE_PROJECT_NAME` を読み取り、自動的に `.localhost`
+    を付けて初期値として表示
+  - `.env` ファイルがない場合や `COMPOSE_PROJECT_NAME`
+    が設定されていない場合は、ディレクトリ名から自動生成（例: `dai-html` → `dai-html.localhost`）
   - ユーザーは初期値をそのまま使用するか、必要に応じて変更可能
   - 初回セットアップ時の手間を大幅に削減
 
@@ -51,9 +94,11 @@
 ### 修正
 
 - **インタラクティブ設定画面が表示されない問題を修正**
-  - `dai-runner.config.local.js` が存在しない場合に、初回セットアップ時の設定画面が表示されない問題を修正
+  - `dai-runner.config.local.js`
+    が存在しない場合に、初回セットアップ時の設定画面が表示されない問題を修正
   - `bin/dai-runner.js` で `dai-runner.config.local.js` の存在チェックを追加
-  - `dai-runner dev` または `dai-runner build` コマンド実行時に確実に設定ファイルの確認が行われるようになりました
+  - `dai-runner dev` または `dai-runner build`
+    コマンド実行時に確実に設定ファイルの確認が行われるようになりました
 
 ## [1.4.2] - 2025-11-19
 
@@ -99,7 +144,8 @@
 ### 追加
 
 - **メイン設定ファイルの自動作成機能**
-  - `dai-runner.config.js` が存在しない場合、`dai-runner.config.js.example` から自動的にコピーして作成
+  - `dai-runner.config.js` が存在しない場合、`dai-runner.config.js.example`
+    から自動的にコピーして作成
   - 初回実行時の設定ファイル不足エラーを防止
   - `precheck.js` スクリプトに自動作成処理を追加
 
@@ -192,7 +238,8 @@
 - **SCSS ファイル監視のバグ修正**: 新しい SCSS ファイルを追加した際にコンパイルされない問題を修正
   - 原因: 相対パスと絶対パスの比較エラー
   - 解決: `path.resolve()` を使用してパスを統一
-- **JS ファイル削除時の不具合修正**: JS ファイルを削除した際に、対応する `.map` ファイルが残る問題を修正
+- **JS ファイル削除時の不具合修正**: JS ファイルを削除した際に、対応する `.map`
+  ファイルが残る問題を修正
   - ソースマップファイルも同時に削除するように改善
 
 ### 変更

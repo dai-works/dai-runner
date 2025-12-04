@@ -25,7 +25,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.5.0
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.6.0
 ```
 
 ### 初回セットアップ
@@ -268,12 +268,14 @@ dai-runner/
 
 ## 注意事項
 
-- `npm run dev` 実行時にプロキシモードを使用する場合は、バックエンドサーバー（WordPress、Node.js サーバーなど）が起動している必要があります
+- `npm run dev`
+  実行時にプロキシモードを使用する場合は、バックエンドサーバー（WordPress、Node.js サーバーなど）が起動している必要があります
 - 本番環境にデプロイする前に `npm run build` を実行して最適化されたファイルを生成してください
 - 設定ファイルはプロジェクトルートに配置してください
   - **`dai-runner.config.js`**: Git 管理を推奨（チーム共通設定）
   - **`dai-runner.config.local.js`**: `.gitignore` に追加を推奨（個人設定）
-- 新しい環境でセットアップする際は `npm run dev` を実行すると、自動的に `dai-runner.config.local.js` が作成されます
+- 新しい環境でセットアップする際は `npm run dev` を実行すると、自動的に `dai-runner.config.local.js`
+  が作成されます
 
 ## アップデート
 
@@ -332,8 +334,8 @@ npm run dev
 npm run build
 ```
 
-ブラウザが自動的に開き、`http://localhost:3000` でテストページが表示されます。
-SCSS や JS ファイルを編集すると、自動的にビルドされブラウザが更新されます。
+ブラウザが自動的に開き、`http://localhost:3000`
+でテストページが表示されます。SCSS や JS ファイルを編集すると、自動的にビルドされブラウザが更新されます。
 
 **テスト用ファイル構成：**
 
@@ -354,6 +356,32 @@ npm link
 cd /path/to/your-project
 npm link @dai-works/dai-runner
 ```
+
+## 開発者向け
+
+### コードフォーマット
+
+このプロジェクトでは、ESLint と Prettier を使用してコード品質を維持しています。
+
+#### フォーマット確認
+
+```bash
+npm run format:check  # フォーマットチェック
+npm run lint         # ESLint チェック
+```
+
+#### 自動フォーマット
+
+```bash
+npm run format     # Prettier で自動フォーマット
+npm run lint:fix   # ESLint で自動修正
+```
+
+#### フォーマット設定
+
+- **ESLint**: `eslint.config.js` - コードの品質チェック
+- **Prettier**: `.prettierrc.json` - コードのフォーマット
+- **EditorConfig**: `.editorconfig` - エディタの基本設定
 
 ## トラブルシューティング
 

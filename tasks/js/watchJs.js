@@ -51,7 +51,7 @@ export function watchJs({ paths, options = {} } = {}) {
         try {
           Logger.log(
             'INFO',
-            `新しいJSファイルが追加されました: ${path.relative(process.cwd(), filePath)}`,
+            `新しいJSファイルが追加されました: ${path.relative(process.cwd(), filePath)}`
           );
 
           const relativePath = path.relative(srcDir, filePath);
@@ -85,7 +85,7 @@ export function watchJs({ paths, options = {} } = {}) {
           Logger.log(
             'ERROR',
             `JSファイルの追加処理中にエラーが発生しました: ${filePath}`,
-            err,
+            err
           );
         }
       })
@@ -93,7 +93,7 @@ export function watchJs({ paths, options = {} } = {}) {
         try {
           Logger.log(
             'INFO',
-            `JSファイルが更新されました: ${path.relative(process.cwd(), filePath)}`,
+            `JSファイルが更新されました: ${path.relative(process.cwd(), filePath)}`
           );
 
           // JSファイルを処理
@@ -121,7 +121,7 @@ export function watchJs({ paths, options = {} } = {}) {
           Logger.log(
             'ERROR',
             `JSファイルの更新処理中にエラーが発生しました: ${filePath}`,
-            err,
+            err
           );
         }
       })
@@ -129,7 +129,7 @@ export function watchJs({ paths, options = {} } = {}) {
         try {
           Logger.log(
             'INFO',
-            `JSファイルが削除されました: ${path.relative(process.cwd(), filePath)}`,
+            `JSファイルが削除されました: ${path.relative(process.cwd(), filePath)}`
           );
 
           const relativePath = path.relative(srcDir, filePath);
@@ -145,7 +145,7 @@ export function watchJs({ paths, options = {} } = {}) {
           Logger.log(
             'ERROR',
             `JSファイルの削除処理中にエラーが発生しました: ${filePath}`,
-            err,
+            err
           );
         }
       });

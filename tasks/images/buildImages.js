@@ -8,6 +8,6 @@ export async function buildImages({ paths, options }) {
   const distDir = paths.dist;
 
   return TaskRunner.runTask('画像のビルド', () =>
-    optimizeImages(srcDir, distDir, options),
+    optimizeImages(srcDir, distDir, options)
   );
 }
