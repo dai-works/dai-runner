@@ -17,6 +17,7 @@ const DEFAULT_OPTIONS = {
   minify: false,
   sourceMap: false,
   bundle: true, // デフォルトでバンドルを有効化
+  dropConsole: false, // true: console.log等を削除, false: console.logを残す
 };
 
 /**
@@ -64,6 +65,7 @@ export function watchJs({ paths, options = {} } = {}) {
             // バンドル処理を実行
             await bundleJs(srcDir, distDir, {
               sourcemap: mergedOptions.sourceMap,
+              dropConsole: mergedOptions.dropConsole,
             });
 
             // バンドル後に圧縮が必要な場合
@@ -99,6 +101,7 @@ export function watchJs({ paths, options = {} } = {}) {
             // バンドル処理を実行
             await bundleJs(srcDir, distDir, {
               sourcemap: mergedOptions.sourceMap,
+              dropConsole: mergedOptions.dropConsole,
             });
 
             // バンドル後に圧縮が必要な場合

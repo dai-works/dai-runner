@@ -13,7 +13,7 @@ async function build() {
     // グローバルなconfigを設定（他のモジュールから参照可能にする）
     setConfig(config);
 
-    const conf = config.get();
+    const conf = config.get('build');
 
     // ログレベルを設定
     Logger.setLogLevel(conf.options.logLevel);

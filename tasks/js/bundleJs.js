@@ -1,5 +1,6 @@
 import { rollup } from 'rollup';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
+import { minify } from 'terser';
 import path from 'path';
 import fs from 'fs/promises';
 import { glob } from 'glob';
@@ -18,7 +19,7 @@ export async function bundleJs(srcDir, distDir, options = {}) {
       path.join(srcDir, '*.js').replace(/\\/g, '/'),
       {
         nodir: true,
-      },
+      }
     );
 
     if (entryPoints.length === 0) {
@@ -34,7 +35,7 @@ export async function bundleJs(srcDir, distDir, options = {}) {
 
       Logger.log(
         'INFO',
-        `バンドル中: ${path.relative(process.cwd(), entryPoint)}`,
+        `バンドル中: ${path.relative(process.cwd(), entryPoint)}`
       );
 
       // Rollupでバンドル
@@ -61,9 +62,36 @@ export async function bundleJs(srcDir, distDir, options = {}) {
 
       await bundle.close();
 
+      // dropConsoleオプションが有効な場合、console.logを削除
+      if (options.dropConsole) {
+        const code = await fs.readFile(outputPath, 'utf-8');
+        const result = await minify(code, {
+          compress: {
+            defaults: false, // すべてのデフォルト圧縮を無効化
+            drop_console: true, // console.logを削除
+            dead_code: true, // 到達不可能なコードを削除
+            side_effects: true, // 副作用のない式（void 0など）を削除
+          },
+          mangle: false, // 変数名の短縮を無効化
+          format: {
+            beautify: true, // コードを整形して読みやすく保持
+            indent_level: 2, // インデントレベル
+          },
+        });
+
+        await fs.writeFile(outputPath, result.code);
+        Logger.log(
+          'SUCCESS',
+          `console.logを削除しました: ${path.relative(
+            process.cwd(),
+            outputPath
+          )}`
+        );
+      }
+
       Logger.log(
         'INFO',
-        `バンドル完了: ${path.relative(process.cwd(), outputPath)}`,
+        `バンドル完了: ${path.relative(process.cwd(), outputPath)}`
       );
     }
   } catch (err) {

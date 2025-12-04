@@ -25,7 +25,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.4.4
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.5.0
 ```
 
 ### 初回セットアップ
@@ -155,7 +155,7 @@ npm run build
 
 - ソースファイルと出力先のパス
 - 画像処理オプション（最大幅、品質、WebP 変換など）
-- CSS/JS 処理オプション（圧縮、ソースマップなど）
+- CSS/JS 処理オプション（圧縮、ソースマップ、console.log 削除など）
 - クリーンアップの除外ファイル（残したいファイルを指定）
 - ログレベル
 
@@ -182,6 +182,44 @@ cleanup: {
 **パスの指定方法：** テーマルートからの相対パスで、dist ディレクトリを含む完全なパスで指定します。  
 例：`assets/images/file.png` を保持したい場合 → `'assets/images/file.png'` と指定  
 ※ `paths`設定で dist ディレクトリを変更した場合は、そのパスに合わせて指定してください
+
+### console.log 削除設定
+
+本番ビルド時に`console.log`などのデバッグ出力を自動削除する機能を利用できます。
+
+`dai-runner.config.js`の設定例：
+
+```javascript
+// 開発環境設定
+dev: {
+  options: {
+    js: {
+      minify: false,
+      sourceMap: true,
+      dropConsole: false, // 開発時はconsole.logを残す
+    },
+  },
+},
+
+// 本番環境設定
+build: {
+  options: {
+    js: {
+      minify: false,
+      sourceMap: false,
+      dropConsole: true, // 本番ビルド時にconsole.logを削除
+    },
+  },
+},
+```
+
+**dropConsole オプション：**
+
+- `true`: `console.log`、`console.info`、`console.warn`、`console.error`などを削除
+- `false`: console 出力を残す
+- デフォルト: 開発環境は`false`、本番環境は`true`
+
+この機能により、プロダクションコードのファイルサイズが削減され、デバッグ情報の漏洩も防げます。
 
 ## ディレクトリ構造
 

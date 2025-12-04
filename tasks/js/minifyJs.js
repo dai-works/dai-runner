@@ -43,6 +43,9 @@ export async function minifyJs(srcDir, distDir, filePath = null) {
 
     await fs.mkdir(outputPath, { recursive: true });
 
+    // dropConsoleオプションを取得（デフォルトはfalse）
+    const dropConsole = currentConfig.options.js.dropConsole || false;
+
     for (const srcPath of srcPaths) {
       const relativePath = path.relative(sourcePath, srcPath);
       const distPath = path.join(outputPath, relativePath);
@@ -50,7 +53,11 @@ export async function minifyJs(srcDir, distDir, filePath = null) {
       await fs.mkdir(path.dirname(distPath), { recursive: true });
       const code = await fs.readFile(srcPath, 'utf-8');
       const result = await minify(code, {
-        compress: true,
+        compress: dropConsole
+          ? {
+              drop_console: true, // console.log等を削除
+            }
+          : true,
         mangle: true,
       });
       await fs.writeFile(distPath, result.code);

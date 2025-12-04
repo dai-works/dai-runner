@@ -5,6 +5,37 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/) に基づいており、
 バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.5.0] - 2025-12-04
+
+### 追加
+
+- **build 時の console.log 削除機能**
+  - 本番ビルド時に`console.log`、`console.info`、`console.warn`、`console.error`などの console 出力を自動削除する機能を追加
+  - `dai-runner.config.js`の`build.options.js.dropConsole`オプションで制御可能（デフォルト: true）
+  - 開発環境では`dev.options.js.dropConsole`で制御可能（デフォルト: false）
+  - Terser の`drop_console`オプションを使用して実装
+  - バンドル処理と minify 処理の両方で動作
+  - プロダクションコードのファイルサイズ削減とデバッグ情報の除外に貢献
+
+### 修正
+
+- **本番ビルドで正しい設定が適用されない問題を修正**
+  - `scripts/build.js`で`config.get()`を`config.get('build')`に修正
+  - これにより本番環境の設定（`build`セクション）が正しく適用されるようになりました
+- **minify: false でも意図せず圧縮される問題を修正**
+  - `dropConsole: true`使用時に、Terser のデフォルト圧縮が適用されていた問題を修正
+  - `compress.defaults: false`を設定し、console.log 削除のみを実行するように改善
+  - `dead_code: true`と`side_effects: true`を追加し、console.log 削除後の不要なコード（`void 0;`など）も綺麗に削除
+  - `format.beautify: true`でコードの整形を保持し、`minify: false`の設定を正しく反映
+
+### 改善
+
+- **画像キャッシュ設定を環境別に分離**
+  - `images.useCache`を共通設定から`dev.options.images`と`build.options.images`に移動
+  - 開発環境: `useCache: true`（高速化のためキャッシュを使用）
+  - 本番環境: `useCache: false`（全ての画像を確実に処理）
+  - 環境に応じた最適な設定が自動的に適用されるようになりました
+
 ## [1.4.4] - 2025-11-21
 
 ### 改善

@@ -66,12 +66,9 @@ export const config = {
 
   // 画像最適化設定（開発・本番共通）
   images: {
-    convertToWebp: true,
-    imageQuality: 80,
-    maxWidth: 3840,
-    // キャッシュを使用して処理済み画像をスキップ（高速化）
-    // 開発時はtrue、本番ビルド時はfalseが推奨
-    useCache: true,
+    convertToWebp: true, // true: WebP形式に変換, false: 元の形式のまま
+    imageQuality: 80, // 画質（1-100）
+    maxWidth: 3840, // 最大幅（px）
     // 最適化から除外したいファイルがある場合は以下のコメントのように設定
     // （例：動くpng画像など）
     excludeFromOptimization: [
@@ -92,14 +89,18 @@ export const config = {
     },
     options: {
       js: {
-        minify: false,
-        sourceMap: true,
+        minify: false, // true: コードを圧縮, false: 整形したまま
+        sourceMap: true, // true: ソースマップを生成, false: 生成しない
+        dropConsole: false, // true: console.log等を削除, false: console.logを残す
       },
       css: {
-        minify: false,
-        sourceMap: true,
+        minify: false, // true: CSSを圧縮, false: 整形したまま
+        sourceMap: true, // true: ソースマップを生成, false: 生成しない
       },
-      logLevel: 'info',
+      images: {
+        useCache: true, // true: キャッシュを使用（高速化）, false: 毎回処理
+      },
+      logLevel: 'info', // ログレベル: 'info' | 'warn' | 'error'
     },
   },
 
@@ -107,14 +108,18 @@ export const config = {
   build: {
     options: {
       js: {
-        minify: false,
-        sourceMap: false,
+        minify: false, // true: コードを圧縮, false: 整形したまま
+        sourceMap: false, // true: ソースマップを生成, false: 生成しない
+        dropConsole: true, // true: console.log等を削除, false: console.logを残す
       },
       css: {
-        minify: false,
-        sourceMap: false,
+        minify: false, // true: CSSを圧縮, false: 整形したまま
+        sourceMap: false, // true: ソースマップを生成, false: 生成しない
       },
-      logLevel: 'info',
+      images: {
+        useCache: false, // true: キャッシュを使用（高速化）, false: 毎回処理
+      },
+      logLevel: 'info', // ログレベル: 'info' | 'warn' | 'error'
     },
   },
 
@@ -131,7 +136,10 @@ export const config = {
       cleanup: this.cleanup,
       options: {
         ...conf.options,
-        images: this.images,
+        images: {
+          ...this.images,
+          ...conf.options.images, // 環境固有の設定で上書き
+        },
       },
     };
   },
