@@ -93,7 +93,7 @@ npm run dev
 このコマンドは以下の処理を実行します：
 
 - SCSS ファイルのコンパイルと最適化
-- JavaScript ファイルのコピーとフォーマット
+- JavaScript ファイルのバンドルとフォーマット
 - 画像ファイルの最適化
 - ブラウザの自動更新（BrowserSync）
 
@@ -122,7 +122,7 @@ npm run build
 
 ### JavaScript 処理
 
-- JavaScript ファイルのコピーまたは圧縮
+- JavaScript ファイルのバンドルまたは圧縮
 - Prettier によるコードフォーマット
 
 ### 画像処理
