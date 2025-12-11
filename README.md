@@ -172,15 +172,15 @@ npm run build
 ```javascript
 cleanup: {
   excludeFiles: [
-    'assets/images/keep-image.png',
-    'assets/js/keep-js.js',
-    'assets/css/keep-css.css',
+    'public/assets/images/keep-image.png',
+    'public/assets/js/keep-js.js',
+    'public/assets/css/keep-css.css',
   ],
 },
 ```
 
 **パスの指定方法：** テーマルートからの相対パスで、dist ディレクトリを含む完全なパスで指定します。  
-例：`assets/images/file.png` を保持したい場合 → `'assets/images/file.png'` と指定  
+例：`public/assets/images/file.png` を保持したい場合 → `'public/assets/images/file.png'` と指定  
 ※ `paths`設定で dist ディレクトリを変更した場合は、そのパスに合わせて指定してください
 
 ### console.log 削除設定
@@ -288,7 +288,7 @@ npm update @dai-works/dai-runner
 特定のバージョン（タグ）に更新する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.4.3
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.6.1
 ```
 
 ## プログラマティックな使用方法
