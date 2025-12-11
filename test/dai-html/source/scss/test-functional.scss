@@ -1,0 +1,36 @@
+@charset "utf-8";
+
+// 1. Sass & Variables
+$primary: #ff0000;
+
+// 2. Autoprefixer & Sass Nesting
+.test-prefix {
+  user-select: none;
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    appearance: none;
+  }
+}
+
+// 3. PostCSS Discard Duplicates
+.test-duplicates {
+  color: $primary;
+  display: block;
+  color: #ff0000; // 重複（変数値と同じ）
+  display: block; // 完全重複
+}
+
+// 4. PostCSS Sort Media Queries (Desktop First -> Mobile First check or Order check)
+// ランダムな順序で記述
+@media (min-width: 1200px) {
+  .test-mq { width: 100%; }
+}
+
+@media (min-width: 768px) {
+  .test-mq { width: 50%; }
+}
+
+@media (min-width: 375px) {
+  .test-mq { width: 100%; }
+}

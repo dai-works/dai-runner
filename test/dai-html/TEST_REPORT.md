@@ -438,3 +438,71 @@ build: {
 - ✅ 画像最適化機能は優秀（26%のサイズ削減）
 
 全体として、設定ファイルは非常に良好に機能しており、本番環境での使用に完全に対応しています。
+
+---
+
+## 機能プラグイン検証テスト結果
+
+`dai-runner.config.js` の設定に基づく実際のファイル変換処理（各種プラグインの動作）を検証しました。
+
+### 1. CSS機能テスト (PostCSS & Sass)
+
+**検証ファイル:** `source/scss/test-functional.scss` -> `public/assets/css/test-functional.css`
+
+#### 1.1 Autoprefixer (ベンダープレフィックス付与)
+**検証内容:** `user-select` や `backdrop-filter` にプレフィックスが付与されるか。
+**テスト結果:** ✅ 成功
+```css
+.test-prefix {
+  -webkit-user-select: none; /* 付与された */
+  -moz-user-select: none;    /* 付与された */
+  user-select: none;
+  -webkit-backdrop-filter: blur(10px); /* 付与された */
+  backdrop-filter: blur(10px);
+}
+```
+
+#### 1.2 postcss-discard-duplicates (重複削除)
+**検証内容:** 重複して記述した `color` や `display` プロパティが1つにまとめられるか。
+**テスト結果:** ✅ 成功
+- 入力: `color` x 2, `display` x 2
+- 出力: 各プロパティ1回のみ出現
+
+#### 1.3 postcss-sort-media-queries (MQソート)
+**検証内容:** ランダムな順序で記述したメディアクエリが、モバイルファースト（min-widthの昇順）に並び替えられるか。
+**テスト結果:** ✅ 成功
+1. `@media (min-width: 375px)`
+2. `@media (min-width: 768px)`
+3. `@media (min-width: 1200px)`
+
+---
+
+### 2. SVG最適化テスト (SVGO)
+
+**検証ファイル:** `source/images/test-optimization.svg` -> `public/assets/images/test-optimization.svg`
+
+#### 2.1 不要コード削除 & 最適化
+**検証内容:** コメント、DOCTYPE、不要な属性が削除され、パスデータが最適化されるか。
+**テスト結果:** ✅ 成功
+
+**最適化前:**
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<!-- このコメントは削除されるべき -->
+<!DOCTYPE svg ...>
+<svg ...><rect x="0" y="0" width="100" height="100" fill="#000000"/></svg>
+```
+
+**最適化後:**
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M0 0h100v100H0z"/></svg>
+```
+- コメント削除: OK
+- DOCTYPE削除: OK
+- 形状変換 (rect -> path): OK
+
+---
+
+## 最終結論
+
+設定ファイル (`dai-runner.config.js`) の反映だけでなく、**Autoprefixer, PostCSSプラグイン, SVGO などの各種コア機能も正常に動作していることを確認しました。**

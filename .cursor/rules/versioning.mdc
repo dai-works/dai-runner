@@ -1,6 +1,6 @@
 ---
 description: バージョンアップ時の必須更新ファイルとリリース手順
-globs: 
+globs:
 alwaysApply: true
 ---
 
@@ -36,10 +36,10 @@ alwaysApply: true
 ## バージョンアップの手順
 
 1. コードの変更を完了
-2. **設定ファイルの動作テストを実施**（`dai-runner.config.js`など設定ファイルを変更した場合）
+2. **動作テストを実施**（設定ファイルやコア機能を変更した場合）
    - `test/dai-html`ディレクトリで`npm run build`を実行
-   - 各設定項目が正しく動作することを確認
-   - テスト結果を`test/dai-html/CONFIG_TEST_REPORT.md`に記録
+   - 設定項目および主要機能（Autoprefixer, Sass, SVGO等）が正しく動作することを確認
+   - テスト結果を`test/dai-html/TEST_REPORT.md`に記録
 3. 上記3つのファイルを更新
 4. `git add -A`
 5. `git commit -m "バージョンx.x.xに更新: 変更内容の要約"`
