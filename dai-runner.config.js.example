@@ -56,6 +56,28 @@ export const config = {
     ],
   },
 
+  // sitemap.xml生成設定（本番ビルド時のみ）
+  sitemap: {
+    enabled: false, // true: sitemap.xmlを生成, false: 生成しない
+    productionUrl: 'https://example.com', // 本番環境のURL（末尾のスラッシュは不要）
+    sourceDir: 'public', // HTMLファイルの検索元ディレクトリ
+    outputPath: 'public/sitemap.xml', // sitemap.xmlの出力先
+    excludePatterns: [
+      // sitemap.xmlから除外したいファイルパターン
+      // '404.html',
+      // 'test/**',
+    ],
+    defaultPriority: 0.5, // デフォルトの優先度（0.0-1.0）※トップページは自動的に1.0
+    defaultChangefreq: 'weekly', // デフォルトの更新頻度（always/hourly/daily/weekly/monthly/yearly/never）
+    // 特定のページに個別の優先度を設定（オプション）
+    customPriorities: {
+      // '/service/': 0.8,         // service/index.html（重要なサービスページ）
+      // '/products/': 0.8,        // products/index.html（商品ページ）
+      // '/about.html': 0.8,       // about.html（会社概要）
+      // '/blog/': 0.3,            // blog/index.html（ブログ一覧）
+    },
+  },
+
   // 開発環境設定
   dev: {
     // mode と proxy は dai-runner.config.local.js で設定されます
@@ -100,6 +122,11 @@ export const config = {
       },
       logLevel: 'info', // ログレベル: 'info' | 'warn' | 'error'
     },
+    // 本番ビルド時のみsitemap.xmlを生成する場合はここで設定を上書き
+    // sitemap: {
+    //   enabled: true,
+    //   productionUrl: 'https://example.com',
+    // },
   },
 
   /**
@@ -113,6 +140,7 @@ export const config = {
       ...conf,
       paths: this.paths,
       cleanup: this.cleanup,
+      sitemap: conf.sitemap || this.sitemap, // 環境固有のsitemap設定を優先
       options: {
         ...conf.options,
         images: {

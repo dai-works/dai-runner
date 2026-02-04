@@ -56,6 +56,18 @@ export const config = {
     ],
   },
 
+  // sitemap.xml生成設定（本番ビルド時のみ）
+  sitemap: {
+    enabled: false, // 通常は無効（必要に応じて有効化）
+    productionUrl: 'https://example.com',
+    sourceDir: 'public',
+    outputPath: 'public/sitemap.xml',
+    excludePatterns: ['404.html'],
+    defaultPriority: 0.5,
+    defaultChangefreq: 'weekly',
+    customPriorities: {},
+  },
+
   // 開発環境設定
   dev: {
     // mode と proxy は dai-runner.config.local.js で設定されます
@@ -113,6 +125,7 @@ export const config = {
       ...conf,
       paths: this.paths,
       cleanup: this.cleanup,
+      sitemap: conf.sitemap || this.sitemap, // 環境固有のsitemap設定を優先
       options: {
         ...conf.options,
         images: {

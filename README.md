@@ -25,7 +25,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.6.1
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.7.0
 ```
 
 ### 初回セットアップ
@@ -110,6 +110,7 @@ npm run build
 - SCSS ファイルのコンパイルと最適化（ソースマップなし）
 - JavaScript ファイルの最適化（設定により圧縮）
 - 画像ファイルの最適化
+- sitemap.xml の生成（設定で有効時）
 
 ## 主な機能
 
@@ -130,6 +131,12 @@ npm run build
 - 画像の最適化（サイズ圧縮）
 - WebP 形式への自動変換（設定で有効時）
 - SVG の最適化
+
+### sitemap.xml 生成
+
+- HTMLファイルから自動的にsitemap.xmlを生成
+- 本番ビルド時のみ実行（設定で有効時）
+- 除外パターンによるフィルタリング
 
 ### 開発サーバー
 
@@ -221,6 +228,61 @@ build: {
 
 この機能により、プロダクションコードのファイルサイズが削減され、デバッグ情報の漏洩も防げます。
 
+### sitemap.xml生成設定
+
+本番ビルド時にHTMLファイルから自動的にsitemap.xmlを生成できます。
+
+`dai-runner.config.js`の設定例：
+
+```javascript
+sitemap: {
+  enabled: true,  // sitemap.xmlを生成
+  productionUrl: 'https://example.com',  // 本番環境のURL
+  sourceDir: 'public',  // HTMLファイルの検索元
+  outputPath: 'public/sitemap.xml',  // 出力先
+  excludePatterns: ['404.html', 'test/**'],  // 除外パターン
+  defaultPriority: 0.5,  // デフォルト優先度（トップページは自動的に1.0）
+  defaultChangefreq: 'weekly',  // デフォルト更新頻度
+  customPriorities: {  // 特定のページに個別の優先度を設定
+    '/service/': 0.8,        // service/index.html → /service/（重要）
+    '/products/': 0.8,       // products/index.html → /products/（重要）
+    '/about.html': 0.8,      // about.html → /about.html（重要）
+    '/blog/': 0.3,           // blog/index.html → /blog/（補助）
+  },
+}
+```
+
+**sitemap設定オプション：**
+
+- `enabled`: sitemap.xml生成の有効/無効（デフォルト: `false`）
+- `productionUrl`: 本番環境のURL（必須、末尾のスラッシュは不要）
+- `sourceDir`: HTMLファイルの検索元ディレクトリ（デフォルト: `'public'`）
+- `outputPath`: sitemap.xmlの出力先（デフォルト: `'public/sitemap.xml'`）
+- `excludePatterns`: 除外するファイルパターン（配列）
+- `defaultPriority`: デフォルトの優先度 0.0-1.0（デフォルト: `0.5`）
+- `defaultChangefreq`: デフォルトの更新頻度（デフォルト: `'weekly'`）
+  - 指定可能な値: `always`, `hourly`, `daily`, `weekly`, `monthly`, `yearly`, `never`
+- `customPriorities`: 特定のページに個別の優先度を設定（オプション）
+  - オブジェクト形式で `{'/path': 優先度}` を指定
+  - `service/index.html` は `/service/` として指定
+  - `about.html` は `/about.html` として指定
+  - トップページ (`/`) は設定不要（自動的に1.0）
+
+**本番ビルド時のみ生成する場合：**
+
+```javascript
+// 本番環境設定
+build: {
+  options: { /* ... */ },
+  sitemap: {
+    enabled: true,
+    productionUrl: 'https://example.com',
+  },
+}
+```
+
+この設定により、`npm run build`時のみsitemap.xmlが生成されます。
+
 ## ディレクトリ構造
 
 ### プロジェクト構造（npm パッケージとして使用する場合）
@@ -288,7 +350,7 @@ npm update @dai-works/dai-runner
 特定のバージョン（タグ）に更新する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.6.1
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.7.0
 ```
 
 ## プログラマティックな使用方法

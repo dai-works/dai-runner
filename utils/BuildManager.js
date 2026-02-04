@@ -1,6 +1,7 @@
 import { buildImages } from '../tasks/images/buildImages.js';
 import { buildJs } from '../tasks/js/buildJs.js';
 import { buildCss } from '../tasks/css/buildCss.js';
+import { buildSitemap } from '../tasks/sitemap/buildSitemap.js';
 import CleanupManager from './CleanupManager.js';
 import TaskRunner from './TaskRunner.js';
 import Logger from './Logger.js';
@@ -32,7 +33,7 @@ export default class BuildManager {
   }
 
   /**
-   * 共通のビルド処理（クリーンアップ → ビルド）
+   * 共通のビルド処理（クリーンアップ → ビルド → sitemap生成）
    * @param {Object} config - 設定オブジェクト
    * @param {string} buildType - ビルドタイプ（'開発用'/'本番用'）
    */
@@ -58,6 +59,11 @@ export default class BuildManager {
 
     const buildTasks = this.createBuildTasks(config);
     await TaskRunner.runParallelTasks(buildTasks);
+
+    // sitemap.xmlを生成（ビルドタスク完了後）
+    if (config.sitemap) {
+      await buildSitemap(config.sitemap);
+    }
 
     if (buildType) {
       Logger.log('SUCCESS', `${buildType}ビルドが完了しました`);
