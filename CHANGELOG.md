@@ -5,6 +5,26 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.9.0] - 2026-05-03
+
+### 追加
+
+- **`dai-runner package` コマンドを追加**
+  - 本番アップロード用に必要なファイルだけを 1 つのフォルダ（デフォルト `dist/theme/`）にまとめる CLI サブコマンド
+  - WordPress テーマ案件で `source/` `node_modules/` `docs/` などを毎回手動で除外する手間を解消
+  - `--zip` フラグで `dist/theme.zip` も同時生成
+  - デフォルトの include: `assets/**`, `includes/**`, `template-parts/**`, `page-parts/**`, `*.php`, `style.css`, `screenshot.png`
+  - デフォルトの exclude: `page-snippets.php`, `**/.DS_Store`, `**/Thumbs.db`, `**/*:Zone.Identifier`
+  - `dai-runner.config.js` の `package` キーで `outputDir` / `zip` / `zipName` / `include`（上書き）/ `exclude`（追加）をカスタマイズ可能
+  - 出力前に `outputDir` 配下は毎回クリーンアップ（`dist/` 自体は残す）
+- 依存追加: `archiver` (zip 生成), `picomatch` (exclude パターンマッチング)
+
+### 内部
+
+- `tasks/package/packageTheme.js` にパッケージング本体を実装
+- `scripts/package.js` を CLI エントリポイントとして追加
+- `bin/dai-runner.js` で `package` コマンドと `--zip` フラグの転送をサポート
+
 ## [1.8.0] - 2026-04-28
 
 ### 追加

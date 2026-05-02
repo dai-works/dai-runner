@@ -47,6 +47,29 @@ export const config = {
     cleanOrphans: true,
   },
 
+  // 本番アップロード用パッケージング設定（`dai-runner package` コマンドで使用）
+  // include は「上書き」、exclude は dai-runner のデフォルトに「追加」される
+  package: {
+    outputDir: 'dist/theme', // 出力先ディレクトリ
+    zip: false, // CLI の --zip より優先度低
+    zipName: 'theme.zip', // zip 化したときのファイル名
+    // include を指定するとデフォルト（assets/**, includes/**, *.php など）が完全に置き換わる
+    // include: [
+    //   'assets/**',
+    //   'includes/**',
+    //   'template-parts/**',
+    //   'page-parts/**',
+    //   '*.php',
+    //   'style.css',
+    //   'screenshot.png',
+    // ],
+    // exclude はデフォルト除外（page-snippets.php, .DS_Store など）に追加される
+    exclude: [
+      // 'docs/**',
+      // 'CLAUDE.md',
+    ],
+  },
+
   // 画像最適化設定（開発・本番共通）
   images: {
     convertToWebp: true, // true: WebP形式に変換, false: 元の形式のまま

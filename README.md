@@ -38,7 +38,8 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.7.0
 {
   "scripts": {
     "dev": "dai-runner dev",
-    "build": "dai-runner build"
+    "build": "dai-runner build",
+    "package": "dai-runner package"
   }
 }
 ```
@@ -207,6 +208,63 @@ cleanup: {
 - `convertToWebp: true` 時は jpg/jpeg/png に対応する `.webp` も同時に判定対象になります
 - `excludeFiles` に列挙したファイルは孤立判定からも除外されるため、明示的に保持できます
 - `useCache: false` の場合は通常のクリーンアップで dist が空になるため、本オプションは効果を持ちません
+
+### 本番アップロード用パッケージング（package コマンド）
+
+WordPress テーマプロジェクトなどで「本番アップロードに必要なファイルだけを 1 つのフォルダにまとめたい」場合は `dai-runner package` を使用します。
+
+```bash
+dai-runner package          # dist/theme/ にコピーするだけ
+dai-runner package --zip    # dist/theme/ に加えて dist/theme.zip も生成
+```
+
+事前に `dai-runner build` を実行して `assets/` を最新化しておく必要があります。
+
+#### デフォルトの include / exclude
+
+何も設定しなければ以下が適用されます。
+
+**include（これだけコピー）:**
+
+```
+assets/**
+includes/**
+template-parts/**
+page-parts/**
+*.php
+style.css
+screenshot.png
+```
+
+**exclude（include に該当しても除外）:**
+
+```
+page-snippets.php
+**/.DS_Store
+**/Thumbs.db
+**/*:Zone.Identifier
+```
+
+#### 案件ごとに上書き・追加する
+
+`dai-runner.config.js` に `package` キーを追加します。
+
+```javascript
+package: {
+  outputDir: 'dist/theme', // 出力先（デフォルト: 'dist/theme'）
+  zip: false,              // CLI の --zip より優先度低
+  zipName: 'theme.zip',    // zip 化したときのファイル名
+  // include を指定するとデフォルトを完全に置き換える
+  // include: ['assets/**', 'style.css', '*.php'],
+  // exclude はデフォルト除外に追加される（上書きではない）
+  exclude: ['docs/**', 'CLAUDE.md'],
+},
+```
+
+- `include` は **上書き**（指定したら案件側のリストだけが使われる）
+- `exclude` は **追加**（dai-runner のデフォルト除外を維持しつつ追加）
+- CLI の `--zip` フラグは config の `zip` 設定より優先される
+- 出力前に `outputDir` 配下は毎回クリーンアップされます（`dist/` 自体は残る）
 
 ### console.log 削除設定
 

@@ -19,9 +19,9 @@ const __dirname = dirname(__filename);
 /**
  * スクリプトを実行するヘルパー関数
  */
-function runScript(scriptPath) {
+function runScript(scriptPath, scriptArgs = []) {
   return new Promise((resolvePromise, reject) => {
-    const child = spawn('node', [scriptPath], {
+    const child = spawn('node', [scriptPath, ...scriptArgs], {
       stdio: 'inherit',
       cwd: process.cwd(),
     });
@@ -47,10 +47,12 @@ async function main() {
   // コマンドライン引数を取得
   const args = process.argv.slice(2);
   const command = args[0] || 'help';
+  const subArgs = args.slice(1);
 
   // 実行するスクリプトのパスを決定
   let scriptPath;
   let needsPrecheck = false;
+  let forwardArgs = [];
 
   switch (command) {
     case 'dev':
@@ -60,6 +62,11 @@ async function main() {
     case 'build':
       scriptPath = resolve(__dirname, '../scripts/build.js');
       needsPrecheck = true;
+      break;
+    case 'package':
+      scriptPath = resolve(__dirname, '../scripts/package.js');
+      // package は dai-runner.config.local.js（個人環境設定）を使わないので precheck 不要
+      forwardArgs = subArgs;
       break;
     case 'precheck':
       scriptPath = resolve(__dirname, '../scripts/precheck.js');
@@ -71,10 +78,12 @@ async function main() {
 dai-runner - WordPressテーマ開発ツール
 
 使用方法:
-  dai-runner dev      開発環境を起動（ファイル監視 + 自動リロード）
-  dai-runner build    本番用ビルド（最適化）
-  dai-runner precheck 設定ファイルの確認・作成
-  dai-runner help     このヘルプを表示
+  dai-runner dev            開発環境を起動（ファイル監視 + 自動リロード）
+  dai-runner build          本番用ビルド（最適化）
+  dai-runner package        本番アップロード用フォルダを生成（dist/theme/）
+  dai-runner package --zip  上記に加えて zip も生成（dist/theme.zip）
+  dai-runner precheck       設定ファイルの確認・作成
+  dai-runner help           このヘルプを表示
 
 初回セットアップ:
   1. プロジェクトに dai-runner をインストール:
@@ -89,7 +98,7 @@ dai-runner - WordPressテーマ開発ツール
       break;
     default:
       console.error(`エラー: 不明なコマンド "${command}"`);
-      console.log('使用可能なコマンド: dev, build, precheck, help');
+      console.log('使用可能なコマンド: dev, build, package, precheck, help');
       process.exit(1);
   }
 
@@ -110,7 +119,7 @@ dai-runner - WordPressテーマ開発ツール
     }
 
     // メインスクリプトを実行
-    await runScript(scriptPath);
+    await runScript(scriptPath, forwardArgs);
     process.exit(0);
   } catch (err) {
     console.error('スクリプトの実行中にエラーが発生しました:', err.message);
