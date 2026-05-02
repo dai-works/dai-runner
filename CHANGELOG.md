@@ -5,6 +5,25 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.8.0] - 2026-04-28
+
+### 追加
+
+- **`cleanup.cleanOrphans` オプションを追加**
+  - 画像キャッシュ有効時（`useCache: true`）でも、`source` 側に存在しない `dist` の画像（孤立ファイル）を削除できるようにした
+  - 従来は `useCache: true` の場合に画像 dist ディレクトリ全体がクリーンアップから除外され、source から消した画像が dist に残り続ける問題があった
+  - `dai-runner.config.js` の `cleanup.cleanOrphans: true` で有効化（デフォルトは `false` で従来挙動を維持）
+  - WebP 自動変換（`convertToWebp: true`）にも対応し、jpg/jpeg/png に対応する `.webp` ファイルも適切に保持・削除される
+  - `cleanup.excludeFiles` に列挙したファイルは孤立判定からも除外される
+
+### 内部
+
+- `CleanupManager` に以下のヘルパーメソッドを追加
+  - `listFilesRecursive(dir, baseDir)` - ディレクトリ配下の相対パス一覧を取得
+  - `buildExpectedDistSet(srcRelativePaths, convertToWebp)` - src から期待される dist パスの Set を構築
+  - `cleanImageOrphans({ srcDir, distDir, convertToWebp, excludeFiles })` - 孤立画像のみを削除
+  - `removeEmptySubdirs(dir)` - 起点ディレクトリ自身は残しつつ配下の空ディレクトリを削除
+
 ## [1.7.0] - 2026-02-05
 
 ### 追加

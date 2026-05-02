@@ -41,21 +41,39 @@ export default class BuildManager {
     // フォーマットはVS Code拡張が担当するためスキップ
 
     // 除外ファイルリストを準備
-    let excludeFiles = config.cleanup?.excludeFiles || [];
+    const userExcludeFiles = config.cleanup?.excludeFiles || [];
+    let excludeFiles = userExcludeFiles;
 
     // 画像キャッシュが有効な場合は画像ディレクトリを除外リストに追加
-    if (config.options.images?.useCache) {
-      const imagesDistPath = config.paths.images.dist;
-      if (imagesDistPath) {
-        excludeFiles = [...excludeFiles, `${imagesDistPath}/`];
-        Logger.log(
-          'INFO',
-          '画像キャッシュが有効なため、画像ディレクトリをクリーンアップから除外します'
-        );
-      }
+    // （Sharp 再処理を避けるため。孤立ファイル削除は cleanOrphans オプションで対応）
+    const imagesUseCache = !!config.options.images?.useCache;
+    const imagesDistPath = config.paths.images?.dist;
+    if (imagesUseCache && imagesDistPath) {
+      excludeFiles = [...excludeFiles, `${imagesDistPath}/`];
+      Logger.log(
+        'INFO',
+        '画像キャッシュが有効なため、画像ディレクトリをクリーンアップから除外します'
+      );
     }
 
     await CleanupManager.cleanBuildDirectories(config.paths, excludeFiles);
+
+    // キャッシュ ON のままでも source に存在しない dist 画像（孤立ファイル）を削除する
+    // useCache=false の場合はクリーンアップで dist が空になるため不要
+    if (
+      config.cleanup?.cleanOrphans &&
+      imagesUseCache &&
+      imagesDistPath &&
+      config.paths.images?.src
+    ) {
+      Logger.log('INFO', '画像の孤立ファイルをチェックします...');
+      await CleanupManager.cleanImageOrphans({
+        srcDir: config.paths.images.src,
+        distDir: imagesDistPath,
+        convertToWebp: !!config.options.images?.convertToWebp,
+        excludeFiles: userExcludeFiles,
+      });
+    }
 
     const buildTasks = this.createBuildTasks(config);
     await TaskRunner.runParallelTasks(buildTasks);

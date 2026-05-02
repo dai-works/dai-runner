@@ -190,6 +190,24 @@ cleanup: {
 例：`public/assets/images/file.png` を保持したい場合 → `'public/assets/images/file.png'` と指定  
 ※ `paths`設定で dist ディレクトリを変更した場合は、そのパスに合わせて指定してください
 
+### 孤立画像の削除設定（cleanOrphans）
+
+画像キャッシュ（`useCache: true`）を有効にしている場合、ビルド速度向上のため `dist` の画像ディレクトリ全体がクリーンアップから除外されます。
+そのため `source` から削除した画像が `dist` に残り続けてしまう問題があります。
+
+`cleanup.cleanOrphans: true` を指定すると、キャッシュは維持したまま `source` 側に対応するファイルが無い `dist` 画像だけを削除します。
+
+```javascript
+cleanup: {
+  excludeFiles: [],
+  cleanOrphans: true, // src に存在しない dist 画像を自動削除
+},
+```
+
+- `convertToWebp: true` 時は jpg/jpeg/png に対応する `.webp` も同時に判定対象になります
+- `excludeFiles` に列挙したファイルは孤立判定からも除外されるため、明示的に保持できます
+- `useCache: false` の場合は通常のクリーンアップで dist が空になるため、本オプションは効果を持ちません
+
 ### console.log 削除設定
 
 本番ビルド時に`console.log`などのデバッグ出力を自動削除する機能を利用できます。

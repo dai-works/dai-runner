@@ -41,6 +41,10 @@ export const config = {
       // 'public/assets/js/keep-js.js',
       // 'public/assets/css/keep-css.css',
     ],
+    // true: 画像キャッシュ有効時でも src 側に存在しない dist 画像（孤立ファイル）を削除する
+    // false: キャッシュ有効時は dist の画像を一切削除しない（旧来の挙動）
+    // 本番ビルドで「sourceから消した画像が assets に残り続ける」問題を防ぐ場合に true を推奨
+    cleanOrphans: false,
   },
 
   // 画像最適化設定（開発・本番共通）
