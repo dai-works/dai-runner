@@ -39,7 +39,8 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.7.0
   "scripts": {
     "dev": "dai-runner dev",
     "build": "dai-runner build",
-    "package": "dai-runner package"
+    "package": "dai-runner package",
+    "package:zip": "dai-runner package --zip"
   }
 }
 ```
