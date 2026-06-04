@@ -136,13 +136,24 @@ export default class CacheManager {
         return true;
       }
 
-      // WebP変換が有効な場合、WebPファイルもチェック
-      if (
+      // WebPファイルの存在チェック
+      // 生成時に記録した webpPath を信頼する（拡張子からの推測ではなく実態ベース）。
+      // これにより、中身がSVG等でwebpを生成しないファイルや、拡張子と中身が
+      // 食い違うファイルでも誤って再処理し続けることがなくなる。
+      if (cachedEntry.webpPath !== undefined) {
+        if (
+          cachedEntry.webpPath &&
+          !(await this.fileExists(cachedEntry.webpPath))
+        ) {
+          return true;
+        }
+      } else if (
+        // 旧マニフェスト互換（webpPath未記録）: 拡張子から推測してチェック
         options.convertToWebp &&
         (srcPath.match(/\.(jpg|jpeg|png)$/i) ||
           distPath.match(/\.(jpg|jpeg|png)$/i))
       ) {
-        const webpPath = distPath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+        const webpPath = distPath.replace(/\.[^.]+$/i, '.webp');
         if (!(await this.fileExists(webpPath))) {
           return true;
         }
@@ -162,8 +173,9 @@ export default class CacheManager {
    * @param {string} srcPath - ソースファイルパス
    * @param {string} distPath - 出力ファイルパス
    * @param {Object} options - 処理オプション
+   * @param {string|null} [webpPath] - 生成したWebPファイルのパス（生成していない場合はnull）
    */
-  async markProcessed(srcPath, distPath, options) {
+  async markProcessed(srcPath, distPath, options, webpPath = null) {
     if (!this.manifest) {
       return;
     }
@@ -179,10 +191,11 @@ export default class CacheManager {
       const currentOptionsHash = this.getOptionsHash(options);
       this.manifest.optionsHash = currentOptionsHash;
 
-      // ファイルエントリを更新
+      // ファイルエントリを更新（生成したwebpパスも保存）
       this.manifest.files[srcPath] = {
         hash: srcHash,
         distPath: distPath,
+        webpPath: webpPath,
         timestamp: new Date().toISOString(),
       };
     } catch (err) {

@@ -5,6 +5,27 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.9.1] - 2026-06-04
+
+### 修正
+
+- **拡張子と中身が食い違う画像でキャッシュが毎回再処理される不具合を修正**
+  - 中身が JPEG なのに拡張子が `.png` などのファイルで、WebP の出力先パスを
+    `distPath.replace(/\.(jpg|jpeg)$/i, '.webp')` のように拡張子限定で導出していたため
+    置換が効かず、本来の `.webp` が生成されないままだった
+  - その結果、キャッシュの WebP 存在チェックが毎回失敗し、`useCache: true` でも
+    該当ファイルが `npm run dev` のたびに再最適化されていた
+  - WebP の出力先を拡張子非依存（`/\.[^.]+$/i` → `.webp`）で導出するよう変更
+  - 生成した WebP のパスをキャッシュマニフェスト（`webpPath`）に記録し、存在チェックを
+    「拡張子からの推測」ではなく「実際に生成したパス」に基づいて行うよう変更。これにより
+    中身が SVG 等で WebP を生成しないファイルでも誤って再処理し続けることがなくなった
+  - 旧マニフェスト（`webpPath` 未記録）との後方互換を維持
+
+### 内部
+
+- `CacheManager.markProcessed` に第4引数 `webpPath` を追加し、マニフェストに保存
+- `CacheManager.shouldProcessFile` の WebP 存在チェックを記録ベースに変更
+
 ## [1.9.0] - 2026-05-03
 
 ### 追加

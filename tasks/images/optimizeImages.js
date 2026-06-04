@@ -172,8 +172,12 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
         Logger.log('INFO', `JPEG画像を最適化しました: ${distPath}`);
 
         // WebP変換が有効な場合
+        // 拡張子非依存でwebpパスを導出する（中身がJPEGでも拡張子が.png等の
+        // ファイルに対応。拡張子を限定すると置換が効かず、webpが元ファイルと
+        // 同じパスに書かれてキャッシュが毎回再処理する不具合になる）
+        let webpPath = null;
         if (imageOptions.convertToWebp) {
-          const webpPath = distPath.replace(/\.(jpg|jpeg)$/i, '.webp');
+          webpPath = distPath.replace(/\.[^.]+$/i, '.webp');
           await image
             .webp({ quality: imageOptions.imageQuality })
             .toFile(webpPath);
@@ -182,14 +186,19 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
 
         processedCount++;
 
-        // キャッシュに記録
+        // キャッシュに記録（生成したwebpパスも保存し、存在確認の根拠にする）
         if (cache) {
-          await cache.markProcessed(srcPath, distPath, {
-            maxWidth: imageOptions.maxWidth,
-            imageQuality: imageOptions.imageQuality,
-            convertToWebp: imageOptions.convertToWebp,
-            excludeFromOptimization: imageOptions.excludeFromOptimization,
-          });
+          await cache.markProcessed(
+            srcPath,
+            distPath,
+            {
+              maxWidth: imageOptions.maxWidth,
+              imageQuality: imageOptions.imageQuality,
+              convertToWebp: imageOptions.convertToWebp,
+              excludeFromOptimization: imageOptions.excludeFromOptimization,
+            },
+            webpPath
+          );
         }
       }
       // PNGの処理（透過対応）
@@ -199,9 +208,10 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
           .toFile(distPath);
         Logger.log('INFO', `PNG画像を最適化しました: ${distPath}`);
 
-        // WebP変換が有効な場合
+        // WebP変換が有効な場合（拡張子非依存でパスを導出）
+        let webpPath = null;
         if (imageOptions.convertToWebp) {
-          const webpPath = distPath.replace(/\.png$/i, '.webp');
+          webpPath = distPath.replace(/\.[^.]+$/i, '.webp');
           await image
             .webp({ quality: imageOptions.imageQuality })
             .toFile(webpPath);
@@ -210,14 +220,19 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
 
         processedCount++;
 
-        // キャッシュに記録
+        // キャッシュに記録（生成したwebpパスも保存）
         if (cache) {
-          await cache.markProcessed(srcPath, distPath, {
-            maxWidth: imageOptions.maxWidth,
-            imageQuality: imageOptions.imageQuality,
-            convertToWebp: imageOptions.convertToWebp,
-            excludeFromOptimization: imageOptions.excludeFromOptimization,
-          });
+          await cache.markProcessed(
+            srcPath,
+            distPath,
+            {
+              maxWidth: imageOptions.maxWidth,
+              imageQuality: imageOptions.imageQuality,
+              convertToWebp: imageOptions.convertToWebp,
+              excludeFromOptimization: imageOptions.excludeFromOptimization,
+            },
+            webpPath
+          );
         }
       }
       // WebPの処理
