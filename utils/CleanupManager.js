@@ -167,22 +167,31 @@ export default class CleanupManager {
    * src 側のファイルから dist 側で生成されるべきファイルパスのセットを構築する
    *
    * 画像処理の生成規則（optimizeImages.js と同じロジック）:
-   *   - .jpg/.jpeg → 同名 + (convertToWebp の場合) .webp
-   *   - .png       → 同名 + (convertToWebp の場合) .webp
-   *   - その他     → 同名のみ（svg/webp/コピーのみのファイル）
+   *   - .jpg/.jpeg → 同名 + (convertToWebp の場合) .webp + (convertToAvif の場合) .avif
+   *   - .png       → 同名 + (convertToWebp の場合) .webp + (convertToAvif の場合) .avif
+   *   - .webp      → 同名 + (convertToAvif の場合) .avif
+   *   - その他     → 同名のみ（svg/コピーのみのファイル）
    *
    * @param {Array<string>} srcRelativePaths - src からの相対パス配列
    * @param {boolean} convertToWebp - WebP 変換が有効か
+   * @param {boolean} [convertToAvif=false] - AVIF 生成が有効か
    * @returns {Set<string>} dist 側で生成されるべき相対パスの Set
    */
-  static buildExpectedDistSet(srcRelativePaths, convertToWebp) {
+  static buildExpectedDistSet(
+    srcRelativePaths,
+    convertToWebp,
+    convertToAvif = false
+  ) {
     const expected = new Set();
     for (const relPath of srcRelativePaths) {
       expected.add(relPath);
-      if (!convertToWebp) continue;
       const ext = path.extname(relPath).toLowerCase();
-      if (ext === '.jpg' || ext === '.jpeg' || ext === '.png') {
+      const isJpgPng = ext === '.jpg' || ext === '.jpeg' || ext === '.png';
+      if (convertToWebp && isJpgPng) {
         expected.add(relPath.replace(/\.(jpg|jpeg|png)$/i, '.webp'));
+      }
+      if (convertToAvif && (isJpgPng || ext === '.webp')) {
+        expected.add(relPath.replace(/\.(jpg|jpeg|png|webp)$/i, '.avif'));
       }
     }
     return expected;
@@ -196,16 +205,22 @@ export default class CleanupManager {
    * @param {string} options.srcDir - src ディレクトリ
    * @param {string} options.distDir - dist ディレクトリ
    * @param {boolean} [options.convertToWebp=false] - WebP 変換有無
+   * @param {boolean} [options.convertToAvif=false] - AVIF 生成有無
    * @param {Array<string>} [options.excludeFiles=[]] - 削除対象から除外する相対パス
    */
   static async cleanImageOrphans({
     srcDir,
     distDir,
     convertToWebp = false,
+    convertToAvif = false,
     excludeFiles = [],
   }) {
     const srcFiles = await this.listFilesRecursive(srcDir);
-    const expected = this.buildExpectedDistSet(srcFiles, convertToWebp);
+    const expected = this.buildExpectedDistSet(
+      srcFiles,
+      convertToWebp,
+      convertToAvif
+    );
     const distFiles = await this.listFilesRecursive(distDir);
 
     let removedCount = 0;

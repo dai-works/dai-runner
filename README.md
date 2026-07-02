@@ -132,6 +132,7 @@ npm run build
 
 - 画像の最適化（サイズ圧縮）
 - WebP 形式への自動変換（設定で有効時）
+- AVIF 形式の自動生成（設定で有効時。JPG/PNG/WebP から生成）
 - SVG の最適化
 
 ### sitemap.xml 生成
@@ -163,7 +164,7 @@ npm run build
 `dai-runner.config.js` で以下の設定をカスタマイズできます：
 
 - ソースファイルと出力先のパス
-- 画像処理オプション（最大幅、品質、WebP 変換など）
+- 画像処理オプション（最大幅、品質、WebP 変換、AVIF 生成など）
 - CSS/JS 処理オプション（圧縮、ソースマップ、console.log 削除など）
 - クリーンアップの除外ファイル（残したいファイルを指定）
 - ログレベル
@@ -194,10 +195,12 @@ cleanup: {
 
 ### 孤立画像の削除設定（cleanOrphans）
 
-画像キャッシュ（`useCache: true`）を有効にしている場合、ビルド速度向上のため `dist` の画像ディレクトリ全体がクリーンアップから除外されます。
-そのため `source` から削除した画像が `dist` に残り続けてしまう問題があります。
+画像キャッシュ（`useCache: true`）を有効にしている場合、ビルド速度向上のため `dist`
+の画像ディレクトリ全体がクリーンアップから除外されます。そのため `source` から削除した画像が `dist`
+に残り続けてしまう問題があります。
 
-`cleanup.cleanOrphans: true` を指定すると、キャッシュは維持したまま `source` 側に対応するファイルが無い `dist` 画像だけを削除します。
+`cleanup.cleanOrphans: true` を指定すると、キャッシュは維持したまま `source`
+側に対応するファイルが無い `dist` 画像だけを削除します。
 
 ```javascript
 cleanup: {
@@ -207,12 +210,15 @@ cleanup: {
 ```
 
 - `convertToWebp: true` 時は jpg/jpeg/png に対応する `.webp` も同時に判定対象になります
+- `convertToAvif: true` 時は jpg/jpeg/png/webp に対応する `.avif` も同時に判定対象になります
 - `excludeFiles` に列挙したファイルは孤立判定からも除外されるため、明示的に保持できます
-- `useCache: false` の場合は通常のクリーンアップで dist が空になるため、本オプションは効果を持ちません
+- `useCache: false`
+  の場合は通常のクリーンアップで dist が空になるため、本オプションは効果を持ちません
 
 ### 本番アップロード用パッケージング（package コマンド）
 
-WordPress テーマプロジェクトなどで「本番アップロードに必要なファイルだけを 1 つのフォルダにまとめたい」場合は `dai-runner package` を使用します。
+WordPress テーマプロジェクトなどで「本番アップロードに必要なファイルだけを 1 つのフォルダにまとめたい」場合は
+`dai-runner package` を使用します。
 
 ```bash
 dai-runner package          # dist/theme/ にコピーするだけ

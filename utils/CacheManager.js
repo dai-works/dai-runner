@@ -159,6 +159,27 @@ export default class CacheManager {
         }
       }
 
+      // AVIFファイルの存在チェック（webpPath と同じく実態ベース）。
+      // AVIF だけ欠けた場合も再生成させる。
+      if (cachedEntry.avifPath !== undefined) {
+        if (
+          cachedEntry.avifPath &&
+          !(await this.fileExists(cachedEntry.avifPath))
+        ) {
+          return true;
+        }
+      } else if (
+        // 旧マニフェスト互換（avifPath未記録）: 拡張子から推測してチェック
+        options.convertToAvif &&
+        (srcPath.match(/\.(jpg|jpeg|png|webp)$/i) ||
+          distPath.match(/\.(jpg|jpeg|png|webp)$/i))
+      ) {
+        const avifPath = distPath.replace(/\.[^.]+$/i, '.avif');
+        if (!(await this.fileExists(avifPath))) {
+          return true;
+        }
+      }
+
       // すべてのチェックをパスした場合は処理不要
       return false;
     } catch (err) {
@@ -174,8 +195,15 @@ export default class CacheManager {
    * @param {string} distPath - 出力ファイルパス
    * @param {Object} options - 処理オプション
    * @param {string|null} [webpPath] - 生成したWebPファイルのパス（生成していない場合はnull）
+   * @param {string|null} [avifPath] - 生成したAVIFファイルのパス（生成していない場合はnull）
    */
-  async markProcessed(srcPath, distPath, options, webpPath = null) {
+  async markProcessed(
+    srcPath,
+    distPath,
+    options,
+    webpPath = null,
+    avifPath = null
+  ) {
     if (!this.manifest) {
       return;
     }
@@ -191,11 +219,12 @@ export default class CacheManager {
       const currentOptionsHash = this.getOptionsHash(options);
       this.manifest.optionsHash = currentOptionsHash;
 
-      // ファイルエントリを更新（生成したwebpパスも保存）
+      // ファイルエントリを更新（生成したwebp/avifパスも保存）
       this.manifest.files[srcPath] = {
         hash: srcHash,
         distPath: distPath,
         webpPath: webpPath,
+        avifPath: avifPath,
         timestamp: new Date().toISOString(),
       };
     } catch (err) {

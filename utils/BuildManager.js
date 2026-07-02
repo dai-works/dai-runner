@@ -71,6 +71,7 @@ export default class BuildManager {
         srcDir: config.paths.images.src,
         distDir: imagesDistPath,
         convertToWebp: !!config.options.images?.convertToWebp,
+        convertToAvif: !!config.options.images?.convertToAvif,
         excludeFiles: userExcludeFiles,
       });
     }

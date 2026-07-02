@@ -88,6 +88,10 @@ export function watchImages({ paths, options = {} } = {}) {
           // WebP版も削除
           const webpPath = distPath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
           await fs.unlink(webpPath).catch(() => {});
+
+          // AVIF版も削除（JPG/PNG/WebP から生成される）
+          const avifPath = distPath.replace(/\.(jpg|jpeg|png|webp)$/i, '.avif');
+          await fs.unlink(avifPath).catch(() => {});
         } catch (err) {
           Logger.log(
             'ERROR',

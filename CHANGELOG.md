@@ -5,20 +5,40 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.10.0] - 2026-07-02
+
+### 追加
+
+- **ラスター画像から AVIF を自動生成する機能を追加**
+  - JPG/PNG/WebP から、WebP に加えて AVIF（`.avif`）も生成する
+  - `<picture>` の最上段 `<source type="image/avif">` で配信でき、対応ブラウザは AVIF、非対応は WebP
+    → 元画像へフォールバックできる
+  - `dai-runner.config.js` の `images.convertToAvif`（既定 `true`）で切り替え、
+    `images.avifQuality`（既定 60）で画質を指定。AVIF は WebP より高効率なため、WebP quality
+    80 と同等の見た目をより小さいサイズで得られる 60 を既定にした
+  - キャッシュ（`CacheManager`）が AVIF の存在も差分判定に含め、AVIF だけ欠けても再生成する
+  - 孤立画像削除（`cleanOrphans`）が AVIF を期待セットに含め、誤削除しない
+  - 開発監視（`watchImages`）の unlink で `.avif` も削除する
+
+### 内部
+
+- `CacheManager.markProcessed` に第5引数 `avifPath` を追加し、マニフェストに保存
+- `CacheManager.shouldProcessFile` に AVIF 存在チェックを記録ベースで追加（旧マニフェスト互換あり）
+- `CleanupManager.buildExpectedDistSet` / `cleanImageOrphans` に `convertToAvif` を追加
+- `optimizeImages` の重複していたキャッシュ設定オブジェクトをループ外の単一 `cacheOptions` に集約
+
 ## [1.9.1] - 2026-06-04
 
 ### 修正
 
 - **拡張子と中身が食い違う画像でキャッシュが毎回再処理される不具合を修正**
   - 中身が JPEG なのに拡張子が `.png` などのファイルで、WebP の出力先パスを
-    `distPath.replace(/\.(jpg|jpeg)$/i, '.webp')` のように拡張子限定で導出していたため
-    置換が効かず、本来の `.webp` が生成されないままだった
-  - その結果、キャッシュの WebP 存在チェックが毎回失敗し、`useCache: true` でも
-    該当ファイルが `npm run dev` のたびに再最適化されていた
+    `distPath.replace(/\.(jpg|jpeg)$/i, '.webp')`
+    のように拡張子限定で導出していたため置換が効かず、本来の `.webp` が生成されないままだった
+  - その結果、キャッシュの WebP 存在チェックが毎回失敗し、`useCache: true` でも該当ファイルが
+    `npm run dev` のたびに再最適化されていた
   - WebP の出力先を拡張子非依存（`/\.[^.]+$/i` → `.webp`）で導出するよう変更
-  - 生成した WebP のパスをキャッシュマニフェスト（`webpPath`）に記録し、存在チェックを
-    「拡張子からの推測」ではなく「実際に生成したパス」に基づいて行うよう変更。これにより
-    中身が SVG 等で WebP を生成しないファイルでも誤って再処理し続けることがなくなった
+  - 生成した WebP のパスをキャッシュマニフェスト（`webpPath`）に記録し、存在チェックを「拡張子からの推測」ではなく「実際に生成したパス」に基づいて行うよう変更。これにより中身が SVG 等で WebP を生成しないファイルでも誤って再処理し続けることがなくなった
   - 旧マニフェスト（`webpPath` 未記録）との後方互換を維持
 
 ### 内部
@@ -31,12 +51,16 @@
 ### 追加
 
 - **`dai-runner package` コマンドを追加**
-  - 本番アップロード用に必要なファイルだけを 1 つのフォルダ（デフォルト `dist/theme/`）にまとめる CLI サブコマンド
+  - 本番アップロード用に必要なファイルだけを 1 つのフォルダ（デフォルト
+    `dist/theme/`）にまとめる CLI サブコマンド
   - WordPress テーマ案件で `source/` `node_modules/` `docs/` などを毎回手動で除外する手間を解消
   - `--zip` フラグで `dist/theme.zip` も同時生成
-  - デフォルトの include: `assets/**`, `includes/**`, `template-parts/**`, `page-parts/**`, `*.php`, `style.css`, `screenshot.png`
-  - デフォルトの exclude: `page-snippets.php`, `**/.DS_Store`, `**/Thumbs.db`, `**/*:Zone.Identifier`
-  - `dai-runner.config.js` の `package` キーで `outputDir` / `zip` / `zipName` / `include`（上書き）/ `exclude`（追加）をカスタマイズ可能
+  - デフォルトの include: `assets/**`, `includes/**`, `template-parts/**`, `page-parts/**`, `*.php`,
+    `style.css`, `screenshot.png`
+  - デフォルトの exclude: `page-snippets.php`, `**/.DS_Store`, `**/Thumbs.db`,
+    `**/*:Zone.Identifier`
+  - `dai-runner.config.js` の `package` キーで `outputDir` / `zip` / `zipName` /
+    `include`（上書き）/ `exclude`（追加）をカスタマイズ可能
   - 出力前に `outputDir` 配下は毎回クリーンアップ（`dist/` 自体は残す）
 - 依存追加: `archiver` (zip 生成), `picomatch` (exclude パターンマッチング)
 
@@ -51,17 +75,22 @@
 ### 追加
 
 - **`cleanup.cleanOrphans` オプションを追加**
-  - 画像キャッシュ有効時（`useCache: true`）でも、`source` 側に存在しない `dist` の画像（孤立ファイル）を削除できるようにした
-  - 従来は `useCache: true` の場合に画像 dist ディレクトリ全体がクリーンアップから除外され、source から消した画像が dist に残り続ける問題があった
-  - `dai-runner.config.js` の `cleanup.cleanOrphans: true` で有効化（デフォルトは `false` で従来挙動を維持）
-  - WebP 自動変換（`convertToWebp: true`）にも対応し、jpg/jpeg/png に対応する `.webp` ファイルも適切に保持・削除される
+  - 画像キャッシュ有効時（`useCache: true`）でも、`source` 側に存在しない `dist`
+    の画像（孤立ファイル）を削除できるようにした
+  - 従来は `useCache: true`
+    の場合に画像 dist ディレクトリ全体がクリーンアップから除外され、source から消した画像が dist に残り続ける問題があった
+  - `dai-runner.config.js` の `cleanup.cleanOrphans: true` で有効化（デフォルトは `false`
+    で従来挙動を維持）
+  - WebP 自動変換（`convertToWebp: true`）にも対応し、jpg/jpeg/png に対応する `.webp`
+    ファイルも適切に保持・削除される
   - `cleanup.excludeFiles` に列挙したファイルは孤立判定からも除外される
 
 ### 内部
 
 - `CleanupManager` に以下のヘルパーメソッドを追加
   - `listFilesRecursive(dir, baseDir)` - ディレクトリ配下の相対パス一覧を取得
-  - `buildExpectedDistSet(srcRelativePaths, convertToWebp)` - src から期待される dist パスの Set を構築
+  - `buildExpectedDistSet(srcRelativePaths, convertToWebp)` -
+    src から期待される dist パスの Set を構築
   - `cleanImageOrphans({ srcDir, distDir, convertToWebp, excludeFiles })` - 孤立画像のみを削除
   - `removeEmptySubdirs(dir)` - 起点ディレクトリ自身は残しつつ配下の空ディレクトリを削除
 

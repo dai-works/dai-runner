@@ -11,6 +11,10 @@ const defaultOptions = {
   maxWidth: 3840,
   imageQuality: 80,
   convertToWebp: true,
+  convertToAvif: true,
+  // AVIF は WebP より高効率なため、WebP quality 80 と同等の見た目をより小さい
+  // ファイルサイズで得られる 60 を既定にする（数値を揃えると容量メリットが薄れる）。
+  avifQuality: 60,
   useCache: true, // デフォルトでキャッシュを有効化
 };
 
@@ -18,6 +22,7 @@ const defaultOptions = {
  * 画像最適化を行うモジュール
  * - JPG/PNG: 品質調整と最大幅制限
  * - WebP: 自動変換（設定で有効時）
+ * - AVIF: 自動生成（設定で有効時。JPG/PNG/WebP から生成）
  * - SVG/GIF: そのままコピー
  *
  * @param {string} srcDir - 入力元ディレクトリのパス
@@ -25,8 +30,10 @@ const defaultOptions = {
  * @param {Object} [options] - 画像処理オプション
  * @param {string} [options.filePath] - 単一ファイル処理時のパス（省略時は全ファイル処理）
  * @param {number} [options.maxWidth] - 画像の最大幅
- * @param {number} [options.imageQuality] - 画像の品質（0-100）
+ * @param {number} [options.imageQuality] - 画像の品質（0-100 / JPEG・PNG・WebP）
  * @param {boolean} [options.convertToWebp] - WebP形式への変換有無
+ * @param {boolean} [options.convertToAvif] - AVIF形式の生成有無
+ * @param {number} [options.avifQuality] - AVIFの品質（WebP80と同等の見た目基準）
  * @param {boolean} [options.useCache] - キャッシュの使用有無（デフォルト: true）
  * @param {string[]} [options.excludeFromOptimization] - 最適化から除外するファイル名のリスト
  */
@@ -59,6 +66,18 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
       ...imageSettings,
     };
 
+    // キャッシュ差分判定に使う設定（全ファイル共通なのでループ外で一度だけ構築）。
+    // ここに convertToAvif / avifQuality を含めることで、AVIF 設定を変えたときに
+    // optionsHash が変わり全ファイルが再処理される。
+    const cacheOptions = {
+      maxWidth: imageOptions.maxWidth,
+      imageQuality: imageOptions.imageQuality,
+      convertToWebp: imageOptions.convertToWebp,
+      convertToAvif: imageOptions.convertToAvif,
+      avifQuality: imageOptions.avifQuality,
+      excludeFromOptimization: imageOptions.excludeFromOptimization,
+    };
+
     // キャッシュマネージャーの初期化
     let cache = null;
     if (imageOptions.useCache) {
@@ -84,13 +103,6 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
 
       // キャッシュチェック（キャッシュが有効な場合）
       if (cache) {
-        const cacheOptions = {
-          maxWidth: imageOptions.maxWidth,
-          imageQuality: imageOptions.imageQuality,
-          convertToWebp: imageOptions.convertToWebp,
-          excludeFromOptimization: imageOptions.excludeFromOptimization,
-        };
-
         const shouldProcess = await cache.shouldProcessFile(
           srcPath,
           distPath,
@@ -115,12 +127,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
 
         // キャッシュに記録
         if (cache) {
-          await cache.markProcessed(srcPath, distPath, {
-            maxWidth: imageOptions.maxWidth,
-            imageQuality: imageOptions.imageQuality,
-            convertToWebp: imageOptions.convertToWebp,
-            excludeFromOptimization: imageOptions.excludeFromOptimization,
-          });
+          await cache.markProcessed(srcPath, distPath, cacheOptions);
         }
         continue;
       }
@@ -146,12 +153,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
 
         // キャッシュに記録
         if (cache) {
-          await cache.markProcessed(srcPath, distPath, {
-            maxWidth: imageOptions.maxWidth,
-            imageQuality: imageOptions.imageQuality,
-            convertToWebp: imageOptions.convertToWebp,
-            excludeFromOptimization: imageOptions.excludeFromOptimization,
-          });
+          await cache.markProcessed(srcPath, distPath, cacheOptions);
         }
         continue;
       }
@@ -184,20 +186,26 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
           Logger.log('INFO', `WebP画像を生成しました: ${webpPath}`);
         }
 
+        // AVIF生成が有効な場合（webpと同じく拡張子非依存でパスを導出）
+        let avifPath = null;
+        if (imageOptions.convertToAvif) {
+          avifPath = distPath.replace(/\.[^.]+$/i, '.avif');
+          await image
+            .avif({ quality: imageOptions.avifQuality })
+            .toFile(avifPath);
+          Logger.log('INFO', `AVIF画像を生成しました: ${avifPath}`);
+        }
+
         processedCount++;
 
-        // キャッシュに記録（生成したwebpパスも保存し、存在確認の根拠にする）
+        // キャッシュに記録（生成したwebp/avifパスも保存し、存在確認の根拠にする）
         if (cache) {
           await cache.markProcessed(
             srcPath,
             distPath,
-            {
-              maxWidth: imageOptions.maxWidth,
-              imageQuality: imageOptions.imageQuality,
-              convertToWebp: imageOptions.convertToWebp,
-              excludeFromOptimization: imageOptions.excludeFromOptimization,
-            },
-            webpPath
+            cacheOptions,
+            webpPath,
+            avifPath
           );
         }
       }
@@ -218,20 +226,26 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
           Logger.log('INFO', `WebP画像を生成しました: ${webpPath}`);
         }
 
+        // AVIF生成が有効な場合
+        let avifPath = null;
+        if (imageOptions.convertToAvif) {
+          avifPath = distPath.replace(/\.[^.]+$/i, '.avif');
+          await image
+            .avif({ quality: imageOptions.avifQuality })
+            .toFile(avifPath);
+          Logger.log('INFO', `AVIF画像を生成しました: ${avifPath}`);
+        }
+
         processedCount++;
 
-        // キャッシュに記録（生成したwebpパスも保存）
+        // キャッシュに記録（生成したwebp/avifパスも保存）
         if (cache) {
           await cache.markProcessed(
             srcPath,
             distPath,
-            {
-              maxWidth: imageOptions.maxWidth,
-              imageQuality: imageOptions.imageQuality,
-              convertToWebp: imageOptions.convertToWebp,
-              excludeFromOptimization: imageOptions.excludeFromOptimization,
-            },
-            webpPath
+            cacheOptions,
+            webpPath,
+            avifPath
           );
         }
       }
@@ -243,16 +257,27 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
           .toFile(distPath);
         Logger.log('INFO', `WebP画像を最適化しました: ${distPath}`);
 
+        // AVIF生成が有効な場合（WebP ソースからも AVIF を生成する）
+        let avifPath = null;
+        if (imageOptions.convertToAvif) {
+          avifPath = distPath.replace(/\.[^.]+$/i, '.avif');
+          await image
+            .avif({ quality: imageOptions.avifQuality })
+            .toFile(avifPath);
+          Logger.log('INFO', `AVIF画像を生成しました: ${avifPath}`);
+        }
+
         processedCount++;
 
-        // キャッシュに記録
+        // キャッシュに記録（webpは生成しないので null、avifパスを保存）
         if (cache) {
-          await cache.markProcessed(srcPath, distPath, {
-            maxWidth: imageOptions.maxWidth,
-            imageQuality: imageOptions.imageQuality,
-            convertToWebp: imageOptions.convertToWebp,
-            excludeFromOptimization: imageOptions.excludeFromOptimization,
-          });
+          await cache.markProcessed(
+            srcPath,
+            distPath,
+            cacheOptions,
+            null,
+            avifPath
+          );
         }
       }
       // SVGの処理
@@ -282,12 +307,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
 
         // キャッシュに記録
         if (cache) {
-          await cache.markProcessed(srcPath, distPath, {
-            maxWidth: imageOptions.maxWidth,
-            imageQuality: imageOptions.imageQuality,
-            convertToWebp: imageOptions.convertToWebp,
-            excludeFromOptimization: imageOptions.excludeFromOptimization,
-          });
+          await cache.markProcessed(srcPath, distPath, cacheOptions);
         }
       }
       // その他のファイルはそのままコピー
@@ -299,12 +319,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
 
         // キャッシュに記録
         if (cache) {
-          await cache.markProcessed(srcPath, distPath, {
-            maxWidth: imageOptions.maxWidth,
-            imageQuality: imageOptions.imageQuality,
-            convertToWebp: imageOptions.convertToWebp,
-            excludeFromOptimization: imageOptions.excludeFromOptimization,
-          });
+          await cache.markProcessed(srcPath, distPath, cacheOptions);
         }
       }
     }
