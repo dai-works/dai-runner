@@ -2,7 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import inquirer from 'inquirer';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -233,7 +233,52 @@ async function createLocalConfigInteractively() {
  * dai-runner実行前の事前チェック
  * dai-runner.config.jsとdai-runner.config.local.jsが存在しない場合は自動的に作成する
  */
+export function isNodeVersionSupported(currentVersion, requiredRange) {
+  const current = currentVersion.replace(/^v/, '').split('.').map(Number);
+  const required = requiredRange.match(/>=\s*(\d+)\.(\d+)\.(\d+)/);
+  if (!required || current.some(Number.isNaN)) return false;
+  return (
+    current[0] > Number(required[1]) ||
+    (current[0] === Number(required[1]) &&
+      (current[1] > Number(required[2]) ||
+        (current[1] === Number(required[2]) &&
+          current[2] >= Number(required[3]))))
+  );
+}
+
+async function checkConfigPaths() {
+  try {
+    const module = await import(pathToFileURL(mainConfigPath).href);
+    const paths = module.config?.paths || {};
+    for (const key of ['css', 'js', 'images']) {
+      const src = paths[key]?.src;
+      if (!src) {
+        console.warn(`WARN: paths.${key}.src が設定されていません`);
+        continue;
+      }
+      if (!fs.existsSync(path.resolve(process.cwd(), src))) {
+        console.warn(
+          `WARN: paths.${key}.src の ${src} が見つかりません。パスを確認してください`
+        );
+      }
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function precheck() {
+  const packageJson = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8')
+  );
+  const requiredNode = packageJson.engines?.node || '>=18.0.0';
+  if (!isNodeVersionSupported(process.versions.node, requiredNode)) {
+    console.error(
+      `Node.js ${process.versions.node} は対応していません。${requiredNode} を満たすバージョンを使用してください。`
+    );
+    return false;
+  }
   // 1. まずメイン設定ファイル (dai-runner.config.js) をチェック
   if (!fs.existsSync(mainConfigPath)) {
     console.log(
@@ -285,9 +330,16 @@ async function precheck() {
     }
   }
 
+  await checkConfigPaths();
+
   console.log(
     '✅ 設定ファイルの確認が完了しました。dai-runnerを開始します...\n'
   );
+  return true;
 }
 
-precheck();
+if (import.meta.url === `file://${process.argv[1]}`) {
+  precheck().then((ok) => {
+    if (!ok) process.exitCode = 1;
+  });
+}

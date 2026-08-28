@@ -6,6 +6,7 @@ import { compileCss } from './compileCss.js';
 import { glob } from 'glob';
 import { createWatcher } from '../../utils/createWatcher.js';
 import { cssDistPath } from './cssDistPath.js';
+import { errorOverlayCss } from './errorOverlay.js';
 
 // メインのSCSSファイル（_で始まらないファイル）を保持
 const mainFiles = new Set();
@@ -25,7 +26,7 @@ let recompileTimer = null;
  * @param {Object} paths - パス設定
  * @param {Object} options - コンパイルオプション
  */
-async function processScss(srcPath, paths, options) {
+export async function processScss(srcPath, paths, options) {
   try {
     const distPath = cssDistPath(paths, srcPath);
 
@@ -40,6 +41,13 @@ async function processScss(srcPath, paths, options) {
         'ERROR',
         `SCSSコンパイルエラー: ${path.relative(process.cwd(), srcPath)}`,
         compileErr
+      );
+      await fs.writeFile(
+        distPath,
+        errorOverlayCss({
+          file: path.relative(process.cwd(), srcPath),
+          message: compileErr.message,
+        })
       );
       // エラーを上位に伝播させない（監視を継続するため）
       return;

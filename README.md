@@ -17,7 +17,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 ```json
 {
   "devDependencies": {
-    "@dai-works/dai-runner": "github:dai-works/dai-runner#v1.11.0"
+    "@dai-works/dai-runner": "github:dai-works/dai-runner#v1.12.0"
   }
 }
 ```
@@ -25,7 +25,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.11.0
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.12.0
 ```
 
 ### 初回セットアップ
@@ -149,6 +149,8 @@ npm run build
 - ファイル変更の監視と自動リロード
 - プロキシモードによる WordPress 開発環境との連携
 - CSS の変更時はページ全体をリロードせずに反映
+- SCSS や JavaScript にエラーがある場合は、開発中のブラウザにエラーオーバーレイを表示
+- エラーを修正すると、通常の CSS / JavaScript 成果物へ自動的に戻ります
 
 ## 設定カスタマイズ
 
@@ -451,7 +453,7 @@ npm update @dai-works/dai-runner
 特定のバージョン（タグ）に更新する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.11.0
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.12.0
 ```
 
 ## プログラマティックな使用方法

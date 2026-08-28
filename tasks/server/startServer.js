@@ -34,7 +34,6 @@ export async function startServer(currentConfig) {
     ];
 
     const serverConfig = {
-      ...currentConfig.server,
       watchOptions: {
         ignoreInitial: true,
         ...currentConfig.watchOptions,

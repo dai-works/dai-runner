@@ -39,7 +39,14 @@ export default class TaskRunner {
    * @returns {Promise} 全タスクの実行結果
    */
   static async runParallelTasks(tasks) {
-    return Promise.all(tasks);
+    const results = await Promise.allSettled(tasks);
+    const failures = results
+      .filter((result) => result.status === 'rejected')
+      .map((result) => result.reason?.message || String(result.reason));
+    if (failures.length > 0) {
+      throw new Error(`並列タスクに失敗しました:\n${failures.join('\n')}`);
+    }
+    return results.map((result) => result.value);
   }
 
   /**

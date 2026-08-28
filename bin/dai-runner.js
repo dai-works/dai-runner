@@ -10,8 +10,6 @@
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import { spawn } from 'child_process';
-import fs from 'fs';
-import path from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -107,18 +105,14 @@ dai-runner - WordPressテーマ開発ツール
   }
 
   try {
-    // dev/buildコマンドの場合、設定ファイルが無ければprecheckを先に実行
+    // dev/build/package の前に毎回 precheck を通す：
+    // 設定ファイルが無ければ作成（対話）、Node のバージョン確認、ソースパスの存在確認。
+    // 以前は設定ファイルが無い時だけ実行していたため、後者 2 つが実案件で一度も動いていなかった
     if (needsPrecheck) {
-      const configPath = path.join(process.cwd(), 'dai-runner.config.js');
-      const localConfigPath = path.join(
-        process.cwd(),
-        'dai-runner.config.local.js'
-      );
-
-      // いずれかの設定ファイルが存在しない場合はprecheckを実行
-      if (!fs.existsSync(configPath) || !fs.existsSync(localConfigPath)) {
-        const precheckPath = resolve(__dirname, '../scripts/precheck.js');
-        await runScript(precheckPath);
+      const precheckPath = resolve(__dirname, '../scripts/precheck.js');
+      const precheckCode = await runScript(precheckPath);
+      if (precheckCode !== 0) {
+        process.exit(precheckCode);
       }
     }
 

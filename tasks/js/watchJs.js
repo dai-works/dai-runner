@@ -12,6 +12,7 @@ import { bundleJs } from './bundleJs.js';
 import fs from 'fs/promises';
 import { DEFAULTS } from '../../utils/defaults.js';
 import { createWatcher } from '../../utils/createWatcher.js';
+import { errorOverlayJs } from './errorOverlay.js';
 
 /**
  * JavaScriptファイルの監視を開始
@@ -40,11 +41,23 @@ export function watchJs({ paths, options = {} } = {}) {
      */
     async function processJs(filePath) {
       if (mergedOptions.bundle) {
-        await bundleJs(srcDir, distDir, {
-          sourcemap: mergedOptions.sourceMap,
-          dropConsole: mergedOptions.dropConsole,
-          minify: mergedOptions.minify,
-        });
+        try {
+          await bundleJs(srcDir, distDir, {
+            sourcemap: mergedOptions.sourceMap,
+            dropConsole: mergedOptions.dropConsole,
+            minify: mergedOptions.minify,
+          });
+        } catch (err) {
+          const failedEntry = err.entryPoint || filePath;
+          const distPath = path.join(distDir, path.basename(failedEntry));
+          await fs.writeFile(
+            distPath,
+            errorOverlayJs({
+              file: path.relative(process.cwd(), filePath),
+              message: err.message,
+            })
+          );
+        }
         return;
       }
 

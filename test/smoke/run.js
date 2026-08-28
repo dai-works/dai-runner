@@ -240,6 +240,34 @@ async function smokeDev() {
       await waitFor(async () => (await readOr(files.css)).includes('.smoke-a'))
     );
 
+    // F. パーシャルを壊す → エラーオーバーレイ → 修正で通常のCSSへ戻る
+    // （この区間のコンパイルエラーは意図したものなので、最後の「ログにエラーが無い」判定から除外する）
+    const fStart = dev.log.length;
+    const brokenPartial = await fs.readFile(files.partial, 'utf8');
+    const braceIndex = brokenPartial.lastIndexOf('}');
+    await fs.writeFile(
+      files.partial,
+      braceIndex >= 0
+        ? `${brokenPartial.slice(0, braceIndex)}${brokenPartial.slice(braceIndex + 1)}`
+        : `${brokenPartial}\n.invalid {`
+    );
+    check(
+      'F. 壊れたパーシャル → style.css に SCSS エラーが表示される',
+      await waitFor(async () =>
+        (await readOr(files.css)).includes('SCSS エラー')
+      )
+    );
+    await fs.writeFile(files.partial, brokenPartial);
+    check(
+      'F. パーシャル修正 → SCSS エラーが消え .smoke-a が戻る',
+      await waitFor(async () => {
+        const css = await readOr(files.css);
+        return !css.includes('SCSS エラー') && css.includes('.smoke-a');
+      })
+    );
+    await sleep(500); // 遅れて出るスタックトレース行まで F の区間に含める
+    const fEnd = dev.log.length;
+
     // B. パーシャル追加 → _index.scss が更新され、CSS に反映
     await fs.writeFile(files.newPartial, '.smoke-b {\n  color: blue;\n}\n');
     check(
@@ -286,11 +314,11 @@ async function smokeDev() {
       )
     );
 
-    const errors = dev.log
+    const errors = (dev.log.slice(0, fStart) + dev.log.slice(fEnd))
       .split('\n')
       .filter((l) => /エラー|Error:|ERR_/.test(l));
     check(
-      'dev のログにエラーが無い',
+      'dev のログにエラーが無い（F で意図的に起こしたものを除く）',
       errors.length === 0,
       errors.slice(0, 5).join('\n')
     );

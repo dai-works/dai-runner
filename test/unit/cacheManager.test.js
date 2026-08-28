@@ -37,3 +37,43 @@ test('CacheManagerは並行saveで両方のエントリを保持しremoveで削�
   assert.equal(first in manifest.files, false);
   assert.equal(second in manifest.files, true);
 });
+
+test('キャッシュ済みファイルはstat一致時にハッシュを読まずスキップする', async (t) => {
+  const dir = await makeTmpDir(t);
+  const src = path.join(dir, 'image.png');
+  const dist = path.join(dir, 'dist.png');
+  await fs.writeFile(src, 'same');
+  await fs.writeFile(dist, 'output');
+  const manager = new CacheManager(dir);
+  await manager.initialize();
+  const options = { convertToWebp: false };
+  await manager.markProcessed(src, dist, options);
+  let reads = 0;
+  manager.readFile = async (...args) => {
+    reads++;
+    return fs.readFile(...args);
+  };
+  assert.equal(await manager.shouldProcessFile(src, dist, options), false);
+  assert.equal(reads, 0);
+});
+
+test('ファイル変更時は再処理し、旧形式manifestもハッシュで判定する', async (t) => {
+  const dir = await makeTmpDir(t);
+  const src = path.join(dir, 'image.png');
+  const dist = path.join(dir, 'dist.png');
+  await fs.writeFile(src, 'old');
+  await fs.writeFile(dist, 'output');
+  const manager = new CacheManager(dir);
+  await manager.initialize();
+  const options = { convertToWebp: false };
+  await manager.markProcessed(src, dist, options);
+  await fs.writeFile(src, 'new content');
+  assert.equal(await manager.shouldProcessFile(src, dist, options), true);
+
+  const oldManager = new CacheManager(path.join(dir, 'old-cache'));
+  await oldManager.initialize();
+  const hash = await oldManager.getFileHash(src);
+  oldManager.manifest.optionsHash = oldManager.getOptionsHash(options);
+  oldManager.manifest.files[src] = { hash, distPath: dist };
+  assert.equal(await oldManager.shouldProcessFile(src, dist, options), false);
+});

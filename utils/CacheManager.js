@@ -27,6 +27,8 @@ export default class CacheManager {
     this.manifest = null;
     this.initialization = null;
     this.saveQueue = Promise.resolve();
+    this.readFile = (...args) => fs.readFile(...args);
+    this.pendingHashes = new Map();
   }
 
   /**
@@ -79,7 +81,7 @@ export default class CacheManager {
    */
   async getFileHash(filePath) {
     try {
-      const content = await fs.readFile(filePath);
+      const content = await this.readFile(filePath);
       return crypto.createHash('sha256').update(content).digest('hex');
     } catch (err) {
       if (err.code === 'ENOENT') {
@@ -147,20 +149,32 @@ export default class CacheManager {
         return true;
       }
 
+      const cachedEntry = this.manifest.files[srcPath];
+      let sourceStat;
+      try {
+        sourceStat = await fs.stat(srcPath);
+      } catch {
+        return true;
+      }
+
       // 出力ファイルが存在するかチェック
       if (!(await this.fileExists(distPath))) {
         return true;
       }
 
-      // ソースファイルのハッシュを計算
-      const srcHash = await this.getFileHash(srcPath);
-      if (!srcHash) {
-        // ハッシュ計算に失敗した場合は処理が必要
-        return true;
+      let srcHash;
+      if (
+        cachedEntry?.size === sourceStat.size &&
+        cachedEntry?.mtimeMs === sourceStat.mtimeMs
+      ) {
+        srcHash = cachedEntry.hash;
+      } else {
+        srcHash = await this.getFileHash(srcPath);
+        if (!srcHash) return true;
+        this.pendingHashes.set(srcPath, srcHash);
       }
 
       // キャッシュに記録されているハッシュと比較
-      const cachedEntry = this.manifest.files[srcPath];
       if (!cachedEntry || cachedEntry.hash !== srcHash) {
         return true;
       }
@@ -238,11 +252,13 @@ export default class CacheManager {
     }
 
     try {
-      // ソースファイルのハッシュを計算
-      const srcHash = await this.getFileHash(srcPath);
+      const sourceStat = await fs.stat(srcPath);
+      const srcHash =
+        this.pendingHashes.get(srcPath) || (await this.getFileHash(srcPath));
       if (!srcHash) {
         return;
       }
+      this.pendingHashes.delete(srcPath);
 
       // 設定ハッシュを更新
       const currentOptionsHash = this.getOptionsHash(options);
@@ -251,6 +267,8 @@ export default class CacheManager {
       // ファイルエントリを更新（生成したwebp/avifパスも保存）
       this.manifest.files[srcPath] = {
         hash: srcHash,
+        size: sourceStat.size,
+        mtimeMs: sourceStat.mtimeMs,
         distPath: distPath,
         webpPath: webpPath,
         avifPath: avifPath,
