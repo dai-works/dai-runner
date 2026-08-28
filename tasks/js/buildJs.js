@@ -28,7 +28,9 @@ export async function buildJs({ paths, options = {} } = {}) {
     } else {
       // 従来の処理（バンドルなし）
       if (mergedOptions.minify) {
-        await minifyJs(paths.src, paths.dist);
+        await minifyJs(paths.src, paths.dist, null, {
+          dropConsole: mergedOptions.dropConsole,
+        });
       } else {
         await copyJs(paths.src, paths.dist);
         // フォーマットはVS Code Prettier拡張が担当

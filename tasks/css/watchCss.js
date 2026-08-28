@@ -129,107 +129,132 @@ export async function watchCss({ paths, options = {} } = {}) {
       ignoreInitial: true, // 初期ファイルに対してイベントを発生させない
     });
 
+    // 非同期リスナ内の例外は誰も拾わないので、ここで必ず握って監視を継続する
+    const handle = (label, fn) => async (filePath) => {
+      try {
+        await fn(filePath);
+      } catch (err) {
+        Logger.log(
+          'ERROR',
+          `SCSSの${label}処理中にエラーが発生しました: ${filePath}`,
+          err
+        );
+      }
+    };
+
     watcher
-      .on('add', async (filePath) => {
-        const isPartial = path.basename(filePath).startsWith('_');
-        const isRootLevel =
-          path.resolve(path.dirname(filePath)) === path.resolve(srcDir);
+      .on(
+        'add',
+        handle('追加', async (filePath) => {
+          const isPartial = path.basename(filePath).startsWith('_');
+          const isRootLevel =
+            path.resolve(path.dirname(filePath)) === path.resolve(srcDir);
 
-        if (!isPartial && isRootLevel) {
-          Logger.log(
-            'INFO',
-            `新しいSCSSファイルが追加されました: ${path.relative(
-              process.cwd(),
-              filePath
-            )}`
-          );
-          // メインファイルリストに追加
-          mainFiles.add(filePath);
-          await processScss(filePath, paths, options);
-        } else {
-          // パーシャルファイルが追加された場合は_index.scssを更新
-          await initScss(srcDir);
-          // 関連するメインファイルを再コンパイル
-          await recompileAffectedFiles(filePath, paths, options);
-        }
-      })
-      .on('change', async (filePath) => {
-        const isPartial = path.basename(filePath).startsWith('_');
-        const isRootLevel =
-          path.resolve(path.dirname(filePath)) === path.resolve(srcDir);
-        if (isPartial || !isRootLevel) {
-          Logger.log(
-            'INFO',
-            `インポートファイル（${path.basename(
-              filePath
-            )}）が更新されました。関連ファイルを再コンパイルします。`
-          );
-          // パーシャルファイルが変更された場合は影響を受けるファイルのみ再コンパイル
-          await recompileAffectedFiles(filePath, paths, options);
-        } else {
-          // 通常のSCSSファイルの場合は、そのファイルだけを処理
-          Logger.log(
-            'INFO',
-            `SCSSファイルが更新されました: ${path.relative(
-              process.cwd(),
-              filePath
-            )}`
-          );
-          await processScss(filePath, paths, options);
-        }
-      })
-      .on('unlink', async (filePath) => {
-        const isPartial = path.basename(filePath).startsWith('_');
-        const isRootLevel =
-          path.resolve(path.dirname(filePath)) === path.resolve(srcDir);
-        if (!isPartial && isRootLevel) {
-          // メインファイルが削除された場合はリストから削除
-          mainFiles.delete(filePath);
-          Logger.log(
-            'INFO',
-            `SCSSファイルが削除されました: ${path.relative(
-              process.cwd(),
-              filePath
-            )}`
-          );
-
-          // 対応するCSSファイルも削除
-          const relativePath = path.relative(paths.src, filePath);
-          const distPath = path.join(
-            paths.dist,
-            relativePath.replace('.scss', '.css')
-          );
-
-          try {
-            await fs.unlink(distPath).catch(() => {});
-            await fs.unlink(`${distPath}.map`).catch(() => {});
+          if (!isPartial && isRootLevel) {
             Logger.log(
-              'DEBUG',
-              `削除されたSCSSに対応するCSSファイルを削除しました: ${path.relative(
+              'INFO',
+              `新しいSCSSファイルが追加されました: ${path.relative(
                 process.cwd(),
-                distPath
+                filePath
               )}`
             );
-          } catch (err) {
-            Logger.log(
-              'DEBUG',
-              `CSSファイル削除中にエラーが発生しました: ${distPath}`,
-              err
-            );
+            // メインファイルリストに追加
+            mainFiles.add(filePath);
+            await processScss(filePath, paths, options);
+          } else {
+            // パーシャルファイルが追加された場合は_index.scssを更新
+            await initScss(srcDir);
+            // 関連するメインファイルを再コンパイル
+            await recompileAffectedFiles(filePath, paths, options);
           }
-        } else {
-          // パーシャルファイルやサブディレクトリ内のファイルが削除された場合は_index.scssを更新
-          await initScss(srcDir);
-          // 影響を受けるファイルを再コンパイル
-          Logger.log(
-            'INFO',
-            `パーシャルファイルが削除されました: ${path.relative(
-              process.cwd(),
-              filePath
-            )}`
-          );
-          await recompileAffectedFiles(filePath, paths, options);
-        }
+        })
+      )
+      .on(
+        'change',
+        handle('更新', async (filePath) => {
+          const isPartial = path.basename(filePath).startsWith('_');
+          const isRootLevel =
+            path.resolve(path.dirname(filePath)) === path.resolve(srcDir);
+          if (isPartial || !isRootLevel) {
+            Logger.log(
+              'INFO',
+              `インポートファイル（${path.basename(
+                filePath
+              )}）が更新されました。関連ファイルを再コンパイルします。`
+            );
+            // パーシャルファイルが変更された場合は影響を受けるファイルのみ再コンパイル
+            await recompileAffectedFiles(filePath, paths, options);
+          } else {
+            // 通常のSCSSファイルの場合は、そのファイルだけを処理
+            Logger.log(
+              'INFO',
+              `SCSSファイルが更新されました: ${path.relative(
+                process.cwd(),
+                filePath
+              )}`
+            );
+            await processScss(filePath, paths, options);
+          }
+        })
+      )
+      .on(
+        'unlink',
+        handle('削除', async (filePath) => {
+          const isPartial = path.basename(filePath).startsWith('_');
+          const isRootLevel =
+            path.resolve(path.dirname(filePath)) === path.resolve(srcDir);
+          if (!isPartial && isRootLevel) {
+            // メインファイルが削除された場合はリストから削除
+            mainFiles.delete(filePath);
+            Logger.log(
+              'INFO',
+              `SCSSファイルが削除されました: ${path.relative(
+                process.cwd(),
+                filePath
+              )}`
+            );
+
+            // 対応するCSSファイルも削除
+            const relativePath = path.relative(paths.src, filePath);
+            const distPath = path.join(
+              paths.dist,
+              relativePath.replace('.scss', '.css')
+            );
+
+            try {
+              await fs.unlink(distPath).catch(() => {});
+              await fs.unlink(`${distPath}.map`).catch(() => {});
+              Logger.log(
+                'DEBUG',
+                `削除されたSCSSに対応するCSSファイルを削除しました: ${path.relative(
+                  process.cwd(),
+                  distPath
+                )}`
+              );
+            } catch (err) {
+              Logger.log(
+                'DEBUG',
+                `CSSファイル削除中にエラーが発生しました: ${distPath}`,
+                err
+              );
+            }
+          } else {
+            // パーシャルファイルやサブディレクトリ内のファイルが削除された場合は_index.scssを更新
+            await initScss(srcDir);
+            // 影響を受けるファイルを再コンパイル
+            Logger.log(
+              'INFO',
+              `パーシャルファイルが削除されました: ${path.relative(
+                process.cwd(),
+                filePath
+              )}`
+            );
+            await recompileAffectedFiles(filePath, paths, options);
+          }
+        })
+      )
+      .on('error', (err) => {
+        Logger.log('ERROR', 'SCSSの監視でエラーが発生しました:', err);
       });
 
     Logger.log('DEBUG', `SCSSファイルの監視を開始しました: ${srcDir}`);

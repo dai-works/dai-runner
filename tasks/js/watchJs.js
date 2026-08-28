@@ -1,7 +1,7 @@
 /**
  * JavaScriptファイルの監視と自動ビルドを行うモジュール
  * - ファイルの追加・変更・削除を監視
- * - buildJsを使用したビルド処理
+ * - buildJsと同じ経路（bundleJs / minifyJs / copyJs）で処理する
  */
 
 import path from 'path';
@@ -39,6 +39,46 @@ export function watchJs({ paths, options = {} } = {}) {
     const srcDir = paths.src;
     const distDir = paths.dist;
 
+    /**
+     * 追加・変更されたファイルを処理する（add と change で共通）
+     * バンドル時は minify も bundleJs に渡す。バンドル後に minifyJs を別途かけると、
+     * 未バンドルの source/js を圧縮したもので dist のバンドルを上書きしてしまう。
+     * @param {string} filePath
+     */
+    async function processJs(filePath) {
+      if (mergedOptions.bundle) {
+        await bundleJs(srcDir, distDir, {
+          sourcemap: mergedOptions.sourceMap,
+          dropConsole: mergedOptions.dropConsole,
+          minify: mergedOptions.minify,
+        });
+        return;
+      }
+
+      // 従来の処理（バンドルなし）
+      if (mergedOptions.minify) {
+        await minifyJs(srcDir, distDir, filePath, {
+          dropConsole: mergedOptions.dropConsole,
+        });
+      } else {
+        await copyJs(srcDir, distDir, filePath);
+        // フォーマットはVS Code Prettier拡張が担当
+      }
+    }
+
+    // 非同期リスナ内の例外は誰も拾わないので、ここで必ず握って監視を継続する
+    const handle = (label, fn) => async (filePath) => {
+      try {
+        await fn(filePath);
+      } catch (err) {
+        Logger.log(
+          'ERROR',
+          `JSファイルの${label}処理中にエラーが発生しました: ${filePath}`,
+          err
+        );
+      }
+    };
+
     // ファイル監視を開始
     const watcher = chokidar.watch(path.join(srcDir, '**', '*.js'), {
       ignored: /(^|[/\\])\../,
@@ -47,107 +87,45 @@ export function watchJs({ paths, options = {} } = {}) {
     });
 
     watcher
-      .on('add', async (filePath) => {
-        try {
+      .on(
+        'add',
+        handle('追加', async (filePath) => {
           Logger.log(
             'INFO',
             `新しいJSファイルが追加されました: ${path.relative(process.cwd(), filePath)}`
           );
-
-          const relativePath = path.relative(srcDir, filePath);
-          const distPath = path.join(distDir, relativePath);
-
-          // 出力ディレクトリを作成
+          const distPath = path.join(distDir, path.relative(srcDir, filePath));
           await fs.mkdir(path.dirname(distPath), { recursive: true });
-
-          // JSファイルを処理
-          if (mergedOptions.bundle) {
-            // バンドル処理を実行
-            await bundleJs(srcDir, distDir, {
-              sourcemap: mergedOptions.sourceMap,
-              dropConsole: mergedOptions.dropConsole,
-            });
-
-            // バンドル後に圧縮が必要な場合
-            if (mergedOptions.minify) {
-              await minifyJs(srcDir, distDir);
-            }
-          } else {
-            // 従来の処理（バンドルなし）
-            if (mergedOptions.minify) {
-              await minifyJs(srcDir, distDir, filePath);
-            } else {
-              await copyJs(srcDir, distDir, filePath);
-              // フォーマットはVS Code Prettier拡張が担当
-            }
-          }
-        } catch (err) {
-          Logger.log(
-            'ERROR',
-            `JSファイルの追加処理中にエラーが発生しました: ${filePath}`,
-            err
-          );
-        }
-      })
-      .on('change', async (filePath) => {
-        try {
+          await processJs(filePath);
+        })
+      )
+      .on(
+        'change',
+        handle('更新', async (filePath) => {
           Logger.log(
             'INFO',
             `JSファイルが更新されました: ${path.relative(process.cwd(), filePath)}`
           );
-
-          // JSファイルを処理
-          if (mergedOptions.bundle) {
-            // バンドル処理を実行
-            await bundleJs(srcDir, distDir, {
-              sourcemap: mergedOptions.sourceMap,
-              dropConsole: mergedOptions.dropConsole,
-            });
-
-            // バンドル後に圧縮が必要な場合
-            if (mergedOptions.minify) {
-              await minifyJs(srcDir, distDir);
-            }
-          } else {
-            // 従来の処理（バンドルなし）
-            if (mergedOptions.minify) {
-              await minifyJs(srcDir, distDir, filePath);
-            } else {
-              await copyJs(srcDir, distDir, filePath);
-              // フォーマットはVS Code Prettier拡張が担当
-            }
-          }
-        } catch (err) {
-          Logger.log(
-            'ERROR',
-            `JSファイルの更新処理中にエラーが発生しました: ${filePath}`,
-            err
-          );
-        }
-      })
-      .on('unlink', async (filePath) => {
-        try {
+          await processJs(filePath);
+        })
+      )
+      .on(
+        'unlink',
+        handle('削除', async (filePath) => {
           Logger.log(
             'INFO',
             `JSファイルが削除されました: ${path.relative(process.cwd(), filePath)}`
           );
 
-          const relativePath = path.relative(srcDir, filePath);
-          const distPath = path.join(distDir, relativePath);
+          const distPath = path.join(distDir, path.relative(srcDir, filePath));
 
-          // 対応する出力ファイルを削除
+          // 対応する出力ファイルとソースマップを削除
           await fs.unlink(distPath).catch(() => {});
-
-          // ソースマップファイルも削除
-          const mapPath = distPath + '.map';
-          await fs.unlink(mapPath).catch(() => {});
-        } catch (err) {
-          Logger.log(
-            'ERROR',
-            `JSファイルの削除処理中にエラーが発生しました: ${filePath}`,
-            err
-          );
-        }
+          await fs.unlink(`${distPath}.map`).catch(() => {});
+        })
+      )
+      .on('error', (err) => {
+        Logger.log('ERROR', 'JavaScriptの監視でエラーが発生しました:', err);
       });
 
     Logger.log('DEBUG', `JavaScriptファイルの監視を開始しました: ${srcDir}`);

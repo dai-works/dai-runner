@@ -8,7 +8,6 @@ import sortMediaQueries from 'postcss-sort-media-queries';
 import discardDuplicates from 'postcss-discard-duplicates';
 import normalizeCharset from 'postcss-normalize-charset';
 import Logger from '../../utils/Logger.js';
-import { getConfig } from '../../utils/configLoader.js';
 
 /**
  * SCSSファイルをCSSにコンパイルして最適化する（統合版）
@@ -23,13 +22,16 @@ import { getConfig } from '../../utils/configLoader.js';
  *
  * @param {string} srcPath - コンパイル対象のSCSSファイルパス
  * @param {string} distPath - 出力先のCSSファイルパス
- * @param {Object} _options - コンパイルオプション（config.jsから自動的に取得されます）
+ * @param {Object} [options] - コンパイルオプション（呼び出し元が dev/build を解決して渡す）
+ * @param {boolean} [options.sourceMap=false] - ソースマップを出力するか
+ * @param {boolean} [options.minify=false] - cssnano で圧縮するか
  * @throws {Error} コンパイルエラーや書き込みエラー時
  */
-export async function compileCss(srcPath, distPath, _options = {}) {
+export async function compileCss(srcPath, distPath, options = {}) {
   try {
-    // configを取得
-    const currentConfig = getConfig().get();
+    // 設定は呼び出し元（buildCss / watchCss）が dev/build を解決済みの値を渡す。
+    // ここでグローバル config を読むと env を取り違える（build に dev の設定が入る）。
+    const { sourceMap = false, minify = false } = options;
 
     Logger.log('DEBUG', `SCSSのコンパイルを開始: ${srcPath}`);
 
@@ -40,7 +42,7 @@ export async function compileCss(srcPath, distPath, _options = {}) {
     // ステップ1: Sassコンパイル
     // ========================================
     const sassResult = await sass.compileAsync(srcPath, {
-      sourceMap: currentConfig.options.css.sourceMap,
+      sourceMap: sourceMap,
       style: 'expanded', // PostCSS/cssnanoで圧縮するため、ここは常にexpanded
       loadPaths: [path.dirname(srcPath)],
       sourceMapIncludeSources: true,
@@ -53,7 +55,7 @@ export async function compileCss(srcPath, distPath, _options = {}) {
     // ========================================
     let previousSourceMap = null;
 
-    if (currentConfig.options.css.sourceMap && sassResult.sourceMap) {
+    if (sourceMap && sassResult.sourceMap) {
       previousSourceMap = JSON.parse(JSON.stringify(sassResult.sourceMap));
 
       // fileフィールドを設定
@@ -100,7 +102,7 @@ export async function compileCss(srcPath, distPath, _options = {}) {
     ];
 
     // 圧縮が有効な場合、cssnanoを追加
-    if (currentConfig.options.css.minify) {
+    if (minify) {
       plugins.push(
         cssnano({
           preset: [
@@ -119,7 +121,7 @@ export async function compileCss(srcPath, distPath, _options = {}) {
     const postcssResult = await postcss(plugins).process(sassResult.css, {
       from: srcPath, // 入力元はSCSSの実パス
       to: distPath, // 出力先はCSSの実パス
-      map: currentConfig.options.css.sourceMap
+      map: sourceMap
         ? {
             prev: previousSourceMap,
             inline: false,
@@ -133,7 +135,7 @@ export async function compileCss(srcPath, distPath, _options = {}) {
     // ========================================
     // ステップ4: ソースマップの書き込み（Prettier前）
     // ========================================
-    if (postcssResult.map && currentConfig.options.css.sourceMap) {
+    if (postcssResult.map && sourceMap) {
       const finalSourceMap = postcssResult.map.toJSON();
       await fs.writeFile(`${distPath}.map`, JSON.stringify(finalSourceMap));
       Logger.log(
@@ -154,7 +156,7 @@ export async function compileCss(srcPath, distPath, _options = {}) {
     let finalCss = postcssResult.css;
 
     // ソースマップコメントを追加
-    if (currentConfig.options.css.sourceMap) {
+    if (sourceMap) {
       if (!finalCss.endsWith('\n')) finalCss += '\n';
       finalCss += `/*# sourceMappingURL=${path.basename(distPath)}.map */\n`;
     }

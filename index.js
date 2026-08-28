@@ -5,14 +5,13 @@
  * 通常は、CLIツール（bin/dai-runner.js）を使用することを推奨します。
  */
 
-// 設定
-export { config } from './config.js';
-
 // ユーティリティ
+// （dai-runner.config.js はプロジェクト側のファイルなので、ここからは export しない）
 export { default as Logger } from './utils/Logger.js';
 export { default as BuildManager } from './utils/BuildManager.js';
 export { default as TaskRunner } from './utils/TaskRunner.js';
 export { default as CleanupManager } from './utils/CleanupManager.js';
+export { default as CacheManager } from './utils/CacheManager.js';
 
 // タスク - CSS
 export { buildCss } from './tasks/css/buildCss.js';
@@ -31,6 +30,11 @@ export { watchJs } from './tasks/js/watchJs.js';
 export { buildImages } from './tasks/images/buildImages.js';
 export { optimizeImages } from './tasks/images/optimizeImages.js';
 export { watchImages } from './tasks/images/watchImages.js';
+
+// タスク - sitemap / パッケージング
+export { buildSitemap } from './tasks/sitemap/buildSitemap.js';
+export { generateSitemap } from './tasks/sitemap/generateSitemap.js';
+export { packageTheme } from './tasks/package/packageTheme.js';
 
 // タスク - サーバー
 export { startServer } from './tasks/server/startServer.js';

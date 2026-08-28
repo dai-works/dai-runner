@@ -5,6 +5,35 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.10.2] - 2026-08-28
+
+### 修正
+
+- **本番ビルドが開発用の CSS 設定で走っていた問題を修正**
+  - `compileCss` / `minifyJs`
+    が引数の options を無視してグローバル config を env 無指定で読んでいたため、 `npm run build`
+    でも `dev.options.css` が使われ、本番 CSS に `.map` と `sourceMappingURL` が出ていた
+  - 呼び出し元（buildCss / watchCss / buildJs /
+    watchJs）が dev/build を解決した options をそのまま使うよう変更
+- **`_index.scss` の自動生成が手書きファイルを上書きしていた問題を修正**
+  - 存在判定の式が常に true で毎回上書きしていた。生成ヘッダ（`// <dir> styles`）で始まるファイルだけ内容が変わった時に更新し、手書きのものは WARN を出して触らない
+  - 同内容なら書き直さないので、watch 中の無駄な再コンパイルも減る
+- **開発監視中に `minify: true` にするとバンドルが壊れていた問題を修正**
+  - watchJs が bundle 後に未バンドルの source を圧縮して dist を上書きしていた。build と同じく bundleJs に minify を渡す
+- **`dai-runner package --zip`
+  が書き込みエラー時に固まる問題を修正**（出力ストリームの error を reject）
+- **`index.js` が存在しない `./config.js` を re-export していて `import` できなかった問題を修正**
+  - あわせて `CacheManager` / `buildSitemap` / `generateSitemap` / `packageTheme` を export
+- **ファイル監視の耐障害性を改善**
+  - 3 つの watcher に `error` ハンドラを追加（inotify 上限などで黙って監視が死なない）
+  - watchCss のハンドラ例外で dev サーバーごと落ちないよう try/catch を追加
+  - 画像監視に `awaitWriteFinish` を追加（コピー途中の画像を読まない）
+
+### 内部
+
+- `node:test` による自動テストを追加（`npm test`、`test/unit/`）。上記の回帰テストを含む
+- watchJs の add / change に重複していた処理を 1 つに統合
+
 ## [1.10.1] - 2026-08-28
 
 ### 修正

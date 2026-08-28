@@ -506,3 +506,15 @@ build: {
 ## 最終結論
 
 設定ファイル (`dai-runner.config.js`) の反映だけでなく、**Autoprefixer, PostCSSプラグイン, SVGO などの各種コア機能も正常に動作していることを確認しました。**
+
+
+---
+
+## 2026-08-28 追記：v1.10.2
+
+`npm run build` を実行し、以下を確認：
+
+- build 設定 `sourceMap: false` が反映され、`public/assets/css/` に `.map` が生成されず `sourceMappingURL` も出力されない（v1.10.1 以前は dev 設定で走り、生成されていた）
+- build 設定 `minify: true` で CSS が 1 行に圧縮される
+- JS は console.log 削除・圧縮・バンドルまで完了
+- 自動テスト `npm test`：12 件すべて成功

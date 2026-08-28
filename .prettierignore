@@ -1,5 +1,5 @@
 # ビルド成果物・テストプロジェクト
-test/
+test/dai-html/
 test/**/node_modules/
 test/**/assets/
 test/**/.dai-runner/

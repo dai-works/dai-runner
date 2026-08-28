@@ -3,7 +3,6 @@ import path from 'path';
 import { glob } from 'glob';
 import { minify } from 'terser';
 import Logger from '../../utils/Logger.js';
-import { getConfig } from '../../utils/configLoader.js';
 
 /**
  * JavaScriptファイルの圧縮を行うモジュール
@@ -17,15 +16,16 @@ import { getConfig } from '../../utils/configLoader.js';
  * @param {string} srcDir - ソースディレクトリ
  * @param {string} distDir - 出力ディレクトリ
  * @param {string} [filePath] - 単一ファイル処理時のパス（省略時は全ファイル処理）
+ * @param {Object} [options] - 圧縮オプション（呼び出し元が dev/build を解決して渡す）
+ * @param {boolean} [options.dropConsole=false] - console.* を削除するか
  */
-export async function minifyJs(srcDir, distDir, filePath = null) {
+export async function minifyJs(srcDir, distDir, filePath = null, options = {}) {
   try {
-    // configを取得
-    const currentConfig = getConfig().get();
-
-    // configから取得したデフォルト値を使用（引数が指定されていない場合）
-    const sourcePath = srcDir || currentConfig.paths.js.src;
-    const outputPath = distDir || currentConfig.paths.js.dist;
+    if (!srcDir || !distDir) {
+      throw new Error('srcDirとdistDirは必須パラメータです');
+    }
+    const sourcePath = srcDir;
+    const outputPath = distDir;
 
     const srcPaths = filePath
       ? [filePath]
@@ -43,8 +43,7 @@ export async function minifyJs(srcDir, distDir, filePath = null) {
 
     await fs.mkdir(outputPath, { recursive: true });
 
-    // dropConsoleオプションを取得（デフォルトはfalse）
-    const dropConsole = currentConfig.options.js.dropConsole || false;
+    const dropConsole = options.dropConsole || false;
 
     for (const srcPath of srcPaths) {
       const relativePath = path.relative(sourcePath, srcPath);

@@ -28,6 +28,8 @@ export function watchImages({ paths, options = {} } = {}) {
         ignored: /(^|[/\\])\../,
         persistent: true,
         ignoreInitial: true,
+        // 大きな画像のコピー途中で add/change が発火して壊れた画像を読まないよう、書き込みが落ち着くまで待つ
+        awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 },
       }
     );
 
@@ -99,6 +101,9 @@ export function watchImages({ paths, options = {} } = {}) {
             err
           );
         }
+      })
+      .on('error', (err) => {
+        Logger.log('ERROR', '画像の監視でエラーが発生しました:', err);
       });
 
     Logger.log('DEBUG', `画像ファイルの監視を開始しました: ${srcDir}`);

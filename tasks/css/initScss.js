@@ -31,8 +31,9 @@ export async function initScss(srcDir) {
         ignore: ['_index.scss'],
       });
 
-      // @forwardディレクティブを生成
-      let indexContent = `// ${path.basename(dir)} styles\n`;
+      // @forwardディレクティブを生成（先頭行は「このスクリプトの生成物」の目印）
+      const header = `// ${path.basename(dir)} styles\n`;
+      let indexContent = header;
 
       for (const file of scssFiles) {
         // ファイル名から拡張子を除去
@@ -49,13 +50,23 @@ export async function initScss(srcDir) {
       // 最後に必ず1つの改行を追加
       indexContent += '\n';
 
-      // ファイルが存在しない場合のみ作成
-      if (!(await fs.access(indexPath).catch(() => false))) {
+      // 既存ファイルの扱い：
+      // - 無い → 作成
+      // - 生成ヘッダで始まる（＝過去にここで生成したもの）→ 内容が変わった時だけ書き直す
+      // - それ以外（手書き）→ 触らない。@forward ... with (...) や並べ替えを壊さないため
+      const relIndexPath = path.relative(process.cwd(), indexPath);
+      const existing = await fs.readFile(indexPath, 'utf8').catch(() => null);
+      if (existing === null) {
         await fs.writeFile(indexPath, indexContent);
+        Logger.log('INFO', `_index.scssを作成しました: ${relIndexPath}`);
+      } else if (!existing.startsWith(header)) {
         Logger.log(
-          'INFO',
-          `_index.scssを作成しました: ${path.relative(process.cwd(), indexPath)}`
+          'WARN',
+          `_index.scssが手書きのため更新しません（自動生成に戻すには先頭行を「${header.trim()}」にしてください）: ${relIndexPath}`
         );
+      } else if (existing !== indexContent) {
+        await fs.writeFile(indexPath, indexContent);
+        Logger.log('INFO', `_index.scssを更新しました: ${relIndexPath}`);
       }
     }
 

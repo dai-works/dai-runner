@@ -25,7 +25,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.7.0
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.10.2
 ```
 
 ### 初回セットアップ
@@ -433,7 +433,7 @@ npm update @dai-works/dai-runner
 特定のバージョン（タグ）に更新する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.7.0
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.10.2
 ```
 
 ## プログラマティックな使用方法
@@ -441,7 +441,9 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.7.0
 CLI ではなく、Node.js スクリプトから直接使用することも可能です：
 
 ```javascript
-import { config, BuildManager, Logger } from '@dai-works/dai-runner';
+import { BuildManager, Logger } from '@dai-works/dai-runner';
+// 設定はプロジェクト側の dai-runner.config.js を読む
+import { config } from './dai-runner.config.js';
 
 async function customBuild() {
   const conf = config.get('build');
@@ -466,6 +468,15 @@ cd dai-runner
 # 依存関係をインストール
 npm install
 ```
+
+### 自動テスト
+
+```bash
+npm test
+```
+
+`test/unit/`
+の回帰テスト（`node:test`、追加依存なし）を実行します。コア機能を変更した時は必ず通してください。
 
 ### このリポジトリで動作確認する
 

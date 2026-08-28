@@ -5,7 +5,12 @@ import configPrettier from 'eslint-config-prettier';
 export default [
   // 除外対象（node_modules、テストプロジェクトなど）
   {
-    ignores: ['node_modules/', 'test/', 'test/**/node_modules/', '**/*.min.js'],
+    ignores: [
+      'node_modules/',
+      'test/dai-html/',
+      'test/**/node_modules/',
+      '**/*.min.js',
+    ],
   },
 
   // Node.js環境（すべてのJavaScriptファイル）

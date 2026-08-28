@@ -40,7 +40,8 @@ const DEFAULT_ZIP_NAME = 'theme.zip';
 function formatSize(bytes) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  if (bytes < 1024 * 1024 * 1024)
+    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
   return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
 }
 
@@ -56,6 +57,7 @@ function createZip(sourceDir, zipPath, rootName) {
     const archive = archiver('zip', { zlib: { level: 9 } });
 
     output.on('close', resolve);
+    output.on('error', reject); // ENOSPC / EACCES 等で永久待ちにならないように
     archive.on('error', reject);
     archive.on('warning', (err) => {
       if (err.code === 'ENOENT') {
@@ -97,7 +99,10 @@ export async function packageTheme(packageConfig = {}, cliOptions = {}) {
   const absOutputDir = path.resolve(cwd, outputDir);
 
   Logger.log('INFO', `${outputDir}/ にパッケージング中...`);
-  Logger.log('INFO', '（事前に `dai-runner build` を実行済みか確認してください）');
+  Logger.log(
+    'INFO',
+    '（事前に `dai-runner build` を実行済みか確認してください）'
+  );
 
   await fs.rm(absOutputDir, { recursive: true, force: true });
   await fs.mkdir(absOutputDir, { recursive: true });
@@ -137,9 +142,6 @@ export async function packageTheme(packageConfig = {}, cliOptions = {}) {
     await createZip(absOutputDir, zipPath, rootName);
     const zipStat = await fs.stat(zipPath);
     const zipRel = path.relative(cwd, zipPath) || zipName;
-    Logger.log(
-      'SUCCESS',
-      `Zipped to ${zipRel} (${formatSize(zipStat.size)})`
-    );
+    Logger.log('SUCCESS', `Zipped to ${zipRel} (${formatSize(zipStat.size)})`);
   }
 }
