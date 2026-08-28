@@ -126,6 +126,7 @@ export const config = {
       js: {
         minify: false, // true: コードを圧縮, false: 整形したまま
         sourceMap: true, // true: ソースマップを生成, false: 生成しない
+        bundle: true, // true: バンドルする, false: 個別に処理する
         dropConsole: false, // true: console.log等を削除, false: console.logを残す
       },
       css: {
@@ -145,6 +146,7 @@ export const config = {
       js: {
         minify: false, // true: コードを圧縮, false: 整形したまま
         sourceMap: false, // true: ソースマップを生成, false: 生成しない
+        bundle: true, // true: バンドルする, false: 個別に処理する
         dropConsole: true, // true: console.log等を削除, false: console.logを残す
       },
       css: {

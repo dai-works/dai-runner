@@ -2,20 +2,13 @@ import { minifyJs } from './minifyJs.js';
 import { copyJs } from './copyJs.js';
 import { bundleJs } from './bundleJs.js';
 import TaskRunner from '../../utils/TaskRunner.js';
-
-// デフォルトオプションを定義
-const DEFAULT_OPTIONS = {
-  minify: false,
-  sourceMap: false,
-  bundle: true, // デフォルトでバンドルを有効化
-  dropConsole: false, // true: console.log等を削除, false: console.logを残す
-};
+import { DEFAULTS } from '../../utils/defaults.js';
 
 export async function buildJs({ paths, options = {} } = {}) {
   TaskRunner.validateRequiredParams({ paths }, ['paths']);
 
   // デフォルトオプションとconfig.jsからの設定をマージ
-  const mergedOptions = TaskRunner.mergeOptions(DEFAULT_OPTIONS, options);
+  const mergedOptions = TaskRunner.mergeOptions(DEFAULTS.js, options);
 
   return TaskRunner.runTask('JavaScriptのビルド', async () => {
     if (mergedOptions.bundle) {

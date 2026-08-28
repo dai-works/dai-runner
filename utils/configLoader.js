@@ -7,21 +7,26 @@ import { pathToFileURL } from 'url';
  */
 
 let cachedConfig = null;
+let cachedConfigPath = null;
 
 /**
  * プロジェクトルートのdai-runner.config.jsを読み込む
  * @returns {Promise<Object>} config オブジェクト
  */
-async function loadConfig() {
-  if (cachedConfig) {
-    return cachedConfig;
-  }
+async function loadConfig({ env, cwd = process.cwd() } = {}) {
+  const configPath = path.join(cwd, 'dai-runner.config.js');
 
   try {
-    const configPath = path.join(process.cwd(), 'dai-runner.config.js');
-    const { config } = await import(pathToFileURL(configPath).href);
-    cachedConfig = config;
-    return config;
+    if (!cachedConfig || cachedConfigPath !== configPath) {
+      const module = await import(pathToFileURL(configPath).href);
+      cachedConfig = module.config;
+      cachedConfigPath = configPath;
+    }
+    setConfig(cachedConfig);
+    const resolvedConfig = cachedConfig.get(
+      env || process.env.NODE_ENV || 'dev'
+    );
+    return { ...resolvedConfig, package: cachedConfig.package };
   } catch (error) {
     throw new Error(
       `dai-runner.config.jsの読み込みに失敗しました: ${error.message}\n` +
@@ -52,6 +57,7 @@ function getConfig() {
  */
 function setConfig(config) {
   cachedConfig = config;
+  cachedConfigPath = null;
 }
 
 /**
@@ -59,6 +65,7 @@ function setConfig(config) {
  */
 function clearCache() {
   cachedConfig = null;
+  cachedConfigPath = null;
 }
 
 export { loadConfig, getConfig, setConfig, clearCache };

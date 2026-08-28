@@ -5,31 +5,19 @@ import { glob } from 'glob';
 import picomatch from 'picomatch';
 import archiver from 'archiver';
 import Logger from '../../utils/Logger.js';
+import { DEFAULTS } from '../../utils/defaults.js';
 
 /**
  * 本番アップロード用にコピーするデフォルトの include パターン
  * （案件ごとの dai-runner.config.js で `package.include` を指定すれば上書きされる）
  */
-const DEFAULT_INCLUDE = [
-  'assets/**',
-  'includes/**',
-  'template-parts/**',
-  'page-parts/**',
-  '*.php',
-  'style.css',
-  'screenshot.png',
-];
+const DEFAULT_INCLUDE = DEFAULTS.package.include;
 
 /**
  * include に該当しても削除する exclude パターンのデフォルト
  * （案件ごとの `package.exclude` は **追加** される — 上書きしない）
  */
-const DEFAULT_EXCLUDE = [
-  'page-snippets.php',
-  '**/.DS_Store',
-  '**/Thumbs.db',
-  '**/*:Zone.Identifier',
-];
+const DEFAULT_EXCLUDE = DEFAULTS.package.exclude;
 
 const DEFAULT_OUTPUT_DIR = 'dist/theme';
 const DEFAULT_ZIP_NAME = 'theme.zip';

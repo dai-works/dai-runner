@@ -5,6 +5,26 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.11.0] - 2026-08-28
+
+### 修正
+
+- 画像キャッシュの共有と保存の直列化により、監視中の同時更新で manifest が欠落する問題を修正
+- 画像削除時にキャッシュの manifest からもエントリを削除するよう修正
+
+### 変更
+
+- 設定読み込みを `loadConfig` に一本化し、環境別の解決済み設定を各タスクへ渡すよう変更
+- CSS・JavaScript・画像・パッケージングの既定値を `utils/defaults.js` に集約
+- `startServer(config)` は解決済み設定を引数で受けるよう変更（プログラマティック利用時は
+  `loadConfig()` の戻り値を渡す。CLI 利用には影響なし）
+- `index.js` から `loadConfig` を export
+
+### 内部
+
+- watcher 生成と CSS 出力パス計算を共通ユーティリティへ統合
+- 設定、既定値、キャッシュ競合、削除処理の回帰テストを追加
+
 ## [1.10.4] - 2026-08-28
 
 ### 修正

@@ -5,20 +5,13 @@
  */
 
 import path from 'path';
-import chokidar from 'chokidar';
 import Logger from '../../utils/Logger.js';
 import { copyJs } from './copyJs.js';
 import { minifyJs } from './minifyJs.js';
 import { bundleJs } from './bundleJs.js';
 import fs from 'fs/promises';
-
-// デフォルトオプションを定義
-const DEFAULT_OPTIONS = {
-  minify: false,
-  sourceMap: false,
-  bundle: true, // デフォルトでバンドルを有効化
-  dropConsole: false, // true: console.log等を削除, false: console.logを残す
-};
+import { DEFAULTS } from '../../utils/defaults.js';
+import { createWatcher } from '../../utils/createWatcher.js';
 
 /**
  * JavaScriptファイルの監視を開始
@@ -34,7 +27,7 @@ export function watchJs({ paths, options = {} } = {}) {
     }
 
     // デフォルトオプションとconfig.jsからの設定をマージ
-    const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
+    const mergedOptions = { ...DEFAULTS.js, ...options };
 
     const srcDir = paths.src;
     const distDir = paths.dist;
@@ -67,66 +60,37 @@ export function watchJs({ paths, options = {} } = {}) {
     }
 
     // 非同期リスナ内の例外は誰も拾わないので、ここで必ず握って監視を継続する
-    const handle = (label, fn) => async (filePath) => {
-      try {
-        await fn(filePath);
-      } catch (err) {
+    const watcher = createWatcher(path.join(srcDir, '**', '*.js'), {
+      label: 'JSファイルの',
+      onAdd: async (filePath) => {
         Logger.log(
-          'ERROR',
-          `JSファイルの${label}処理中にエラーが発生しました: ${filePath}`,
-          err
+          'INFO',
+          `新しいJSファイルが追加されました: ${path.relative(process.cwd(), filePath)}`
         );
-      }
-    };
+        const distPath = path.join(distDir, path.relative(srcDir, filePath));
+        await fs.mkdir(path.dirname(distPath), { recursive: true });
+        await processJs(filePath);
+      },
+      onChange: async (filePath) => {
+        Logger.log(
+          'INFO',
+          `JSファイルが更新されました: ${path.relative(process.cwd(), filePath)}`
+        );
+        await processJs(filePath);
+      },
+      onUnlink: async (filePath) => {
+        Logger.log(
+          'INFO',
+          `JSファイルが削除されました: ${path.relative(process.cwd(), filePath)}`
+        );
 
-    // ファイル監視を開始
-    const watcher = chokidar.watch(path.join(srcDir, '**', '*.js'), {
-      ignored: /(^|[/\\])\../,
-      persistent: true,
-      ignoreInitial: true,
+        const distPath = path.join(distDir, path.relative(srcDir, filePath));
+
+        // 対応する出力ファイルとソースマップを削除
+        await fs.unlink(distPath).catch(() => {});
+        await fs.unlink(`${distPath}.map`).catch(() => {});
+      },
     });
-
-    watcher
-      .on(
-        'add',
-        handle('追加', async (filePath) => {
-          Logger.log(
-            'INFO',
-            `新しいJSファイルが追加されました: ${path.relative(process.cwd(), filePath)}`
-          );
-          const distPath = path.join(distDir, path.relative(srcDir, filePath));
-          await fs.mkdir(path.dirname(distPath), { recursive: true });
-          await processJs(filePath);
-        })
-      )
-      .on(
-        'change',
-        handle('更新', async (filePath) => {
-          Logger.log(
-            'INFO',
-            `JSファイルが更新されました: ${path.relative(process.cwd(), filePath)}`
-          );
-          await processJs(filePath);
-        })
-      )
-      .on(
-        'unlink',
-        handle('削除', async (filePath) => {
-          Logger.log(
-            'INFO',
-            `JSファイルが削除されました: ${path.relative(process.cwd(), filePath)}`
-          );
-
-          const distPath = path.join(distDir, path.relative(srcDir, filePath));
-
-          // 対応する出力ファイルとソースマップを削除
-          await fs.unlink(distPath).catch(() => {});
-          await fs.unlink(`${distPath}.map`).catch(() => {});
-        })
-      )
-      .on('error', (err) => {
-        Logger.log('ERROR', 'JavaScriptの監視でエラーが発生しました:', err);
-      });
 
     Logger.log('DEBUG', `JavaScriptファイルの監視を開始しました: ${srcDir}`);
     return watcher; // 監視オブジェクトを返して、必要に応じて停止できるようにする

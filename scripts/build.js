@@ -1,19 +1,10 @@
-import path from 'path';
-import { pathToFileURL } from 'url';
 import Logger from '../utils/Logger.js';
 import BuildManager from '../utils/BuildManager.js';
-import { setConfig } from '../utils/configLoader.js';
+import { loadConfig } from '../utils/configLoader.js';
 
 async function build() {
   try {
-    // プロジェクトルートのdai-runner.config.jsを動的にインポート
-    const configPath = path.join(process.cwd(), 'dai-runner.config.js');
-    const { config } = await import(pathToFileURL(configPath).href);
-
-    // グローバルなconfigを設定（他のモジュールから参照可能にする）
-    setConfig(config);
-
-    const conf = config.get('build');
+    const conf = await loadConfig({ env: 'build' });
 
     // ログレベルを設定
     Logger.setLogLevel(conf.options.logLevel);

@@ -8,6 +8,7 @@ import sortMediaQueries from 'postcss-sort-media-queries';
 import discardDuplicates from 'postcss-discard-duplicates';
 import normalizeCharset from 'postcss-normalize-charset';
 import Logger from '../../utils/Logger.js';
+import { DEFAULTS } from '../../utils/defaults.js';
 
 /**
  * SCSSファイルをCSSにコンパイルして最適化する（統合版）
@@ -31,7 +32,7 @@ export async function compileCss(srcPath, distPath, options = {}) {
   try {
     // 設定は呼び出し元（buildCss / watchCss）が dev/build を解決済みの値を渡す。
     // ここでグローバル config を読むと env を取り違える（build に dev の設定が入る）。
-    const { sourceMap = false, minify = false } = options;
+    const { sourceMap, minify } = { ...DEFAULTS.css, ...options };
 
     Logger.log('DEBUG', `SCSSのコンパイルを開始: ${srcPath}`);
 

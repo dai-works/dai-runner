@@ -5,19 +5,7 @@ import { glob } from 'glob';
 import Logger from '../../utils/Logger.js';
 import { optimize } from 'svgo';
 import CacheManager from '../../utils/CacheManager.js';
-
-// デフォルトのオプション設定を直接定義
-const defaultOptions = {
-  maxWidth: 3840,
-  imageQuality: 80,
-  convertToWebp: true,
-  // AVIF は既定で生成しない（<picture> の AVIF 対応が要る案件だけ設定で有効化する）
-  convertToAvif: false,
-  // AVIF は WebP より高効率なため、WebP quality 80 と同等の見た目をより小さい
-  // ファイルサイズで得られる 60 を既定にする（数値を揃えると容量メリットが薄れる）。
-  avifQuality: 60,
-  useCache: true, // デフォルトでキャッシュを有効化
-};
+import { DEFAULTS } from '../../utils/defaults.js';
 
 /**
  * 画像最適化を行うモジュール
@@ -63,7 +51,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
 
     // 画像処理オプションの設定（デフォルト値とマージ）
     const imageOptions = {
-      ...defaultOptions,
+      ...DEFAULTS.images,
       ...imageSettings,
     };
 
@@ -82,7 +70,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
     // キャッシュマネージャーの初期化
     let cache = null;
     if (imageOptions.useCache) {
-      cache = new CacheManager();
+      cache = CacheManager.shared();
       await cache.initialize();
     }
 

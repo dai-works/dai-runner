@@ -12,6 +12,7 @@ export { default as BuildManager } from './utils/BuildManager.js';
 export { default as TaskRunner } from './utils/TaskRunner.js';
 export { default as CleanupManager } from './utils/CleanupManager.js';
 export { default as CacheManager } from './utils/CacheManager.js';
+export { loadConfig } from './utils/configLoader.js';
 
 // タスク - CSS
 export { buildCss } from './tasks/css/buildCss.js';

@@ -4,10 +4,11 @@
  */
 
 import path from 'path';
-import chokidar from 'chokidar';
 import fs from 'fs/promises';
 import { optimizeImages } from './optimizeImages.js';
 import Logger from '../../utils/Logger.js';
+import CacheManager from '../../utils/CacheManager.js';
+import { createWatcher } from '../../utils/createWatcher.js';
 
 /**
  * 画像ファイルの監視と自動最適化を行うモジュール
@@ -22,60 +23,26 @@ export function watchImages({ paths, options = {} } = {}) {
     const distDir = paths.dist;
 
     // 画像ファイルの監視を開始
-    const watcher = chokidar.watch(
+    const watcher = createWatcher(
       [path.join(srcDir, '**/*.{jpg,jpeg,png,gif,svg,webp}')],
       {
-        ignored: /(^|[/\\])\../,
-        persistent: true,
-        ignoreInitial: true,
-        // 大きな画像のコピー途中で add/change が発火して壊れた画像を読まないよう、書き込みが落ち着くまで待つ
+        label: '画像の',
         awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 },
-      }
-    );
-
-    watcher
-      .on('add', async (filePath) => {
-        try {
+        onAdd: async (filePath) => {
           Logger.log(
             'INFO',
             `新しい画像ファイルが追加されました: ${path.relative(process.cwd(), filePath)}`
           );
-
-          // 画像を最適化
-          await optimizeImages(srcDir, distDir, {
-            filePath,
-            ...options,
-          });
-        } catch (err) {
-          Logger.log(
-            'ERROR',
-            `画像の追加処理中にエラーが発生しました: ${filePath}`,
-            err
-          );
-        }
-      })
-      .on('change', async (filePath) => {
-        try {
+          await optimizeImages(srcDir, distDir, { filePath, ...options });
+        },
+        onChange: async (filePath) => {
           Logger.log(
             'INFO',
             `画像ファイルが更新されました: ${path.relative(process.cwd(), filePath)}`
           );
-
-          // 画像を最適化
-          await optimizeImages(srcDir, distDir, {
-            filePath,
-            ...options,
-          });
-        } catch (err) {
-          Logger.log(
-            'ERROR',
-            `画像の更新処理中にエラーが発生しました: ${filePath}`,
-            err
-          );
-        }
-      })
-      .on('unlink', async (filePath) => {
-        try {
+          await optimizeImages(srcDir, distDir, { filePath, ...options });
+        },
+        onUnlink: async (filePath) => {
           Logger.log(
             'INFO',
             `画像ファイルが削除されました: ${path.relative(process.cwd(), filePath)}`
@@ -84,27 +51,21 @@ export function watchImages({ paths, options = {} } = {}) {
           const relativePath = path.relative(srcDir, filePath);
           const distPath = path.join(distDir, relativePath);
 
-          // 対応する出力ファイルを削除
-          await fs.unlink(distPath).catch(() => {});
+          if (options.useCache !== false) {
+            const cache = CacheManager.shared();
+            await cache.initialize();
+            await cache.remove(filePath);
+            await cache.save();
+          }
 
-          // WebP版も削除
+          await fs.unlink(distPath).catch(() => {});
           const webpPath = distPath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
           await fs.unlink(webpPath).catch(() => {});
-
-          // AVIF版も削除（JPG/PNG/WebP から生成される）
           const avifPath = distPath.replace(/\.(jpg|jpeg|png|webp)$/i, '.avif');
           await fs.unlink(avifPath).catch(() => {});
-        } catch (err) {
-          Logger.log(
-            'ERROR',
-            `画像の削除処理中にエラーが発生しました: ${filePath}`,
-            err
-          );
-        }
-      })
-      .on('error', (err) => {
-        Logger.log('ERROR', '画像の監視でエラーが発生しました:', err);
-      });
+        },
+      }
+    );
 
     Logger.log('DEBUG', `画像ファイルの監視を開始しました: ${srcDir}`);
     return watcher; // 監視オブジェクトを返して、必要に応じて停止できるようにする

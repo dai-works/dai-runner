@@ -8,16 +8,37 @@ import Logger from './Logger.js';
  * ファイルハッシュと設定ハッシュを使用してインクリメンタルビルドを実現
  */
 export default class CacheManager {
+  static instances = new Map();
+
+  static shared(manifestPath = '.dai-runner/cache/manifest.json') {
+    const resolvedPath = path.resolve(manifestPath);
+    if (!this.instances.has(resolvedPath)) {
+      this.instances.set(
+        resolvedPath,
+        new CacheManager(path.dirname(resolvedPath))
+      );
+    }
+    return this.instances.get(resolvedPath);
+  }
+
   constructor(cacheDir = '.dai-runner/cache') {
     this.cacheDir = cacheDir;
     this.manifestPath = path.join(cacheDir, 'manifest.json');
     this.manifest = null;
+    this.initialization = null;
+    this.saveQueue = Promise.resolve();
   }
 
   /**
    * キャッシュマニフェストを初期化（読み込み）
    */
-  async initialize() {
+  initialize() {
+    if (this.initialization) return this.initialization;
+    this.initialization = this.#initialize();
+    return this.initialization;
+  }
+
+  async #initialize() {
     try {
       // キャッシュディレクトリを作成
       await fs.mkdir(this.cacheDir, { recursive: true });
@@ -244,21 +265,25 @@ export default class CacheManager {
    * キャッシュマニフェストをディスクに保存
    */
   async save() {
-    if (!this.manifest) {
-      return;
-    }
+    this.saveQueue = this.saveQueue.then(async () => {
+      if (!this.manifest) return;
+      try {
+        await fs.mkdir(this.cacheDir, { recursive: true });
+        await fs.writeFile(
+          this.manifestPath,
+          JSON.stringify(this.manifest, null, 2),
+          'utf-8'
+        );
+        Logger.log('INFO', 'キャッシュマニフェストを保存しました');
+      } catch (err) {
+        Logger.log('ERROR', 'キャッシュの保存に失敗しました:', err);
+      }
+    });
+    return this.saveQueue;
+  }
 
-    try {
-      await fs.mkdir(this.cacheDir, { recursive: true });
-      await fs.writeFile(
-        this.manifestPath,
-        JSON.stringify(this.manifest, null, 2),
-        'utf-8'
-      );
-      Logger.log('INFO', 'キャッシュマニフェストを保存しました');
-    } catch (err) {
-      Logger.log('ERROR', 'キャッシュの保存に失敗しました:', err);
-    }
+  remove(srcPath) {
+    if (this.manifest) delete this.manifest.files[srcPath];
   }
 
   /**

@@ -1,5 +1,3 @@
-import path from 'path';
-import { pathToFileURL } from 'url';
 import Logger from '../utils/Logger.js';
 import { watchImages } from '../tasks/images/watchImages.js';
 import { watchJs } from '../tasks/js/watchJs.js';
@@ -7,7 +5,7 @@ import { watchCss } from '../tasks/css/watchCss.js';
 import { startServer } from '../tasks/server/startServer.js';
 import BuildManager from '../utils/BuildManager.js';
 import TaskRunner from '../utils/TaskRunner.js';
-import { setConfig } from '../utils/configLoader.js';
+import { loadConfig } from '../utils/configLoader.js';
 
 let shuttingDown = false;
 const watchers = [];
@@ -32,14 +30,7 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 async function dev() {
   try {
-    // プロジェクトルートのdai-runner.config.jsを動的にインポート
-    const configPath = path.join(process.cwd(), 'dai-runner.config.js');
-    const { config } = await import(pathToFileURL(configPath).href);
-
-    // グローバルなconfigを設定（他のモジュールから参照可能にする）
-    setConfig(config);
-
-    const conf = config.get();
+    const conf = await loadConfig({ env: 'dev' });
 
     // ログレベルを設定
     Logger.setLogLevel(conf.options.logLevel);
@@ -84,7 +75,7 @@ async function dev() {
       );
 
       // 開発サーバーの起動
-      browserSync = await startServer();
+      browserSync = await startServer(conf);
     });
   } catch (err) {
     Logger.log('ERROR', '開発環境の起動中にエラーが発生しました:', err);

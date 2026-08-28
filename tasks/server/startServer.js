@@ -1,5 +1,4 @@
 import browserSync from 'browser-sync';
-import { getConfig } from '../../utils/configLoader.js';
 import Logger from '../../utils/Logger.js';
 import { setupLiveReload } from './livereload.js';
 import chalk from 'chalk';
@@ -17,10 +16,11 @@ const bs = browserSync.create();
  * 開発サーバーを起動
  * @param {Object} options - サーバー設定オプション
  */
-export async function startServer(_options = {}) {
+export async function startServer(currentConfig) {
   try {
-    // configを取得
-    const currentConfig = getConfig().get();
+    if (!currentConfig) {
+      throw new Error('解決済みのサーバー設定が必要です');
+    }
 
     // config.pathsのdist設定から動的にJSとCSSの出力先パスを取得
     const cssDistPath = currentConfig.paths.css.dist;
