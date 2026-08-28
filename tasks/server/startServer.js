@@ -26,8 +26,23 @@ export async function startServer(_options = {}) {
     const cssDistPath = currentConfig.paths.css.dist;
     const jsDistPath = currentConfig.paths.js.dist;
 
+    // 監視から除外するパターン
+    // （.ftp のバックアップや node_modules 内の .php を拾ってリロードするのを防ぐ）
+    const defaultIgnored = [
+      /(^|[/\\])\../, // ドットで始まるファイル・ディレクトリ（.ftp / .git / .dai-runner など）
+      /(^|[/\\])node_modules([/\\]|$)/,
+    ];
+
     const serverConfig = {
       ...currentConfig.server,
+      watchOptions: {
+        ignoreInitial: true,
+        ...currentConfig.watchOptions,
+        ignored: [
+          ...defaultIgnored,
+          ...(currentConfig.watchOptions?.ignored ?? []),
+        ],
+      },
       files: [
         {
           match: [`${cssDistPath}/**/*.css`],

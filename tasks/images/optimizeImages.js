@@ -11,7 +11,8 @@ const defaultOptions = {
   maxWidth: 3840,
   imageQuality: 80,
   convertToWebp: true,
-  convertToAvif: true,
+  // AVIF は既定で生成しない（<picture> の AVIF 対応が要る案件だけ設定で有効化する）
+  convertToAvif: false,
   // AVIF は WebP より高効率なため、WebP quality 80 と同等の見た目をより小さい
   // ファイルサイズで得られる 60 を既定にする（数値を揃えると容量メリットが薄れる）。
   avifQuality: 60,

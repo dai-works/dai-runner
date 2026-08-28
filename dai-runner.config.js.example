@@ -73,7 +73,7 @@ export const config = {
   // 画像最適化設定（開発・本番共通）
   images: {
     convertToWebp: true, // true: WebP形式に変換, false: 元の形式のまま
-    convertToAvif: true, // true: AVIF も生成（<source type="image/avif"> 用）
+    convertToAvif: false, // true: AVIF も生成（<source type="image/avif"> 用）。既定は無効
     imageQuality: 80, // 画質（1-100 / JPEG・PNG・WebP）
     avifQuality: 60, // AVIF画質（WebP80と同等の見た目基準。高効率なため数値は低め）
     maxWidth: 3840, // 最大幅（px）

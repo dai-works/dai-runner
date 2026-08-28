@@ -5,6 +5,23 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.10.1] - 2026-08-28
+
+### 修正
+
+- **開発サーバーがドット始まりのディレクトリや node_modules 内のファイル変更でリロードしてしまう問題を修正**
+  - Browsersync の監視対象が `**/*.php` / `**/*.html` の広いグロブだったため、 `.ftp/`
+    のバックアップや `node_modules/` 内の PHP を拾って不要なリロードが起きていた
+  - `watchOptions.ignored` にドット始まりのパス（`.ftp` / `.git` / `.dai-runner` など）と
+    `node_modules` を既定で追加。`dai-runner.config.js` の `watchOptions.ignored`
+    で案件ごとに除外パターンを追加できる
+
+### 変更
+
+- **`images.convertToAvif` の既定値を `true` から `false` に変更**
+  - AVIF は機能として残すが、`<picture>` の AVIF 対応を用意した案件だけ明示的に有効化する
+  - 1.10.0 はタグ未発行のため、この変更で挙動が変わる既存案件はない
+
 ## [1.10.0] - 2026-07-02
 
 ### 追加
