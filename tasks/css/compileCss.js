@@ -46,6 +46,7 @@ export async function compileCss(srcPath, distPath, options = {}) {
       style: 'expanded', // PostCSS/cssnanoで圧縮するため、ここは常にexpanded
       loadPaths: [path.dirname(srcPath)],
       sourceMapIncludeSources: true,
+      quietDeps: true,
     });
 
     Logger.log('DEBUG', 'Sassコンパイルが完了');

@@ -17,7 +17,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 ```json
 {
   "devDependencies": {
-    "@dai-works/dai-runner": "https://github.com/dai-works/dai-runner.git"
+    "@dai-works/dai-runner": "github:dai-works/dai-runner#v1.10.4"
   }
 }
 ```
@@ -25,7 +25,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.10.3
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.10.4
 ```
 
 ### 初回セットアップ
@@ -121,12 +121,13 @@ npm run build
 - SCSS ファイルのコンパイル
 - ベンダープレフィックスの自動追加
 - メディアクエリの最適化
-- CSS の整形と最適化
+- CSS の最適化（整形は行わない。Prettier はソースマップを壊すため、SCSS 側で VS
+  Code の Prettier 拡張が担当）
 
 ### JavaScript 処理
 
 - JavaScript ファイルのバンドルまたは圧縮
-- Prettier によるコードフォーマット
+- フォーマットは行わない（JS の整形は VS Code の Prettier 拡張が担当）
 
 ### 画像処理
 
@@ -134,6 +135,8 @@ npm run build
 - WebP 形式への自動変換（設定で有効時）
 - AVIF 形式の自動生成（設定で有効時。JPG/PNG/WebP から生成）
 - SVG の最適化
+- `images.excludeFromOptimization` による最適化対象外ファイルの指定
+- `options.images.useCache` による画像キャッシュの有効化
 
 ### sitemap.xml 生成
 
@@ -168,6 +171,14 @@ npm run build
 - CSS/JS 処理オプション（圧縮、ソースマップ、console.log 削除など）
 - クリーンアップの除外ファイル（残したいファイルを指定）
 - ログレベル
+
+ログレベルには `debug`、`info`、`warn`、`error`
+を指定できます。開発サーバーの監視から追加で除外する場合は、トップレベルの `watchOptions.ignored`
+にパターンを指定します。ドット始まりのファイル・ディレクトリと `node_modules`
+は既定で除外されています。
+
+SCSS のエントリは `source/scss` 直下にある、`_` で始まらない `.scss`
+ファイルだけです。サブディレクトリの `.scss` ファイルはエントリになりません。
 
 `dai-runner.config.local.js` で以下の設定をカスタマイズできます：
 
@@ -402,12 +413,19 @@ dai-runner/
 │   ├── css/
 │   ├── js/
 │   ├── images/
-│   └── server/
+│   ├── server/
+│   ├── sitemap/
+│   └── package/
 ├── utils/                   # ユーティリティ関数
+├── test/
+│   ├── unit/
+│   └── smoke/
 ├── dai-runner.config.js.example        # 設定ファイルのサンプル（チーム共通用）
 ├── dai-runner.config.local.js.example  # ローカル設定ファイルのサンプル（個人用）
 ├── index.js                 # パッケージエントリーポイント
 ├── package.json
+├── CHANGELOG.md
+├── CLAUDE.md
 └── README.md
 ```
 
@@ -433,7 +451,7 @@ npm update @dai-works/dai-runner
 特定のバージョン（タグ）に更新する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.10.3
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v1.10.4
 ```
 
 ## プログラマティックな使用方法

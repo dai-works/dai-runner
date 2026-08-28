@@ -33,11 +33,17 @@ export default class BuildManager {
   }
 
   /**
-   * 共通のビルド処理（クリーンアップ → ビルド → sitemap生成）
+   * 共通のビルド処理（クリーンアップ → ビルド → 必要時のみsitemap生成）
    * @param {Object} config - 設定オブジェクト
    * @param {string} buildType - ビルドタイプ（'開発用'/'本番用'）
+   * @param {Object} [options] - ビルドの追加オプション
+   * @param {boolean} [options.generateSitemap=false] - sitemapを生成するか
    */
-  static async executeBuild(config, buildType = '') {
+  static async executeBuild(
+    config,
+    buildType = '',
+    { generateSitemap = false } = {}
+  ) {
     // フォーマットはVS Code拡張が担当するためスキップ
 
     // 除外ファイルリストを準備
@@ -80,7 +86,7 @@ export default class BuildManager {
     await TaskRunner.runParallelTasks(buildTasks);
 
     // sitemap.xmlを生成（ビルドタスク完了後）
-    if (config.sitemap) {
+    if (generateSitemap && config.sitemap) {
       await buildSitemap(config.sitemap);
     }
 

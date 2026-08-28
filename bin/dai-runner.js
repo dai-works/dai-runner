@@ -26,12 +26,16 @@ function runScript(scriptPath, scriptArgs = []) {
       cwd: process.cwd(),
     });
 
-    child.on('exit', (code) => {
-      if (code === 0) {
-        resolvePromise();
-      } else {
-        reject(new Error(`スクリプトがコード ${code} で終了しました`));
+    child.on('exit', (code, signal) => {
+      if (code !== null) {
+        resolvePromise(code);
+        return;
       }
+
+      const signalExitCodes = { SIGINT: 130, SIGTERM: 143 };
+      const exitCode = signalExitCodes[signal] || 1;
+      console.error(`スクリプトがシグナル ${signal} で終了しました`);
+      resolvePromise(exitCode);
     });
 
     child.on('error', (err) => {
@@ -119,8 +123,8 @@ dai-runner - WordPressテーマ開発ツール
     }
 
     // メインスクリプトを実行
-    await runScript(scriptPath, forwardArgs);
-    process.exit(0);
+    const exitCode = await runScript(scriptPath, forwardArgs);
+    process.exit(exitCode);
   } catch (err) {
     console.error('スクリプトの実行中にエラーが発生しました:', err.message);
     process.exit(1);

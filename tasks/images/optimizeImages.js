@@ -123,7 +123,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
         );
 
         if (!shouldProcess) {
-          Logger.log('INFO', `処理済みのためスキップ: ${relativePath}`);
+          Logger.log('DEBUG', `処理済みのためスキップ: ${relativePath}`);
           skippedCount++;
           continue;
         }

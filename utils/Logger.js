@@ -17,12 +17,12 @@ const logLevelValues = {
   ERROR: 1,
   WARN: 2,
   INFO: 3,
+  SUCCESS: 3,
   DEBUG: 4,
 };
 
 /**
  * アプリケーション全体で使用するロガー
- * - タイムスタンプ付きログ出力
  * - ログレベルに応じた色分け表示
  * - 環境設定に基づくログレベルフィルタリング
  */
@@ -52,13 +52,16 @@ export default class Logger {
    */
   static log(level, ...messages) {
     const upperLevel = level.toUpperCase();
-    if (!this.isLevelEnabled(upperLevel) && upperLevel !== 'SUCCESS') return;
+    if (!this.isLevelEnabled(upperLevel)) return;
 
-    const prefix = chalk.white('[dev-tools]');
+    const prefix = chalk.white('[dai-runner]');
 
     const color = logColors[upperLevel] || chalk.white;
     const logMethod = upperLevel === 'ERROR' ? console.error : console.log;
+    const formattedMessages = messages.map((message) =>
+      message instanceof Error ? message.stack || message.message : message
+    );
 
-    logMethod(prefix, color(...messages));
+    logMethod(prefix, color(...formattedMessages));
   }
 }

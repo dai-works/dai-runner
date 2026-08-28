@@ -41,12 +41,26 @@ export const config = {
       // 'public/assets/js/keep-js.js',
       // 'public/assets/css/keep-css.css',
     ],
+    cleanOrphans: true,
+  },
+
+  watchOptions: {
+    ignored: [],
+  },
+
+  package: {
+    outputDir: 'dist/theme',
+    zip: false,
+    zipName: 'theme.zip',
+    exclude: [],
   },
 
   // 画像最適化設定（開発・本番共通）
   images: {
     convertToWebp: true, // true: WebP形式に変換, false: 元の形式のまま
+    convertToAvif: false,
     imageQuality: 80, // 画質（1-100）
+    avifQuality: 60,
     maxWidth: 3840, // 最大幅（px）
     // 最適化から除外したいファイルがある場合は以下のコメントのように設定
     // （例：動くpng画像など）
@@ -125,6 +139,7 @@ export const config = {
       ...conf,
       paths: this.paths,
       cleanup: this.cleanup,
+      watchOptions: this.watchOptions,
       sitemap: conf.sitemap || this.sitemap, // 環境固有のsitemap設定を優先
       options: {
         ...conf.options,

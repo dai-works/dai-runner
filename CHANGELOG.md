@@ -5,6 +5,33 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [1.10.4] - 2026-08-28
+
+### 修正
+
+- Error を含むログでスタックトレースを表示し、ログのプレフィックスを `[dai-runner]` に修正
+- `SUCCESS` ログをログレベルの判定対象に追加
+- 開発終了時に watcher と Browsersync を確実に停止し、CLI の終了コードを子プロセスから引き継ぐよう修正
+- sitemap.xml が本番ビルド時のみ生成されるよう修正
+- Sass 依存パッケージ由来の deprecation 警告を抑制
+
+### 変更
+
+- 画像の処理済みスキップログを DEBUG に変更
+- `watchOptions.ignored` を設定例と開発サーバーに追加
+- `test/dai-html` の設定を現行の設定例に追従
+
+### 内部
+
+- sitemap の生成制御と Logger の回帰テストを追加。smoke に「SIGTERM から 3 秒以内に終了する」判定を追加
+- smoke テスト `npm run smoke`（`test/smoke/run.js`）を追加。`test/dai-html`
+  で本番ビルドと開発サーバーを実際に動かし、設定の反映と SCSS / JS / 画像の監視追従を検証する
+- `npm run check`（lint → 整形チェック → 単体テスト →
+  smoke）を追加し、リリース手順（`.cursor/rules/versioning.mdc`）をこれに一本化。手書きの
+  `test/dai-html/TEST_REPORT.md` は廃止
+- GitHub Actions（`.github/workflows/check.yml`）で push / PR ごとに `npm run check` を実行
+- リポジトリ直下に `CLAUDE.md`（変更時の約束事）を追加
+
 ## [1.10.3] - 2026-08-28
 
 ### 修正

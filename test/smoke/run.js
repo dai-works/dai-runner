@@ -87,18 +87,35 @@ function start(cmd, args, { cwd = PROJ } = {}) {
   const state = { child, log: '' };
   child.stdout.on('data', (d) => (state.log += d));
   child.stderr.on('data', (d) => (state.log += d));
+  /** プロセスグループに生きているプロセスが残っているか */
+  const groupAlive = () => {
+    try {
+      process.kill(-child.pid, 0);
+      return true;
+    } catch {
+      return false;
+    }
+  };
   state.stop = async () => {
-    // npm → bin → scripts/dev.js の親子をまとめて止める
+    // npm → bin → scripts/dev.js の親子をまとめて止める。
+    // SIGTERM で自力終了できるか（後始末がハングしないか）を記録し、残っていれば SIGKILL
     try {
       process.kill(-child.pid, 'SIGTERM');
     } catch {
       /* 既に終了 */
     }
-    await sleep(1500);
-    try {
-      process.kill(-child.pid, 'SIGKILL');
-    } catch {
-      /* 既に終了 */
+    state.exitedGracefully = !(await waitFor(() => !groupAlive(), {
+      timeout: 3000,
+      interval: 100,
+    }))
+      ? false
+      : true;
+    if (!state.exitedGracefully) {
+      try {
+        process.kill(-child.pid, 'SIGKILL');
+      } catch {
+        /* 既に終了 */
+      }
     }
   };
   return state;
@@ -279,6 +296,10 @@ async function smokeDev() {
     );
   } finally {
     await dev.stop();
+    check(
+      'SIGTERM から 3 秒以内に dev のプロセスツリーが終了する（後始末がハングしない）',
+      dev.exitedGracefully === true
+    );
   }
 }
 

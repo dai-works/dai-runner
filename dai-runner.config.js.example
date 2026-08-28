@@ -47,6 +47,11 @@ export const config = {
     cleanOrphans: true,
   },
 
+  // 開発サーバーの監視から追加で除外するパターン
+  watchOptions: {
+    ignored: [],
+  },
+
   // 本番アップロード用パッケージング設定（`dai-runner package` コマンドで使用）
   // include は「上書き」、exclude は dai-runner のデフォルトに「追加」される
   package: {
@@ -130,7 +135,7 @@ export const config = {
       images: {
         useCache: true, // true: キャッシュを使用（高速化）, false: 毎回処理
       },
-      logLevel: 'info', // ログレベル: 'info' | 'warn' | 'error'
+      logLevel: 'info', // ログレベル: 'debug' | 'info' | 'warn' | 'error'
     },
   },
 
@@ -149,7 +154,7 @@ export const config = {
       images: {
         useCache: false, // true: キャッシュを使用（高速化）, false: 毎回処理
       },
-      logLevel: 'info', // ログレベル: 'info' | 'warn' | 'error'
+      logLevel: 'info', // ログレベル: 'debug' | 'info' | 'warn' | 'error'
     },
     // 本番ビルド時のみsitemap.xmlを生成する場合はここで設定を上書き
     // sitemap: {
@@ -169,6 +174,7 @@ export const config = {
       ...conf,
       paths: this.paths,
       cleanup: this.cleanup,
+      watchOptions: this.watchOptions,
       sitemap: conf.sitemap || this.sitemap, // 環境固有のsitemap設定を優先
       options: {
         ...conf.options,
