@@ -5,7 +5,12 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
-## [Unreleased]
+## [1.10.3] - 2026-08-28
+
+### 修正
+
+- **監視中に「画像を追加 → 直後に削除／リネーム」するとエラーログが出ていた問題を修正**
+  - イベント処理が始まる前にファイルが消えていると、ハッシュ計算で ENOENT の WARN を出していた（動作自体は正常。CI の smoke が検出）。処理前に実体を確認して静かにスキップする
 
 ### 内部
 

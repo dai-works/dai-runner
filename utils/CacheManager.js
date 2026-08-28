@@ -61,7 +61,15 @@ export default class CacheManager {
       const content = await fs.readFile(filePath);
       return crypto.createHash('sha256').update(content).digest('hex');
     } catch (err) {
-      Logger.log('WARN', `ファイルハッシュの計算に失敗: ${filePath}`, err);
+      if (err.code === 'ENOENT') {
+        // 読む直前に消えた（削除・リネーム）。呼び出し元が「要処理」扱いで進み、実体チェックで弾かれる
+        Logger.log(
+          'DEBUG',
+          `ハッシュ計算前にファイルが消えました: ${filePath}`
+        );
+      } else {
+        Logger.log('WARN', `ファイルハッシュの計算に失敗: ${filePath}`, err);
+      }
       return null;
     }
   }

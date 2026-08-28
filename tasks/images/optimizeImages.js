@@ -99,6 +99,18 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
       const distPath = path.join(distDir, relativePath);
       const fileName = path.basename(srcPath);
 
+      // 監視中は「追加 → 直後に削除／リネーム」で、イベント処理が始まる前にファイルが
+      // 消えていることがある（エディタの一時ファイルや保存直後の改名）。エラーにせず飛ばす
+      if (
+        !(await fs.access(srcPath).then(
+          () => true,
+          () => false
+        ))
+      ) {
+        Logger.log('DEBUG', `処理前に削除されたためスキップ: ${relativePath}`);
+        continue;
+      }
+
       // 出力先ディレクトリを作成
       await fs.mkdir(path.dirname(distPath), { recursive: true });
 
