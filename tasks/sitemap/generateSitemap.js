@@ -15,9 +15,7 @@ async function collectHtmlFiles(sourceDir, excludePatterns = []) {
   try {
     // HTMLファイルを検索
     const files = await glob(pattern, {
-      ignore: excludePatterns.map((pattern) =>
-        path.join(sourceDir, pattern)
-      ),
+      ignore: excludePatterns.map((pattern) => path.join(sourceDir, pattern)),
     });
 
     // ソースディレクトリからの相対パスに変換

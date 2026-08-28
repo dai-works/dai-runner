@@ -21,7 +21,6 @@ Thumbs.db
 *~
 
 # テスト用ビルド成果物
-test/public/assets/
 coverage/
 
 # ビルド成果物（このパッケージ自体のビルド、もしあれば）

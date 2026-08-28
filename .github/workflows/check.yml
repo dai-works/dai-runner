@@ -1,0 +1,24 @@
+# push / PR ごとに npm run check（lint・整形・単体テスト・smoke）を回す。
+# smoke は test/dai-html で本番ビルドと開発サーバー（Browsersync、ブラウザは開かない）を実際に動かす。
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            test/dai-html/package-lock.json
+      - run: npm ci
+      - run: npm run check

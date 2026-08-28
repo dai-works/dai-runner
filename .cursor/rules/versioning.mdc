@@ -36,10 +36,10 @@ alwaysApply: true
 ## バージョンアップの手順
 
 1. コードの変更を完了
-2. **動作テストを実施**（設定ファイルやコア機能を変更した場合）
-   - `test/dai-html`ディレクトリで`npm run build`を実行
-   - 設定項目および主要機能（Autoprefixer, Sass, SVGO等）が正しく動作することを確認
-   - テスト結果を`test/dai-html/TEST_REPORT.md`に記録
+2. **`npm run check` を通す**（lint → 整形チェック → 単体テスト → smoke）
+   - smoke（`test/smoke/run.js`）は `test/dai-html` で本番ビルドと開発サーバーを実際に動かし、
+     設定の反映・SCSS/JS/画像の監視追従を検証する。約 1 分
+   - 落ちたらリリースしない。手書きのテストレポートは廃止（結果は script の出力と CI が持つ）
 3. 上記3つのファイルを更新
 4. `git add -A`
 5. `git commit -m "バージョンx.x.xに更新: 変更内容の要約"`
@@ -52,3 +52,4 @@ alwaysApply: true
 - コミットメッセージは日本語で記述
 - 設定ファイルの変更は慎重に（後方互換性を考慮）
 - 新機能追加時は example ファイルも更新
+- 単体テスト（`test/unit/`）で回帰を固定できる修正は、修正前に失敗するテストを先に書く

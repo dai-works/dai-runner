@@ -11,7 +11,5 @@ export async function buildSitemap(config) {
     return Promise.resolve();
   }
 
-  return TaskRunner.runTask('sitemap.xmlの生成', () =>
-    generateSitemap(config)
-  );
+  return TaskRunner.runTask('sitemap.xmlの生成', () => generateSitemap(config));
 }

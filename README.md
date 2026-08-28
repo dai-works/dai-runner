@@ -469,36 +469,42 @@ cd dai-runner
 npm install
 ```
 
-### 自動テスト
+### テストとリリース前チェック
 
 ```bash
-npm test
+npm test          # 単体テスト（test/unit/、node:test、数秒）
+npm run smoke     # test/dai-html で本番ビルドと開発サーバーを実際に動かして検証（約 1 分）
+npm run check     # lint → 整形チェック → npm test → npm run smoke（タグを打つ前に必ず）
 ```
 
-`test/unit/`
-の回帰テスト（`node:test`、追加依存なし）を実行します。コア機能を変更した時は必ず通してください。
+smoke は `npm run build` の成果物が build 設定どおりか（sourceMap / minify / dropConsole /
+WebP）を見たあと、 `npm run dev`
+を起動して SCSS の変更・パーシャル追加・JS 変更・画像追加・削除を順に発生させ、成果物が追従するかを確認します。触ったファイルは自動で戻します。push すると GitHub
+Actions でも同じ `npm run check` が走ります。
 
 ### このリポジトリで動作確認する
 
-dai-runner パッケージ自体に同梱されているテスト用ファイルで動作確認できます：
+`test/dai-html` が、このリポジトリを `file:../..` で参照する動作確認用プロジェクトです：
 
 ```bash
-# 開発モードで起動（ファイル監視 + BrowserSync）
+cd test/dai-html
+
+# 開発モードで起動（ファイル監視 + BrowserSync。ブラウザは自動では開きません）
 npm run dev
 
-# 本番ビルドのテスト
+# 本番ビルド
 npm run build
 ```
 
-ブラウザが自動的に開き、`http://localhost:3000`
-でテストページが表示されます。SCSS や JS ファイルを編集すると、自動的にビルドされブラウザが更新されます。
+起動後に `http://localhost:3000`
+を開くとテストページが表示されます。SCSS や JS ファイルを編集すると、自動的にビルドされブラウザが更新されます。
 
 **テスト用ファイル構成：**
 
-- `test/source/scss/style.scss` - テスト用 SCSS
-- `test/source/js/main.js` - テスト用 JavaScript
-- `test/public/index.html` - テスト用 HTML
-- `test/public/assets/` - ビルド成果物（自動生成、Git 管理外）
+- `test/dai-html/source/scss/` - テスト用 SCSS
+- `test/dai-html/source/js/main.js` - テスト用 JavaScript
+- `test/dai-html/public/index.html` - テスト用 HTML
+- `test/dai-html/public/assets/` - ビルド成果物（自動生成、Git 管理外）
 
 ### 他プロジェクトでのテスト
 

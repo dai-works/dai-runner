@@ -16,7 +16,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "node --test test/unit/*.test.js"
+    "test": "node --test test/unit/*.test.js",
+    "smoke": "node test/smoke/run.js",
+    "check": "npm run lint && npm run format:check && npm test && npm run smoke"
   },
   "keywords": [
     "build-tool",

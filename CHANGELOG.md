@@ -5,6 +5,18 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [Unreleased]
+
+### 内部
+
+- smoke テスト `npm run smoke`（`test/smoke/run.js`）を追加。`test/dai-html`
+  で本番ビルドと開発サーバーを実際に動かし、設定の反映と SCSS / JS / 画像の監視追従を検証する
+- `npm run check`（lint → 整形チェック → 単体テスト →
+  smoke）を追加し、リリース手順（`.cursor/rules/versioning.mdc`）をこれに一本化。手書きの
+  `test/dai-html/TEST_REPORT.md` は廃止
+- GitHub Actions（`.github/workflows/check.yml`）で push / PR ごとに `npm run check` を実行
+- リポジトリ直下に `CLAUDE.md`（変更時の約束事）を追加
+
 ## [1.10.2] - 2026-08-28
 
 ### 修正
