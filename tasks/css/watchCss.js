@@ -128,7 +128,8 @@ export async function watchCss({ paths, options = {} } = {}) {
     Logger.log('DEBUG', `メインSCSSファイル数: ${mainFiles.size}`);
 
     // ファイル監視を開始
-    const watcher = createWatcher(path.join(srcDir, '**', '*.scss'), {
+    const watcher = createWatcher(srcDir, {
+      extensions: ['.scss'],
       label: 'SCSSの',
       onAdd: async (filePath) => {
         const isPartial = path.basename(filePath).startsWith('_');

@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import { createWriteStream } from 'fs';
 import { glob } from 'glob';
 import picomatch from 'picomatch';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import Logger from '../../utils/Logger.js';
 import { DEFAULTS } from '../../utils/defaults.js';
 
@@ -42,7 +42,7 @@ function formatSize(bytes) {
 function createZip(sourceDir, zipPath, rootName) {
   return new Promise((resolve, reject) => {
     const output = createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = new ZipArchive({ zlib: { level: 9 } });
 
     output.on('close', resolve);
     output.on('error', reject); // ENOSPC / EACCES 等で永久待ちにならないように

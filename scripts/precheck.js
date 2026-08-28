@@ -3,7 +3,8 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
-import inquirer from 'inquirer';
+import { createInterface } from 'node:readline/promises';
+import { stdin as input, stdout as output } from 'node:process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -119,34 +120,30 @@ function generateLocalConfig(mode, targetOrHostname) {
  * インタラクティブモードでdai-runner.config.local.jsを作成
  */
 async function createLocalConfigInteractively() {
+  const isInteractive = Boolean(input.isTTY && output.isTTY);
+  const readline = isInteractive ? createInterface({ input, output }) : null;
+  const ask = async (question, defaultValue) => {
+    if (!readline) return defaultValue;
+    const answer = await readline.question(`${question} [${defaultValue}]: `);
+    return answer.trim() || defaultValue;
+  };
+
   try {
     console.log('\n🔧 dai-runner.config.local.jsの設定を行います...\n');
 
     // 開発環境のタイプを選択
-    const modeAnswer = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'mode',
-        message: '開発環境のタイプを選択してください:',
-        choices: [
-          {
-            name: '静的ファイルのみ (server)',
-            value: 'server',
-          },
-          {
-            name: 'dai-traefikを使用',
-            value: 'traefik',
-          },
-          {
-            name: '外部サーバー (Local, Dockerでdai-traefik未使用, XAMPP, etc.)',
-            value: 'external',
-          },
-        ],
-      },
-    ]);
+    console.log(
+      '開発環境のタイプを選択してください:\n' +
+        '  1. 静的ファイルのみ (server)\n' +
+        '  2. dai-traefikを使用\n' +
+        '  3. 外部サーバー (Local, Dockerでdai-traefik未使用, XAMPP, etc.)'
+    );
+    const modeNumber = await ask('番号を入力してください', '1');
+    const mode =
+      { 1: 'server', 2: 'traefik', 3: 'external' }[modeNumber] || 'server';
 
     // serverモードの場合はexampleをそのままコピー
-    if (modeAnswer.mode === 'server') {
+    if (mode === 'server') {
       fs.copyFileSync(localConfigExamplePath, localConfigPath);
       console.log(
         '\n✅ 静的ファイルモードのため、デフォルト設定ファイルを作成しました。'
@@ -158,46 +155,21 @@ async function createLocalConfigInteractively() {
     let targetOrHostname;
     let configContent;
 
-    if (modeAnswer.mode === 'traefik') {
+    if (mode === 'traefik') {
       // Traefikモード：ホスト名を入力
       const defaultHostname = guessDefaultHostname();
-      const hostAnswer = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'hostname',
-          message: 'Traefikで設定されているホスト名を入力してください:',
-          default: defaultHostname,
-          validate: (input) => {
-            if (!input.trim()) {
-              return 'ホスト名を入力してください';
-            }
-            return true;
-          },
-        },
-      ]);
-      targetOrHostname = hostAnswer.hostname;
-      configContent = generateLocalConfig(modeAnswer.mode, targetOrHostname);
-    } else if (modeAnswer.mode === 'external') {
+      targetOrHostname = await ask(
+        'Traefikで設定されているホスト名を入力してください',
+        defaultHostname
+      );
+      configContent = generateLocalConfig(mode, targetOrHostname);
+    } else if (mode === 'external') {
       // 外部サーバーモード：URLを入力
-      const targetAnswer = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'target',
-          message: 'サーバーのURLを入力してください:',
-          default: 'http://localhost:8080',
-          validate: (input) => {
-            if (!input.trim()) {
-              return 'URLを入力してください';
-            }
-            if (!input.startsWith('http://') && !input.startsWith('https://')) {
-              return 'http:// または https:// で始まるURLを入力してください';
-            }
-            return true;
-          },
-        },
-      ]);
-      targetOrHostname = targetAnswer.target;
-      configContent = generateLocalConfig(modeAnswer.mode, targetOrHostname);
+      targetOrHostname = await ask(
+        'サーバーのURLを入力してください',
+        'http://localhost:8080'
+      );
+      configContent = generateLocalConfig(mode, targetOrHostname);
     }
 
     // dai-runner.config.local.jsを生成
@@ -206,10 +178,10 @@ async function createLocalConfigInteractively() {
     console.log('\n✅ dai-runner.config.local.jsを作成しました！');
     console.log(`📋 設定内容:`);
 
-    if (modeAnswer.mode === 'traefik') {
+    if (mode === 'traefik') {
       console.log(`   - proxy.target: http://127.0.0.1 (Traefik経由)`);
       console.log(`   - proxy.host: ${targetOrHostname}`);
-    } else if (modeAnswer.mode === 'external') {
+    } else if (mode === 'external') {
       console.log(`   - proxy.target: ${targetOrHostname}`);
     }
 
@@ -226,6 +198,8 @@ async function createLocalConfigInteractively() {
       '   cp dai-runner.config.local.js.example dai-runner.config.local.js\n'
     );
     process.exit(1);
+  } finally {
+    readline?.close();
   }
 }
 

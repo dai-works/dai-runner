@@ -298,6 +298,8 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
               },
             },
             'removeDimensions',
+            // svgo 4 は preset-default から removeTitle を外した。従来どおり <title> を除去する
+            'removeTitle',
           ],
         });
 

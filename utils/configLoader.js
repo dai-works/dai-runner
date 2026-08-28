@@ -31,7 +31,8 @@ async function loadConfig({ env, cwd = process.cwd() } = {}) {
     throw new Error(
       `dai-runner.config.jsの読み込みに失敗しました: ${error.message}\n` +
         `プロジェクトルートにdai-runner.config.jsが存在することを確認してください。\n` +
-        `初回セットアップ時は 'npx dai-runner precheck' を実行してください。`
+        `初回セットアップ時は 'npx dai-runner precheck' を実行してください。`,
+      { cause: error }
     );
   }
 }

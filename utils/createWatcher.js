@@ -1,12 +1,25 @@
 import chokidar from 'chokidar';
+import path from 'path';
 import Logger from './Logger.js';
 
 export function createWatcher(
-  globs,
-  { label, awaitWriteFinish, onAdd, onChange, onUnlink } = {}
+  dir,
+  { extensions = [], label, awaitWriteFinish, onAdd, onChange, onUnlink } = {}
 ) {
-  const watcher = chokidar.watch(globs, {
-    ignored: /(^|[/\\])\../,
+  const normalizedExtensions = extensions.map((extension) =>
+    extension.toLowerCase()
+  );
+  const watcher = chokidar.watch(dir, {
+    ignored: (filePath, stats) => {
+      if (path.basename(filePath).startsWith('.')) {
+        return true;
+      }
+      return Boolean(
+        stats?.isFile() &&
+        normalizedExtensions.length > 0 &&
+        !normalizedExtensions.includes(path.extname(filePath).toLowerCase())
+      );
+    },
     persistent: true,
     ignoreInitial: true,
     ...(awaitWriteFinish ? { awaitWriteFinish } : {}),

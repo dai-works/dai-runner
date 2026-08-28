@@ -5,6 +5,64 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [2.0.0] - 2026-08-29
+
+### 破壊的変更
+
+- **対応 Node.js を `>=20.19.0` に引き上げ**（chokidar 5 と sass の要件。Node
+  18 は EOL のため切る）。`precheck` が起動時に確認し、満たさなければ止まる
+
+### セキュリティ
+
+- `npm audit`（本番依存）を 17 件（high 14 / moderate 3）から 3 件に削減。直接依存の `postcss` /
+  `rollup` / `sharp` / `svgo` の脆弱性は解消。残る 3 件はすべて開発サーバー（browser-sync
+  3.0.4）が固定している `immutable` 3.x 由来で、公式の修正は browser-sync
+  1.9 へのダウングレードのため見送り（本番成果物には含まれない）
+
+### 変更
+
+- **本番 CSS の宣言の並び順がソース順になる**（cssnano
+  6 はプロパティをアルファベット順に並べ替えていたが、7 以降はその機能を持たない）。セレクタ・宣言の内容・ルールの順序は同一で、dev ビルド（非圧縮）は元からソース順のため、本番と dev の差はむしろ減る。更新前後の成果物を「ルール内の宣言をソートして比較」し、並び順と
+  `rgb(... / 0.5)` の空白、データ URI 内 SVG の表記（percent エンコード・`viewBox`
+  保持）以外に差が無いことを確認済み
+- svgo 4 は `preset-default` から `removeTitle` を外したため、従来どおり `<title>`
+  を除去するよう明示（SVG 出力は更新前とバイト一致）
+- sharp 0.35 で PNG のエンコード結果が数バイト変わる（テストでは 3972 → 3979 バイト。WebP は一致）
+- chokidar 5 は glob を受け付けないため、SCSS / JS
+  / 画像の監視を「ディレクトリ監視＋拡張子フィルタ」に変更（監視対象・挙動は同じ。ドット始まりは除外）
+- `archiver` 8 の API 変更（`ZipArchive` クラス）に追従。`dai-runner package --zip`
+  の回帰テストを追加
+- `inquirer` を依存から外し、`precheck` の対話を Node 標準の `readline/promises`
+  に置換（非 TTY では既定値で進む）。全案件の `node_modules` が軽くなる
+- cssnano 系は 8 系まで（9 系は Node `^22.22.3`
+  を要求するため見送り）。chalk は 5 系のまま（6 系は Node 22 必須で利点なし）
+
+### 依存の更新（本番）
+
+- archiver 7.0.1 → 8.0.0
+- autoprefixer 10.4.22 → 10.5.4
+- chokidar 3.6.0 → 5.0.0
+- cssnano 6.1.2 → 8.0.10
+- glob 12.0.0 → 13.0.6
+- picomatch 4.0.4 → 4.0.7
+- postcss 8.5.6 → 8.5.26
+- postcss-discard-duplicates 6.0.3 → 8.0.4
+- postcss-normalize-charset 6.0.2 → 8.0.5
+- postcss-sort-media-queries 5.2.0 → 6.7.1
+- rollup 4.53.2 → 4.63.1
+- sass 1.94.0 → 1.103.1
+- sharp 0.33.5 → 0.35.4
+- svgo 3.3.2 → 4.1.0
+- terser 5.44.1 → 5.51.2
+
+### 依存の更新（開発）
+
+- @eslint/js 9.39.1 → 10.0.1
+- eslint 9.39.1 → 10.9.1
+- eslint-config-prettier 9.1.2 → 10.1.8
+- globals 15.15.0 → 17.11.0
+- prettier 3.7.4 → 3.9.6
+
 ## [1.12.0] - 2026-08-28
 
 ### 追加

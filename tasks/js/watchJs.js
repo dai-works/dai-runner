@@ -73,7 +73,8 @@ export function watchJs({ paths, options = {} } = {}) {
     }
 
     // 非同期リスナ内の例外は誰も拾わないので、ここで必ず握って監視を継続する
-    const watcher = createWatcher(path.join(srcDir, '**', '*.js'), {
+    const watcher = createWatcher(srcDir, {
+      extensions: ['.js'],
       label: 'JSファイルの',
       onAdd: async (filePath) => {
         Logger.log(

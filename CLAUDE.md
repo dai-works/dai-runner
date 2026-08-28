@@ -1,7 +1,7 @@
 # dai-runner
 
 社内フロントエンドビルドツール（SCSS / JS / 画像 / Browsersync）。案件からは
-`github:dai-works/dai-runner#vX.Y.Z` で pin されて使われる。
+`github:dai-works/dai-runner#vX.Y.Z` で pin されて使われる。Node.js は `>=20.19.0` を必要とする。
 
 ## 変更したら必ず
 

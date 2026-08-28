@@ -23,49 +23,47 @@ export function watchImages({ paths, options = {} } = {}) {
     const distDir = paths.dist;
 
     // 画像ファイルの監視を開始
-    const watcher = createWatcher(
-      [path.join(srcDir, '**/*.{jpg,jpeg,png,gif,svg,webp}')],
-      {
-        label: '画像の',
-        awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 },
-        onAdd: async (filePath) => {
-          Logger.log(
-            'INFO',
-            `新しい画像ファイルが追加されました: ${path.relative(process.cwd(), filePath)}`
-          );
-          await optimizeImages(srcDir, distDir, { filePath, ...options });
-        },
-        onChange: async (filePath) => {
-          Logger.log(
-            'INFO',
-            `画像ファイルが更新されました: ${path.relative(process.cwd(), filePath)}`
-          );
-          await optimizeImages(srcDir, distDir, { filePath, ...options });
-        },
-        onUnlink: async (filePath) => {
-          Logger.log(
-            'INFO',
-            `画像ファイルが削除されました: ${path.relative(process.cwd(), filePath)}`
-          );
+    const watcher = createWatcher(srcDir, {
+      extensions: ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'],
+      label: '画像の',
+      awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 },
+      onAdd: async (filePath) => {
+        Logger.log(
+          'INFO',
+          `新しい画像ファイルが追加されました: ${path.relative(process.cwd(), filePath)}`
+        );
+        await optimizeImages(srcDir, distDir, { filePath, ...options });
+      },
+      onChange: async (filePath) => {
+        Logger.log(
+          'INFO',
+          `画像ファイルが更新されました: ${path.relative(process.cwd(), filePath)}`
+        );
+        await optimizeImages(srcDir, distDir, { filePath, ...options });
+      },
+      onUnlink: async (filePath) => {
+        Logger.log(
+          'INFO',
+          `画像ファイルが削除されました: ${path.relative(process.cwd(), filePath)}`
+        );
 
-          const relativePath = path.relative(srcDir, filePath);
-          const distPath = path.join(distDir, relativePath);
+        const relativePath = path.relative(srcDir, filePath);
+        const distPath = path.join(distDir, relativePath);
 
-          if (options.useCache !== false) {
-            const cache = CacheManager.shared();
-            await cache.initialize();
-            await cache.remove(filePath);
-            await cache.save();
-          }
+        if (options.useCache !== false) {
+          const cache = CacheManager.shared();
+          await cache.initialize();
+          await cache.remove(filePath);
+          await cache.save();
+        }
 
-          await fs.unlink(distPath).catch(() => {});
-          const webpPath = distPath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
-          await fs.unlink(webpPath).catch(() => {});
-          const avifPath = distPath.replace(/\.(jpg|jpeg|png|webp)$/i, '.avif');
-          await fs.unlink(avifPath).catch(() => {});
-        },
-      }
-    );
+        await fs.unlink(distPath).catch(() => {});
+        const webpPath = distPath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+        await fs.unlink(webpPath).catch(() => {});
+        const avifPath = distPath.replace(/\.(jpg|jpeg|png|webp)$/i, '.avif');
+        await fs.unlink(avifPath).catch(() => {});
+      },
+    });
 
     Logger.log('DEBUG', `画像ファイルの監視を開始しました: ${srcDir}`);
     return watcher; // 監視オブジェクトを返して、必要に応じて停止できるようにする
