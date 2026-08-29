@@ -47,7 +47,7 @@ const KNOWN_CONFIG_KEYS = {
   environment: new Set(['mode', 'server', 'proxy', 'options', 'sitemap']),
   server: new Set(['baseDir']),
   proxy: new Set(['target', 'proxyReq']),
-  options: new Set(['css', 'js', 'images', 'logLevel']),
+  options: new Set(['css', 'js', 'images', 'logLevel', 'incremental']),
   css: new Set(Object.keys(DEFAULTS.css)),
   js: new Set(Object.keys(DEFAULTS.js)),
   optionImages: new Set(Object.keys(DEFAULTS.images)),

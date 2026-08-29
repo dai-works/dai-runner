@@ -5,6 +5,12 @@ import { buildSitemap } from '../tasks/sitemap/buildSitemap.js';
 import CleanupManager from './CleanupManager.js';
 import TaskRunner from './TaskRunner.js';
 import Logger from './Logger.js';
+import { isCssUpToDate, isJsUpToDate, writeBuildStamp } from './incremental.js';
+import { createRequire } from 'module';
+
+const { version: RUNNER_VERSION } = createRequire(import.meta.url)(
+  '../package.json'
+);
 
 /**
  * ビルド処理を管理するクラス
@@ -15,21 +21,30 @@ export default class BuildManager {
    * @param {Object} config - 設定オブジェクト
    * @returns {Array} ビルドタスクの配列
    */
-  static createBuildTasks(config) {
-    return [
+  static createBuildTasks(config, { skipCss = false, skipJs = false } = {}) {
+    const tasks = [
       buildImages({
         paths: config.paths.images,
         options: config.options.images,
       }),
-      buildJs({
-        paths: config.paths.js,
-        options: config.options.js,
-      }),
-      buildCss({
-        paths: config.paths.css,
-        options: config.options.css,
-      }),
     ];
+    if (!skipJs) {
+      tasks.push(
+        buildJs({
+          paths: config.paths.js,
+          options: config.options.js,
+        })
+      );
+    }
+    if (!skipCss) {
+      tasks.push(
+        buildCss({
+          paths: config.paths.css,
+          options: config.options.css,
+        })
+      );
+    }
+    return tasks;
   }
 
   /**
@@ -38,17 +53,44 @@ export default class BuildManager {
    * @param {string} buildType - ビルドタイプ（'開発用'/'本番用'）
    * @param {Object} [options] - ビルドの追加オプション
    * @param {boolean} [options.generateSitemap=false] - sitemapを生成するか
+   * @param {boolean} [options.incremental=false] - source・設定・dai-runner に変更が無ければ
+   *   CSS / JS のクリーンアップとビルドを飛ばす（開発サーバー起動時のみ使う）
    */
   static async executeBuild(
     config,
     buildType = '',
-    { generateSitemap = false } = {}
+    { generateSitemap = false, incremental = false } = {}
   ) {
     // フォーマットはVS Code拡張が担当するためスキップ
 
     // 除外ファイルリストを準備
     const userExcludeFiles = config.cleanup?.excludeFiles || [];
     let excludeFiles = userExcludeFiles;
+
+    // 差分起動：最新なら CSS / JS はクリーンアップ対象からも外してそのまま使う
+    let skipCss = false;
+    let skipJs = false;
+    if (incremental) {
+      const context = { version: RUNNER_VERSION };
+      [skipCss, skipJs] = await Promise.all([
+        isCssUpToDate(config.paths.css, config.options.css, context),
+        isJsUpToDate(config.paths.js, config.options.js, context),
+      ]);
+      if (skipCss) {
+        excludeFiles = [...excludeFiles, `${config.paths.css.dist}/`];
+        Logger.log(
+          'INFO',
+          'CSS は最新のためビルドをスキップします（source・設定に変更なし）'
+        );
+      }
+      if (skipJs) {
+        excludeFiles = [...excludeFiles, `${config.paths.js.dist}/`];
+        Logger.log(
+          'INFO',
+          'JavaScript は最新のためビルドをスキップします（source・設定に変更なし）'
+        );
+      }
+    }
 
     // 画像キャッシュが有効な場合は画像ディレクトリを除外リストに追加
     // （Sharp 再処理を避けるため。孤立ファイル削除は cleanOrphans オプションで対応）
@@ -82,8 +124,11 @@ export default class BuildManager {
       });
     }
 
-    const buildTasks = this.createBuildTasks(config);
+    const buildTasks = this.createBuildTasks(config, { skipCss, skipJs });
     await TaskRunner.runParallelTasks(buildTasks);
+
+    // 次回の差分判定のために、今回使ったオプションと dai-runner のバージョンを記録
+    await writeBuildStamp(config.options, RUNNER_VERSION);
 
     // sitemap.xmlを生成（ビルドタスク完了後）
     if (generateSitemap && config.sitemap) {

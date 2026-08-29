@@ -107,6 +107,11 @@ Node.js と dai-runner のバージョン、`package.json` の pin、dev/build �
 
 開発モードでは、ファイルの変更を監視し、自動的にビルドとブラウザの更新を行います。
 
+起動時のビルドは差分判定つきです（`dev.options.incremental`、既定
+`true`）。source・設定ファイル・dai-runner に変更が無く、前回と同じオプションで成果物が揃っていれば CSS
+/
+JS のビルドを飛ばして起動します。判定に迷う状況（成果物の欠け・余り、オプション変更、dai-runner の更新）では作り直します。本番ビルドは常にフルビルドです。
+
 ```bash
 npm run dev
 ```
@@ -188,7 +193,7 @@ npm run build
 `dai-runner.config.js` で以下の設定をカスタマイズできます：
 
 - ソースファイルと出力先のパス
-- 画像処理オプション（最大幅、品質、WebP 変換、AVIF 生成など）
+- 画像処理オプション（最大幅、品質、WebP 変換、AVIF 生成、同時処理数 `concurrency` など）
 - CSS/JS 処理オプション（圧縮、ソースマップ、console.log 削除など）
 - クリーンアップの除外ファイル（残したいファイルを指定）
 - ログレベル

@@ -9,6 +9,7 @@ export const DEFAULTS = {
     convertToAvif: false,
     avifQuality: 60,
     useCache: true,
+    concurrency: 4, // 同時に処理する画像の数（sharp は CPU 負荷が高いのでコア数程度まで）
   },
   package: {
     include: [

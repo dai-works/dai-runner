@@ -40,6 +40,8 @@ async function dev() {
     // 初期ビルド（フォーマット、クリーンアップ、ビルドを実行）
     await BuildManager.executeBuild(conf, '開発用', {
       generateSitemap: false,
+      // dev.options.incremental（既定 true）：変更が無ければ CSS / JS のビルドを飛ばす
+      incremental: conf.options.incremental !== false,
     });
 
     // ファイル変更の監視（フォーマットはVS Code拡張が担当）

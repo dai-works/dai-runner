@@ -5,6 +5,24 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [Unreleased]
+
+### 追加
+
+- 画像処理を並列化（`images.concurrency`、既定 4）。sharp の変換を同時に走らせ、画像の多い案件の初回ビルドと
+  `useCache: false`
+  のビルドが速くなる。キャッシュの manifest は共有インスタンスで保存を直列化しているため安全
+- 開発サーバー起動時の差分ビルド（`dev.options.incremental`、既定 true）。source・`dai-runner.config.js`・dai-runner 自身に変更が無く、前回と同じオプションで、成果物が欠けも余りもなく揃っていれば CSS
+  /
+  JS のクリーンアップとビルドを飛ばす。判定は保守的で、迷ったら作り直す。本番ビルド（`npm run build`）は常にフルビルド
+
+### 内部
+
+- 前回ビルドのオプションと dai-runner のバージョンを `.dai-runner/last-build.json`
+  に記録し、差分判定に使う
+- `mapWithConcurrency`
+  と差分判定の回帰テストを追加（スキップ・パーシャル変更・エントリ削除の残骸・オプション変更・設定ファイル更新・本番ビルド）
+
 ## [2.1.0] - 2026-08-29
 
 ### 追加

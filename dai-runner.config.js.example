@@ -82,6 +82,7 @@ export const config = {
     imageQuality: 80, // 画質（1-100 / JPEG・PNG・WebP）
     avifQuality: 60, // AVIF画質（WebP80と同等の見た目基準。高効率なため数値は低め）
     maxWidth: 3840, // 最大幅（px）
+    concurrency: 4, // 同時に処理する画像の数（初回ビルドの速さ。コア数程度まで）
     // 最適化から除外したいファイルがある場合は以下のコメントのように設定
     // （例：動くpng画像など）
     excludeFromOptimization: [
@@ -137,6 +138,8 @@ export const config = {
         useCache: true, // true: キャッシュを使用（高速化）, false: 毎回処理
       },
       logLevel: 'info', // ログレベル: 'debug' | 'info' | 'warn' | 'error'
+      // true: source・設定・dai-runner に変更が無ければ dev 起動時の CSS/JS ビルドを飛ばす
+      incremental: true,
     },
   },
 

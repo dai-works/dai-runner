@@ -7,6 +7,7 @@ import { optimize } from 'svgo';
 import CacheManager from '../../utils/CacheManager.js';
 import { DEFAULTS } from '../../utils/defaults.js';
 import { toPosix } from '../../utils/paths.js';
+import { mapWithConcurrency } from '../../utils/concurrency.js';
 
 /**
  * 画像最適化を行うモジュール
@@ -82,8 +83,8 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
     let processedCount = 0;
     let skippedCount = 0;
 
-    // 各画像ファイルを処理
-    for (const srcPath of srcPaths) {
+    // 各画像ファイルを処理（同時 concurrency 本まで並列。キャッシュは共有インスタンスで保存は直列化済み）
+    const processOne = async (srcPath) => {
       const relativePath = path.relative(srcDir, srcPath);
       const distPath = path.join(distDir, relativePath);
       const fileName = path.basename(srcPath);
@@ -97,7 +98,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
         ))
       ) {
         Logger.log('DEBUG', `処理前に削除されたためスキップ: ${relativePath}`);
-        continue;
+        return;
       }
 
       // 出力先ディレクトリを作成
@@ -114,7 +115,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
         if (!shouldProcess) {
           Logger.log('DEBUG', `処理済みのためスキップ: ${relativePath}`);
           skippedCount++;
-          continue;
+          return;
         }
       }
 
@@ -131,7 +132,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
         if (cache) {
           await cache.markProcessed(srcPath, distPath, cacheOptions);
         }
-        continue;
+        return;
       }
 
       // ファイル拡張子を取得
@@ -157,7 +158,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
         if (cache) {
           await cache.markProcessed(srcPath, distPath, cacheOptions);
         }
-        continue;
+        return;
       }
 
       // 画像を処理
@@ -326,7 +327,9 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
           await cache.markProcessed(srcPath, distPath, cacheOptions);
         }
       }
-    }
+    };
+
+    await mapWithConcurrency(srcPaths, imageOptions.concurrency, processOne);
 
     // キャッシュを保存
     if (cache) {
