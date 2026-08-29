@@ -4,48 +4,30 @@ globs:
 alwaysApply: true
 ---
 
-# バージョンアップ時の必須更新ファイル
+# バージョンアップ
 
-バージョンアップ（機能追加、バグ修正、改善など）を行う際は、**必ず以下の3つのファイルを更新すること**：
+CHANGELOG.md の `## [Unreleased]` に変更内容を書き、main のクリーンな作業ツリーで次を実行する：
 
-## 1. package.json
-- `version` フィールドを更新
-- セマンティックバージョニングに従う：
-  - **Major (x.0.0)**: 破壊的変更
-  - **Minor (0.x.0)**: 後方互換性のある機能追加
-  - **Patch (0.0.x)**: バグ修正、小さな改善
+```bash
+npm run release -- <patch|minor|major>
+```
 
-## 2. CHANGELOG.md
-- 新しいバージョンセクションを追加
-- 日付を記載
-- 変更内容をカテゴリ分けして記載：
-  - **追加 (Added)**: 新機能
-  - **変更 (Changed)**: 既存機能の変更
-  - **非推奨 (Deprecated)**: 今後削除予定の機能
-  - **削除 (Removed)**: 削除された機能
-  - **修正 (Fixed)**: バグ修正
-  - **改善 (Improved)**: パフォーマンス改善、UX改善など
-  - **セキュリティ (Security)**: セキュリティ関連の修正
-
-## 3. README.md
-- バージョン番号の例を最新バージョンに更新
-- 新機能の説明を追加（必要に応じて）
-- 使用方法やAPIの変更を反映
-- インストール例のバージョン指定を更新
+セマンティックバージョニングに従い、破壊的変更は major、後方互換の機能追加は minor、バグ修正と小さな改善は
+patch を指定する。
 
 ## バージョンアップの手順
 
-1. コードの変更を完了
-2. **`npm run check` を通す**（lint → 整形チェック → 単体テスト → smoke）
+1. コードの変更を完了し、CHANGELOG.md の `## [Unreleased]` に分類した変更内容を書く
+2. `npm run release -- <patch|minor|major>` を実行する
+   - release が **`npm run check` を実行**する（lint → 整形チェック → 単体テスト → smoke）
    - smoke（`test/smoke/run.js`）は `test/dai-html` で本番ビルドと開発サーバーを実際に動かし、
      設定の反映・SCSS/JS/画像の監視追従を検証する。約 1 分
    - 落ちたらリリースしない。手書きのテストレポートは廃止（結果は script の出力と CI が持つ）
-3. 上記3つのファイルを更新
-4. `git add -A`
-5. `git commit -m "バージョンx.x.xに更新: 変更内容の要約"`
-6. `git tag -a vx.x.x -m "バージョンx.x.x: 変更内容"`
-7. `git push origin main`
-8. `git push origin vx.x.x`
+3. release が package.json / package-lock.json / CHANGELOG.md / README.md の3系統のリリースファイルを自動更新する
+4. release が commit、annotated tag、main とタグの push、利用可能なら GitHub Release 作成まで自動で行う
+
+ファイルや Git を変更せず実行予定を確認する場合は `--dry-run` を付ける。`npm run check` を意図的に飛ばす場合は
+`--skip-check` を付け、表示される WARN を確認する。
 
 ## その他のルール
 

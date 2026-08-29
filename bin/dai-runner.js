@@ -73,6 +73,10 @@ async function main() {
     case 'precheck':
       scriptPath = resolve(__dirname, '../scripts/precheck.js');
       break;
+    case 'doctor':
+      scriptPath = resolve(__dirname, '../scripts/doctor.js');
+      forwardArgs = subArgs;
+      break;
     case 'help':
     case '--help':
     case '-h':
@@ -85,6 +89,7 @@ dai-runner - WordPressテーマ開発ツール
   dai-runner package        本番アップロード用フォルダを生成（dist/theme/）
   dai-runner package --zip  上記に加えて zip も生成（dist/theme.zip）
   dai-runner precheck       設定ファイルの確認・作成
+  dai-runner doctor         案件の設定・バージョン・パスを診断
   dai-runner help           このヘルプを表示
 
 初回セットアップ:
@@ -100,7 +105,9 @@ dai-runner - WordPressテーマ開発ツール
       break;
     default:
       console.error(`エラー: 不明なコマンド "${command}"`);
-      console.log('使用可能なコマンド: dev, build, package, precheck, help');
+      console.log(
+        '使用可能なコマンド: dev, build, package, precheck, doctor, help'
+      );
       process.exit(1);
   }
 

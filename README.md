@@ -4,7 +4,7 @@
 
 ## インストール
 
-Node.js **20.19 以上**が必要です（v2.0.1〜）。
+Node.js **20.19 以上**が必要です（v2.0.0〜）。
 
 ### GitHub リポジトリからのインストール
 
@@ -61,6 +61,13 @@ npm run dev
 npx dai-runner precheck
 ```
 
+設定やバージョン、入出力パスをまとめて診断する場合：
+
+```bash
+npx dai-runner doctor
+npx dai-runner doctor --latest 2.1.0  # 指定した最新版とpinを比較
+```
+
 **自動生成されるファイル：**
 
 1. `dai-runner.config.js` - チーム共通の設定ファイル（存在しない場合のみ）
@@ -85,6 +92,16 @@ npx dai-runner precheck
 - **その他** - SCSS/JS/画像を使用するシンプルなフロントエンドプロジェクト
 
 ## 開発コマンド
+
+### 案件の診断
+
+```bash
+npx dai-runner doctor
+```
+
+Node.js と dai-runner のバージョン、`package.json` の pin、dev/build 設定、未知の設定キー、
+`paths.*.src` / `paths.*.dist`、画像キャッシュの状態を診断します。`--latest <version>`
+を付けると、ネットワークへ接続せず指定バージョンと pin を比較できます。NG がある場合は終了コード 1（WARN だけなら 0）です。
 
 ### 開発モード
 
@@ -501,6 +518,20 @@ smoke は `npm run build` の成果物が build 設定どおりか（sourceMap /
 WebP）を見たあと、 `npm run dev`
 を起動して SCSS の変更・パーシャル追加・JS 変更・画像追加・削除を順に発生させ、成果物が追従するかを確認します。触ったファイルは自動で戻します。push すると GitHub
 Actions でも同じ `npm run check` が走ります。
+
+### リリース
+
+`main` のクリーンな作業ツリーで、更新種別を指定して実行します。
+
+```bash
+npm run release -- patch
+npm run release -- minor --dry-run  # ファイルやGitを変更せず実行予定を確認
+```
+
+release スクリプトは `npm run check`、CHANGELOG の `## [Unreleased]` 検査、package.json /
+package-lock.json / README の更新、コミット、annotated tag、push、GitHub
+Release 作成を順に行います。検査を意図的に省略する場合だけ `--skip-check`
+を指定でき、その場合は WARN を表示します。
 
 ### このリポジトリで動作確認する
 

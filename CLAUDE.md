@@ -19,8 +19,16 @@ npm run check   # lint → 整形チェック → 単体テスト → smoke（�
 
 ## リリース手順
 
-`.cursor/rules/versioning.mdc` のとおり（package.json / CHANGELOG.md / README.md を更新 → commit →
-annotated tag → push）。新機能を足したら `dai-runner.config.js.example` も更新する。
+CHANGELOG.md の `## [Unreleased]` に変更内容を書き、main のクリーンな作業ツリーで次を実行する。
+
+```bash
+npm run release -- <patch|minor|major>
+```
+
+`npm run check`、package.json / package-lock.json / CHANGELOG.md /
+README.md の更新、commit、annotated tag、push、GitHub
+Release 作成まで release が自動で行う。事前確認は `--dry-run`、check を意図的に省く場合は
+`--skip-check` を使う。新機能を足したら `dai-runner.config.js.example` も更新する。
 
 ## 設計上の約束
 

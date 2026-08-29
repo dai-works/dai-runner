@@ -5,6 +5,25 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [Unreleased]
+
+### 追加
+
+- `npm run release -- patch|minor|major` で事前検査、バージョン更新、コミット、タグ、push、GitHub
+  Release 作成を一括実行するリリーススクリプトを追加
+- `npx dai-runner doctor`
+  で Node.js、利用バージョン、pin、設定ファイル、未知のキー、入出力パス、画像キャッシュを診断するコマンドを追加
+
+### 変更
+
+- バージョン更新手順を release スクリプトによる自動処理へ統一
+- package.json、package-lock.json、CHANGELOG、README のバージョン整合性を単体テストで検証
+
+### 内部
+
+- release のバージョン計算・CHANGELOG/README 置換・コミットメッセージ生成と、doctor の pin 抽出・バージョン比較・未知キー検出を純関数化してテストを追加
+- ネットワークを使わず release の実行予定を確認できる `--dry-run` 経路を追加
+
 ## [2.0.1] - 2026-08-29
 
 ### 修正
