@@ -5,7 +5,7 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
-## [Unreleased]
+## [2.1.0] - 2026-08-29
 
 ### 追加
 
@@ -22,9 +22,7 @@
 ### 内部
 
 - release のバージョン計算・CHANGELOG/README 置換・コミットメッセージ生成と、doctor の pin 抽出・バージョン比較・未知キー検出を純関数化してテストを追加
-- ネットワークを使わず release の実行予定を確認できる `--dry-run` 経路を追加
-
-## [2.0.1] - 2026-08-29
+- ネットワークを使わず release の実行予定を確認できる `--dry-run` 経路を追加## [2.0.1] - 2026-08-29
 
 ### 修正
 
