@@ -533,9 +533,9 @@ npm run release -- patch
 npm run release -- minor --dry-run  # ファイルやGitを変更せず実行予定を確認
 ```
 
-release スクリプトは `npm run check`、CHANGELOG の `## [Unreleased]` 検査、package.json /
-package-lock.json / README の更新、コミット、annotated tag、push、GitHub
-Release 作成を順に行います。検査を意図的に省略する場合だけ `--skip-check`
+release スクリプトは CHANGELOG の `## [Unreleased]` 検査、package.json / package-lock.json /
+README の更新、整形、`npm run check`（失敗したら更新を戻して中止）、コミット、annotated
+tag、push、GitHub Release 作成を順に行います。検査を意図的に省略する場合だけ `--skip-check`
 を指定でき、その場合は WARN を表示します。
 
 ### このリポジトリで動作確認する

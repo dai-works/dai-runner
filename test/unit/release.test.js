@@ -36,6 +36,31 @@ test('Unreleasedを新版へ置換し、コミットメッセージを作る', (
     ),
     'v2.1.0: 長い説明の 続き'
   );
+  // 次の見出しとの間に空行が保たれ、見出しが前の行に潰れない
+  assert.match(result.content, /- doctor を追加\n\n## \[2\.0\.1\]/);
+  assert.equal(
+    replaceUnreleasedSection(
+      '## [Unreleased]\n\n### 追加\n\n- x\n',
+      '1.0.1',
+      'd'
+    ).content,
+    '## [1.0.1] - d\n\n### 追加\n\n- x\n'
+  );
+  // 要約は最初の文まで・72 文字で切る
+  assert.equal(
+    createCommitMessage(
+      '## [1.0.1] - d\n\n### 修正\n\n- 一文目。二文目は入らない\n',
+      '1.0.1'
+    ),
+    'v1.0.1: 一文目'
+  );
+  assert.equal(
+    createCommitMessage(
+      `## [1.0.1] - d\n\n### 修正\n\n- ${'あ'.repeat(80)}\n`,
+      '1.0.1'
+    ).length,
+    'v1.0.1: '.length + 72
+  );
   assert.throws(
     () => replaceUnreleasedSection('# 変更履歴\n', '2.1.0', '2026-08-29'),
     /Unreleased/

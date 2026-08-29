@@ -46,8 +46,11 @@ function replaceUnreleasedSection(changelog, newVersion, date) {
 
   const heading = `## [${newVersion}] - ${date}`;
   const section = `${heading}\n\n${body}`;
+  // 次の見出しとの間に必ず空行を置く（末尾なら改行 1 つで終える）
+  const rest = changelog.slice(sectionEnd).replace(/^\n*/, '');
+  const tail = rest ? `\n\n${rest}` : '\n';
   return {
-    content: `${changelog.slice(0, sectionStart)}${section}${changelog.slice(sectionEnd)}`,
+    content: `${changelog.slice(0, sectionStart)}${section}${tail}`,
     section,
   };
 }
@@ -82,7 +85,14 @@ function createCommitMessage(section, newVersion) {
     if (!line || /^([-*]\s|#|\d+\.\s)/.test(line)) break;
     parts.push(line);
   }
-  return `v${newVersion}: ${parts.join(' ')}`;
+  const joined = parts.join(' ');
+  // 要約は最初の文（「。」まで）に留め、長ければ 72 文字で切る
+  const firstSentence = joined.split('。')[0];
+  const summary =
+    firstSentence.length > 72
+      ? `${firstSentence.slice(0, 71)}…`
+      : firstSentence;
+  return `v${newVersion}: ${summary}`;
 }
 
 function run(command, args, options = {}) {
@@ -152,11 +162,6 @@ async function release({
   }
 
   assertRepositoryReady(cwd, runCommand, { dryRun });
-  if (skipCheck) {
-    console.warn('WARN npm run check をスキップします');
-  } else {
-    runCommand('npm', ['run', 'check'], { cwd, inherit: true });
-  }
 
   const packagePath = path.join(cwd, 'package.json');
   const packageLockPath = path.join(cwd, 'package-lock.json');
@@ -201,7 +206,9 @@ async function release({
     spawnSync('gh', ['--version'], { stdio: 'ignore' }).status === 0;
 
   if (dryRun) {
-    console.log('DRY RUN: ファイルの書き換えとコマンド実行は行いません');
+    console.log(
+      'DRY RUN: ファイルの書き換え・整形・検査・コマンド実行は行いません'
+    );
     console.log(`version: ${packageJson.version} -> ${newVersion}`);
     console.log(`README の置換行数: ${readmeResult.count}`);
     console.log(`コミットメッセージ: ${commitMessage}`);
@@ -230,6 +237,32 @@ async function release({
   );
   fs.writeFileSync(changelogPath, changelogResult.content);
   fs.writeFileSync(readmePath, readmeResult.content);
+
+  // 書き換えたファイルを整形してから検査する。検査に落ちたら書き換えを戻して中止
+  const touched = [
+    'package.json',
+    'package-lock.json',
+    'CHANGELOG.md',
+    'README.md',
+  ];
+  try {
+    runCommand('npx', ['prettier', '--write', ...touched], {
+      cwd,
+      inherit: true,
+    });
+    if (skipCheck) {
+      console.warn('WARN npm run check をスキップします');
+    } else {
+      runCommand('npm', ['run', 'check'], { cwd, inherit: true });
+    }
+  } catch (error) {
+    runCommand('git', ['checkout', '--', ...touched], { cwd, inherit: true });
+    throw new Error(
+      `検査に失敗したためリリースを中止し、ファイルの書き換えを戻しました: ${error.message}`,
+      { cause: error }
+    );
+  }
+
   for (const [command, commandArgs] of gitCommands) {
     runCommand(command, commandArgs, { cwd, inherit: true });
   }

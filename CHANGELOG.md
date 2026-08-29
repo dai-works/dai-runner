@@ -5,6 +5,17 @@
 このフォーマットは [Keep a Changelog](https://keepachangelog.com/ja/1.0.0/)
 に基づいており、バージョニングは [Semantic Versioning](https://semver.org/lang/ja/) に従います。
 
+## [Unreleased]
+
+### 修正
+
+- `npm run release` が CHANGELOG の `## [Unreleased]`
+  を置換する際に次の見出しとの空行を落とし、見出しが前の行に潰れていた問題を修正（v2.2.0 の CHANGELOG も修復）
+- release が書き換えたファイル（CHANGELOG / README / package.json /
+  package-lock.json）を prettier に通してからコミットするよう修正。`npm run check`
+  はファイル更新の後・コミットの前に実行し、失敗したら更新を戻して中止する（更新自体の不整合も検出できる）
+- release のコミット要約を最初の文（「。」まで、最大 72 文字）に短縮
+
 ## [2.2.0] - 2026-08-29
 
 ### 追加
@@ -21,7 +32,9 @@
 - 前回ビルドのオプションと dai-runner のバージョンを `.dai-runner/last-build.json`
   に記録し、差分判定に使う
 - `mapWithConcurrency`
-  と差分判定の回帰テストを追加（スキップ・パーシャル変更・エントリ削除の残骸・オプション変更・設定ファイル更新・本番ビルド）## [2.1.0] - 2026-08-29
+  と差分判定の回帰テストを追加（スキップ・パーシャル変更・エントリ削除の残骸・オプション変更・設定ファイル更新・本番ビルド）
+
+## [2.1.0] - 2026-08-29
 
 ### 追加
 
@@ -38,7 +51,9 @@
 ### 内部
 
 - release のバージョン計算・CHANGELOG/README 置換・コミットメッセージ生成と、doctor の pin 抽出・バージョン比較・未知キー検出を純関数化してテストを追加
-- ネットワークを使わず release の実行予定を確認できる `--dry-run` 経路を追加## [2.0.1] - 2026-08-29
+- ネットワークを使わず release の実行予定を確認できる `--dry-run` 経路を追加
+
+## [2.0.1] - 2026-08-29
 
 ### 修正
 
