@@ -6,6 +6,7 @@ import Logger from '../../utils/Logger.js';
 import { optimize } from 'svgo';
 import CacheManager from '../../utils/CacheManager.js';
 import { DEFAULTS } from '../../utils/defaults.js';
+import { toPosix } from '../../utils/paths.js';
 
 /**
  * 画像最適化を行うモジュール
@@ -31,7 +32,7 @@ export async function optimizeImages(srcDir, distDir, options = {}) {
     // 単一ファイルの処理か全ファイルの処理かを判断
     const srcPaths = options.filePath
       ? [options.filePath]
-      : await glob(path.join(srcDir, '**', '*').replace(/\\/g, '/'), {
+      : await glob(toPosix(path.join(srcDir, '**', '*')), {
           nodir: true,
         });
 

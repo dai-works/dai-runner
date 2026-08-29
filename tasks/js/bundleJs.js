@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { glob } from 'glob';
 import Logger from '../../utils/Logger.js';
+import { toPosix } from '../../utils/paths.js';
 
 /**
  * JavaScriptファイルをバンドルする関数
@@ -18,12 +19,9 @@ import Logger from '../../utils/Logger.js';
 export async function bundleJs(srcDir, distDir, options = {}) {
   try {
     // エントリーポイントファイルを探す
-    const entryPoints = await glob(
-      path.join(srcDir, '*.js').replace(/\\/g, '/'),
-      {
-        nodir: true,
-      }
-    );
+    const entryPoints = await glob(toPosix(path.join(srcDir, '*.js')), {
+      nodir: true,
+    });
 
     if (entryPoints.length === 0) {
       Logger.log('WARN', `エントリーポイントが見つかりません: ${srcDir}`);

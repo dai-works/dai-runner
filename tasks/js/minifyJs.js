@@ -3,6 +3,7 @@ import path from 'path';
 import { glob } from 'glob';
 import { minify } from 'terser';
 import Logger from '../../utils/Logger.js';
+import { toPosix } from '../../utils/paths.js';
 
 /**
  * JavaScriptファイルの圧縮を行うモジュール
@@ -29,7 +30,7 @@ export async function minifyJs(srcDir, distDir, filePath = null, options = {}) {
 
     const srcPaths = filePath
       ? [filePath]
-      : await glob(path.join(sourcePath, '**', '*.js').replace(/\\/g, '/'), {
+      : await glob(toPosix(path.join(sourcePath, '**', '*.js')), {
           nodir: true,
         });
 

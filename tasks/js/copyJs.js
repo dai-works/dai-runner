@@ -2,12 +2,13 @@ import fs from 'fs/promises';
 import path from 'path';
 import { glob } from 'glob';
 import Logger from '../../utils/Logger.js';
+import { toPosix } from '../../utils/paths.js';
 
 export async function copyJs(srcDir, distDir, filePath) {
   try {
     const srcPaths = filePath
       ? [filePath]
-      : await glob(path.join(srcDir, '**', '*.js').replace(/\\/g, '/'), {
+      : await glob(toPosix(path.join(srcDir, '**', '*.js')), {
           nodir: true,
         });
 

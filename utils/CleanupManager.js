@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import Logger from './Logger.js';
+import { toPosix } from './paths.js';
 
 /**
  * ディレクトリのクリーンアップを管理するクラス
@@ -19,8 +20,8 @@ export default class CleanupManager {
 
     return excludeFiles.some((pattern) => {
       // パスの正規化（先頭のスラッシュを削除）
-      const normalizedPath = filePath.replace(/^\/+/, '');
-      const normalizedPattern = pattern.replace(/^\/+/, '');
+      const normalizedPath = toPosix(filePath).replace(/^\/+/, '');
+      const normalizedPattern = toPosix(pattern).replace(/^\/+/, '');
 
       // 完全一致チェック
       if (normalizedPath === normalizedPattern) {
@@ -227,7 +228,10 @@ export default class CleanupManager {
     for (const distRelPath of distFiles) {
       if (expected.has(distRelPath)) continue;
 
-      const fullDistPath = path.posix.join(distDir, distRelPath);
+      const fullDistPath = path.posix.join(
+        toPosix(distDir),
+        toPosix(distRelPath)
+      );
       // excludeFiles はテーマルートからの相対パス想定なので distDir と結合して比較
       if (this.shouldExclude(fullDistPath, excludeFiles)) {
         Logger.log('INFO', `孤立画像（除外設定により保持）: ${fullDistPath}`);

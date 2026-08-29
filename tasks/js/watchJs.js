@@ -15,6 +15,71 @@ import { createWatcher } from '../../utils/createWatcher.js';
 import { errorOverlayJs } from './errorOverlay.js';
 
 /**
+ * 追加・変更されたJavaScriptファイルを処理する
+ * @param {string} filePath - 変更されたファイル
+ * @param {Object} config - 処理設定
+ * @param {string} config.srcDir - 入力元ディレクトリ
+ * @param {string} config.distDir - 出力先ディレクトリ
+ * @param {Object} config.options - JavaScriptビルドオプション
+ */
+async function processJs(filePath, { srcDir, distDir, options = {} }) {
+  const mergedOptions = { ...DEFAULTS.js, ...options };
+
+  if (mergedOptions.bundle) {
+    try {
+      await bundleJs(srcDir, distDir, {
+        sourcemap: mergedOptions.sourceMap,
+        dropConsole: mergedOptions.dropConsole,
+        minify: mergedOptions.minify,
+      });
+    } catch (err) {
+      const failedEntry = err.entryPoint || filePath;
+      const distPath = path.join(distDir, path.basename(failedEntry));
+      await fs.mkdir(path.dirname(distPath), { recursive: true });
+      await fs.writeFile(
+        distPath,
+        errorOverlayJs({
+          file: path.relative(process.cwd(), filePath),
+          message: err.message,
+        })
+      );
+    }
+    return;
+  }
+
+  if (mergedOptions.minify) {
+    await minifyJs(srcDir, distDir, filePath, {
+      dropConsole: mergedOptions.dropConsole,
+    });
+  } else {
+    await copyJs(srcDir, distDir, filePath);
+    // フォーマットはVS Code Prettier拡張が担当
+  }
+}
+
+/**
+ * 削除されたJavaScriptファイルの成果物を整理する
+ * bundleモードでは残ったエントリーポイントを再バンドルする
+ * @param {string} filePath - 削除されたファイル
+ * @param {Object} config - 処理設定
+ * @param {string} config.srcDir - 入力元ディレクトリ
+ * @param {string} config.distDir - 出力先ディレクトリ
+ * @param {Object} config.options - JavaScriptビルドオプション
+ */
+async function handleJsUnlink(filePath, { srcDir, distDir, options = {} }) {
+  const mergedOptions = { ...DEFAULTS.js, ...options };
+  const distPath = path.join(distDir, path.relative(srcDir, filePath));
+
+  // エントリーポイント削除時に残る同名ファイルとソースマップも含めて削除する
+  await fs.unlink(distPath).catch(() => {});
+  await fs.unlink(`${distPath}.map`).catch(() => {});
+
+  if (mergedOptions.bundle) {
+    await processJs(filePath, { srcDir, distDir, options: mergedOptions });
+  }
+}
+
+/**
  * JavaScriptファイルの監視を開始
  *
  * @param {Object} config - 設定オブジェクト
@@ -33,45 +98,6 @@ export function watchJs({ paths, options = {} } = {}) {
     const srcDir = paths.src;
     const distDir = paths.dist;
 
-    /**
-     * 追加・変更されたファイルを処理する（add と change で共通）
-     * バンドル時は minify も bundleJs に渡す。バンドル後に minifyJs を別途かけると、
-     * 未バンドルの source/js を圧縮したもので dist のバンドルを上書きしてしまう。
-     * @param {string} filePath
-     */
-    async function processJs(filePath) {
-      if (mergedOptions.bundle) {
-        try {
-          await bundleJs(srcDir, distDir, {
-            sourcemap: mergedOptions.sourceMap,
-            dropConsole: mergedOptions.dropConsole,
-            minify: mergedOptions.minify,
-          });
-        } catch (err) {
-          const failedEntry = err.entryPoint || filePath;
-          const distPath = path.join(distDir, path.basename(failedEntry));
-          await fs.writeFile(
-            distPath,
-            errorOverlayJs({
-              file: path.relative(process.cwd(), filePath),
-              message: err.message,
-            })
-          );
-        }
-        return;
-      }
-
-      // 従来の処理（バンドルなし）
-      if (mergedOptions.minify) {
-        await minifyJs(srcDir, distDir, filePath, {
-          dropConsole: mergedOptions.dropConsole,
-        });
-      } else {
-        await copyJs(srcDir, distDir, filePath);
-        // フォーマットはVS Code Prettier拡張が担当
-      }
-    }
-
     // 非同期リスナ内の例外は誰も拾わないので、ここで必ず握って監視を継続する
     const watcher = createWatcher(srcDir, {
       extensions: ['.js'],
@@ -83,14 +109,22 @@ export function watchJs({ paths, options = {} } = {}) {
         );
         const distPath = path.join(distDir, path.relative(srcDir, filePath));
         await fs.mkdir(path.dirname(distPath), { recursive: true });
-        await processJs(filePath);
+        await processJs(filePath, {
+          srcDir,
+          distDir,
+          options: mergedOptions,
+        });
       },
       onChange: async (filePath) => {
         Logger.log(
           'INFO',
           `JSファイルが更新されました: ${path.relative(process.cwd(), filePath)}`
         );
-        await processJs(filePath);
+        await processJs(filePath, {
+          srcDir,
+          distDir,
+          options: mergedOptions,
+        });
       },
       onUnlink: async (filePath) => {
         Logger.log(
@@ -98,11 +132,11 @@ export function watchJs({ paths, options = {} } = {}) {
           `JSファイルが削除されました: ${path.relative(process.cwd(), filePath)}`
         );
 
-        const distPath = path.join(distDir, path.relative(srcDir, filePath));
-
-        // 対応する出力ファイルとソースマップを削除
-        await fs.unlink(distPath).catch(() => {});
-        await fs.unlink(`${distPath}.map`).catch(() => {});
+        await handleJsUnlink(filePath, {
+          srcDir,
+          distDir,
+          options: mergedOptions,
+        });
       },
     });
 
@@ -120,3 +154,5 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 }
 
 export default watchJs;
+
+export { handleJsUnlink, processJs };

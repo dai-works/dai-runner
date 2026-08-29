@@ -5,6 +5,7 @@ import path from 'path';
 import { glob } from 'glob';
 import { DEFAULTS } from '../../utils/defaults.js';
 import { cssDistPath } from './cssDistPath.js';
+import { toPosix } from '../../utils/paths.js';
 
 export async function buildCss({ paths, options = {} } = {}) {
   TaskRunner.validateRequiredParams({ paths }, ['paths']);
@@ -17,7 +18,7 @@ export async function buildCss({ paths, options = {} } = {}) {
     await initScss(paths.src);
 
     // ルート直下の非アンダースコア .scss のみをエントリとしてビルド
-    const srcGlob = path.join(paths.src, '[!_]*.scss').replace(/\\/g, '/');
+    const srcGlob = toPosix(path.join(paths.src, '[!_]*.scss'));
     const srcPaths = await glob(srcGlob, { nodir: true });
 
     for (const srcPath of srcPaths) {

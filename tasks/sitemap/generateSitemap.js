@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { glob } from 'glob';
 import Logger from '../../utils/Logger.js';
+import { toPosix } from '../../utils/paths.js';
 
 /**
  * HTMLファイルからURLのリストを生成
@@ -10,12 +11,14 @@ import Logger from '../../utils/Logger.js';
  * @returns {Promise<Array<string>>} - URLパスのリスト
  */
 async function collectHtmlFiles(sourceDir, excludePatterns = []) {
-  const pattern = path.join(sourceDir, '**/*.html');
+  const pattern = toPosix(path.join(sourceDir, '**/*.html'));
 
   try {
     // HTMLファイルを検索
     const files = await glob(pattern, {
-      ignore: excludePatterns.map((pattern) => path.join(sourceDir, pattern)),
+      ignore: excludePatterns.map((pattern) =>
+        toPosix(path.join(sourceDir, pattern))
+      ),
     });
 
     // ソースディレクトリからの相対パスに変換

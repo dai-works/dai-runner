@@ -4,7 +4,7 @@
 
 ## インストール
 
-Node.js **20.19 以上**が必要です（v2.0.0〜）。
+Node.js **20.19 以上**が必要です（v2.0.1〜）。
 
 ### GitHub リポジトリからのインストール
 
@@ -19,7 +19,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 ```json
 {
   "devDependencies": {
-    "@dai-works/dai-runner": "github:dai-works/dai-runner#v2.0.0"
+    "@dai-works/dai-runner": "github:dai-works/dai-runner#v2.0.1"
   }
 }
 ```
@@ -27,7 +27,7 @@ npm install --save-dev https://github.com/dai-works/dai-runner.git
 特定のバージョン（タグ）を指定する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v2.0.0
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v2.0.1
 ```
 
 ### 初回セットアップ
@@ -455,7 +455,7 @@ npm update @dai-works/dai-runner
 特定のバージョン（タグ）に更新する場合：
 
 ```bash
-npm install --save-dev https://github.com/dai-works/dai-runner.git#v2.0.0
+npm install --save-dev https://github.com/dai-works/dai-runner.git#v2.0.1
 ```
 
 ## プログラマティックな使用方法

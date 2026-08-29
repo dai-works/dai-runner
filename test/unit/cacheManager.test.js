@@ -77,3 +77,19 @@ test('ファイル変更時は再処理し、旧形式manifestもハッシュで
   oldManager.manifest.files[src] = { hash, distPath: dist };
   assert.equal(await oldManager.shouldProcessFile(src, dist, options), false);
 });
+
+test('設定ハッシュはキー順に依存せず、値の違いを検出する', () => {
+  const manager = new CacheManager();
+  const first = { quality: 80, nested: { webp: true, avif: false } };
+  const reordered = { nested: { avif: false, webp: true }, quality: 80 };
+  const changed = { quality: 90, nested: { webp: true, avif: false } };
+
+  assert.equal(
+    manager.getOptionsHash(first),
+    manager.getOptionsHash(reordered)
+  );
+  assert.notEqual(
+    manager.getOptionsHash(first),
+    manager.getOptionsHash(changed)
+  );
+});

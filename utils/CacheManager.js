@@ -103,8 +103,21 @@ export default class CacheManager {
    * @returns {string} SHA256ハッシュ
    */
   getOptionsHash(options) {
-    // 設定を正規化してJSON文字列化
-    const normalized = JSON.stringify(options, Object.keys(options).sort());
+    // オブジェクトが入れ子でもキー順に影響されないよう再帰的に正規化する
+    const sortKeys = (value) => {
+      if (Array.isArray(value)) {
+        return value.map(sortKeys);
+      }
+      if (value && typeof value === 'object') {
+        return Object.fromEntries(
+          Object.keys(value)
+            .sort()
+            .map((key) => [key, sortKeys(value[key])])
+        );
+      }
+      return value;
+    };
+    const normalized = JSON.stringify(sortKeys(options));
     return crypto.createHash('sha256').update(normalized).digest('hex');
   }
 
