@@ -29,7 +29,8 @@ import Logger from '../../utils/Logger.js';
  * @param {Object} [deps.options] - コンパイルオプション（compile にそのまま渡す）
  * @param {Set<string>} deps.mainFiles - メインファイルの集合（watchCss が管理）
  * @param {(file: string, paths: Object, options: Object) => Promise<void>} deps.compile
- * @param {(srcDir: string) => Promise<string[]|void>} deps.reindex - _index.scss を作り直し、書いたパスを返す
+ * @param {(srcDir: string, hooks: { onWrite: (file: string) => void }) => Promise<string[]|void>} deps.reindex
+ *   - _index.scss を作り直す。書き込む直前に hooks.onWrite を呼び、書いたパスを返す
  * @param {number} [deps.debounceMs=300] - 最後のイベントからこの時間静かになったら走らせる
  * @param {number} [deps.maxWaitMs=2000] - 最初の依頼からこの時間が過ぎたら静かでなくても走らせる
  * @param {number} [deps.selfWriteGraceMs=5000] - 自分が書いた _index.scss のイベントを無視する猶予
@@ -149,10 +150,17 @@ export function createScssScheduler({
     state.firstRequestAt = null;
 
     if (reindexNow) {
-      const written = (await reindex(srcDir)) || [];
-      const now = Date.now();
+      // 書き込む「前」に登録する。監視のイベントは reindex が終わる前に届くことがある
+      const registered = new Set();
+      const remember = (file) => {
+        const key = path.resolve(file);
+        registered.add(key);
+        state.selfWrites.set(key, Date.now());
+      };
+      const written = (await reindex(srcDir, { onWrite: remember })) || [];
+      // onWrite を呼ばない reindex 実装のための保険（登録済みのものは、途中で消費されていても再登録しない）
       for (const file of written) {
-        state.selfWrites.set(path.resolve(file), now);
+        if (!registered.has(path.resolve(file))) remember(file);
       }
     }
 

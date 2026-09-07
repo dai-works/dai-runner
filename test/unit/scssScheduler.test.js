@@ -98,6 +98,34 @@ test('自分が書いた _index.scss のイベントは 1 回だけ無視し、�
   assert.equal(scheduler.consumeSelfWrite('/src/modules/_foo.scss'), false);
 });
 
+test('reindex の途中で届いたイベントでも自己書き込みと分かる（書き込み前に登録）', async () => {
+  const seenDuringReindex = [];
+  const scheduler = createScssScheduler({
+    srcDir: '/src',
+    paths: {},
+    mainFiles: new Set(['/src/style.scss']),
+    compile: async () => {},
+    reindex: async (_srcDir, { onWrite }) => {
+      onWrite('/src/modules/m-new/_index.scss');
+      // 実際の監視ではここ（書き込み直後、reindex 完了前）で add イベントが届く
+      seenDuringReindex.push(
+        scheduler.consumeSelfWrite('/src/modules/m-new/_index.scss')
+      );
+      await sleep(10);
+      return ['/src/modules/m-new/_index.scss'];
+    },
+    debounceMs: 5,
+  });
+  scheduler.request({ reindex: true });
+  await scheduler.flush();
+  assert.deepEqual(seenDuringReindex, [true]);
+  // 消費済みなので、戻り値から再登録されない
+  assert.equal(
+    scheduler.consumeSelfWrite('/src/modules/m-new/_index.scss'),
+    false
+  );
+});
+
 test('猶予を過ぎた自己書き込みは無視しない', async () => {
   const { scheduler } = makeScheduler({
     written: ['/src/modules/_index.scss'],

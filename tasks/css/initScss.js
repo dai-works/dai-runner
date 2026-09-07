@@ -6,10 +6,18 @@ import Logger from '../../utils/Logger.js';
 /**
  * サブディレクトリごとの _index.scss を作る・更新する
  * @param {string} srcDir - SCSS のソースディレクトリ
- * @returns {Promise<string[]>} 実際に書き込んだ _index.scss のパス（監視側が自分の書き込みを見分けるため）
+ * @param {Object} [hooks]
+ * @param {(indexPath: string) => void} [hooks.onWrite] - 書き込む直前に呼ぶ。監視側が自分の書き込みを見分けるために使う
+ *   （書き込み後に返すだけだと、ファイル監視のイベントが initScss の完了より先に届いて見分けられない）
+ * @returns {Promise<string[]>} 実際に書き込んだ _index.scss のパス
  */
-export async function initScss(srcDir) {
+export async function initScss(srcDir, { onWrite } = {}) {
   const written = [];
+  const write = async (indexPath, content) => {
+    onWrite?.(indexPath);
+    await fs.writeFile(indexPath, content);
+    written.push(indexPath);
+  };
   try {
     Logger.log('INFO', '_index.scssの作成を開始します...');
 
@@ -63,8 +71,7 @@ export async function initScss(srcDir) {
       const relIndexPath = path.relative(process.cwd(), indexPath);
       const existing = await fs.readFile(indexPath, 'utf8').catch(() => null);
       if (existing === null) {
-        await fs.writeFile(indexPath, indexContent);
-        written.push(indexPath);
+        await write(indexPath, indexContent);
         Logger.log('INFO', `_index.scssを作成しました: ${relIndexPath}`);
       } else if (!existing.startsWith(header)) {
         Logger.log(
@@ -72,8 +79,7 @@ export async function initScss(srcDir) {
           `_index.scssが手書きのため更新しません（自動生成に戻すには先頭行を「${header.trim()}」にしてください）: ${relIndexPath}`
         );
       } else if (existing !== indexContent) {
-        await fs.writeFile(indexPath, indexContent);
-        written.push(indexPath);
+        await write(indexPath, indexContent);
         Logger.log('INFO', `_index.scssを更新しました: ${relIndexPath}`);
       }
     }
