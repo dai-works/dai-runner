@@ -3,7 +3,13 @@ import path from 'path';
 import { glob } from 'glob';
 import Logger from '../../utils/Logger.js';
 
+/**
+ * サブディレクトリごとの _index.scss を作る・更新する
+ * @param {string} srcDir - SCSS のソースディレクトリ
+ * @returns {Promise<string[]>} 実際に書き込んだ _index.scss のパス（監視側が自分の書き込みを見分けるため）
+ */
 export async function initScss(srcDir) {
+  const written = [];
   try {
     Logger.log('INFO', '_index.scssの作成を開始します...');
 
@@ -58,6 +64,7 @@ export async function initScss(srcDir) {
       const existing = await fs.readFile(indexPath, 'utf8').catch(() => null);
       if (existing === null) {
         await fs.writeFile(indexPath, indexContent);
+        written.push(indexPath);
         Logger.log('INFO', `_index.scssを作成しました: ${relIndexPath}`);
       } else if (!existing.startsWith(header)) {
         Logger.log(
@@ -66,11 +73,13 @@ export async function initScss(srcDir) {
         );
       } else if (existing !== indexContent) {
         await fs.writeFile(indexPath, indexContent);
+        written.push(indexPath);
         Logger.log('INFO', `_index.scssを更新しました: ${relIndexPath}`);
       }
     }
 
     Logger.log('SUCCESS', '_index.scssの作成が完了しました');
+    return written;
   } catch (err) {
     Logger.log('ERROR', '_index.scssの作成に失敗しました:', err);
     throw err;
